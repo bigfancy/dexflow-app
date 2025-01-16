@@ -1,6 +1,10 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { Contract } from "ethers";
+import fs from 'fs';
+import path from 'path';
+
+const ADDRESS_FILE = path.join(__dirname, '../config/contracts.json');
 
 /**
  * Deploys a contract named "YourContract" using the deployer account and
@@ -9,149 +13,97 @@ import { Contract } from "ethers";
  * @param hre HardhatRuntimeEnvironment object.
  */
 const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  /*
-    On localhost, the deployer account is the one that comes with Hardhat, which is already funded.
-
-    When deploying to live networks (e.g `yarn deploy --network sepolia`), the deployer account
-    should have sufficient balance to pay for the gas fees for contract creation.
-
-    You can generate a random account with `yarn generate` or `yarn account:import` to import your
-    existing PK which will fill DEPLOYER_PRIVATE_KEY_ENCRYPTED in the .env file (then used on hardhat.config.ts)
-    You can run the `yarn account` command to check your balance in every network.
-  */
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
+  const deployedAddresses: Record<string, string> = {};
 
-
-  // 部署 DANFT 合约
-await deploy("DFNFT", {
+  // Deploy DFNFT contract
+  const dfnftDeployment = await deploy("DFNFT", {
     from: deployer,
-    args: [deployer], // 传递合约构造函数参数
+    args: [deployer],
     log: true,
     autoMine: true,
-});
+  });
+  deployedAddresses.DFNFT = dfnftDeployment.address;
 
-const dfnft = await hre.ethers.getContract<Contract>("DFNFT", deployer);
-
-// 部署 DAToken 合约
-await deploy("DFToken", {
+  // Deploy DFToken contract
+  const dfTokenDeployment = await deploy("DFToken", {
     from: deployer,
-    args: [1000000, deployer], // 传递初始供应量和所有者地址
+    args: [1000000, deployer],
     log: true,
     autoMine: true,
-});
+  });
+  deployedAddresses.DFToken = dfTokenDeployment.address;
 
-const dfToken = await hre.ethers.getContract<Contract>("DFToken", deployer);
-await dfToken.waitForDeployment();
-
-await deploy("WETH", {
-  from: deployer,
-  args: [], // 传递合约构造函数参数
-  log: true,
-  autoMine: true,
-});
-
-const weth = await hre.ethers.getContract<Contract>("WETH", deployer);
-await weth.waitForDeployment();
-
-
-//UniswapV2Factory
-//UniswapV2Pair
-//UniswapV2Router
-//UniswapV2Query
-//AirDrop
-//AdAlliance
-//WETH
-
-await deploy("Airdrop", {
-  from: deployer,
-  args: [], // 传递合约构造函数参数
-  log: true,
-  autoMine: true,
-});
-
-const airDrop = await hre.ethers.getContract<Contract>("Airdrop", deployer);
-await airDrop.waitForDeployment();
-
-
-await deploy("AdAlliance", {
-  from: deployer,
-  args: [dfToken.target], // 传递合约构造函数参数
-  log: true,
-  autoMine: true,
-});
-
-const adAlliance = await hre.ethers.getContract<Contract>("AdAlliance", deployer);
-await adAlliance.waitForDeployment();
-
-
-
-await deploy("UniswapV2Factory", {
-  from: deployer,
-  args: [deployer], // 传递合约构造函数参数
-  log: true,
-  autoMine: true,
-});
-
-const uniswapV2Factory = await hre.ethers.getContract<Contract>("UniswapV2Factory", deployer);
-await uniswapV2Factory.waitForDeployment();
-
-
-await deploy("UniswapV2Router", {
-  from: deployer,
-  args: [uniswapV2Factory.target, weth.target], // 传递合约构造函数参数
-  log: true,
-  autoMine: true,
-});
-
-const uniswapV2Router = await hre.ethers.getContract<Contract>("UniswapV2Router", deployer);
-await uniswapV2Router.waitForDeployment();
-
-
-await deploy("UniswapV2Query", {
-  from: deployer,
-  args: [uniswapV2Factory.target], // 传递合约构造函数参数
-  log: true,
-  autoMine: true,
-});
-
-const uniswapV2Query = await hre.ethers.getContract<Contract>("UniswapV2Query", deployer);
-await uniswapV2Query.waitForDeployment();
-
-
-
-
-
-// Get the deployed contract to interact with it after deploying.
-// const yourContract = await hre.ethers.getContract<Contract>("YourContract", deployer);
-// console.log("👋 Initial greeting:", await yourContract.greeting());
-
-  
-await deploy("EnglishAuction", {
+  // Deploy WETH contract
+  const wethDeployment = await deploy("WETH", {
     from: deployer,
-    args: [dfToken.target], // 传递合约构造函数参数
+    args: [],
     log: true,
     autoMine: true,
-});
+  });
+  deployedAddresses.WETH = wethDeployment.address;
 
-const englishAuction = await hre.ethers.getContract<Contract>("EnglishAuction", deployer);
-await englishAuction.waitForDeployment();
+  // Deploy Airdrop contract
+  const airDropDeployment = await deploy("Airdrop", {
+    from: deployer,
+    args: [],
+    log: true,
+    autoMine: true,
+  });
+  deployedAddresses.Airdrop = airDropDeployment.address;
 
+  // Deploy AdAlliance contract
+  const adAllianceDeployment = await deploy("AdAlliance", {
+    from: deployer,
+    args: [deployedAddresses.DFToken],
+    log: true,
+    autoMine: true,
+  });
+  deployedAddresses.AdAlliance = adAllianceDeployment.address;
+
+  // Deploy UniswapV2Factory contract
+  const uniswapV2FactoryDeployment = await deploy("UniswapV2Factory", {
+    from: deployer,
+    args: [deployer],
+    log: true,
+    autoMine: true,
+  });
+  deployedAddresses.UniswapV2Factory = uniswapV2FactoryDeployment.address;
+
+  // Deploy UniswapV2Router contract
+  const uniswapV2RouterDeployment = await deploy("UniswapV2Router", {
+    from: deployer,
+    args: [deployedAddresses.UniswapV2Factory, deployedAddresses.WETH],
+    log: true,
+    autoMine: true,
+  });
+  deployedAddresses.UniswapV2Router = uniswapV2RouterDeployment.address;
+
+  // Deploy UniswapV2Query contract
+  const uniswapV2QueryDeployment = await deploy("UniswapV2Query", {
+    from: deployer,
+    args: [deployedAddresses.UniswapV2Factory],
+    log: true,
+    autoMine: true,
+  });
+  deployedAddresses.UniswapV2Query = uniswapV2QueryDeployment.address;
+
+  // Deploy EnglishAuction contract
+  const englishAuctionDeployment = await deploy("EnglishAuction", {
+    from: deployer,
+    args: [deployedAddresses.DFToken],
+    log: true,
+    autoMine: true,
+  });
+  deployedAddresses.EnglishAuction = englishAuctionDeployment.address;
+
+  // Save deployed addresses to contracts.json
+  fs.writeFileSync(ADDRESS_FILE, JSON.stringify(deployedAddresses, null, 2));
 };
-
 
 export default deployYourContract;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
-// e.g. yarn deploy --tags YourContract
-// deployYourContract.tags = ["YourContract"];
-deployYourContract.tags = ["DFNFT"];
-deployYourContract.tags = ["DFToken"];
-deployYourContract.tags = ["EnglishAuction"];
-deployYourContract.tags = ["Airdrop"];
-deployYourContract.tags = ["AdAlliance"];
-deployYourContract.tags = ["WETH"];
-deployYourContract.tags = ["UniswapV2Factory"];
-deployYourContract.tags = ["UniswapV2Router"];
-deployYourContract.tags = ["UniswapV2Query"];
+deployYourContract.tags = ["DFNFT", "DFToken", "EnglishAuction", "Airdrop", "AdAlliance", "WETH", "UniswapV2Factory", "UniswapV2Router", "UniswapV2Query"];

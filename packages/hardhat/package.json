@@ -18,7 +18,8 @@
     "lint-staged": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore",
     "test": "REPORT_GAS=true hardhat test --network hardhat",
     "verify": "hardhat etherscan-verify",
-    "contract-op": "hardhat run ./scripts/contract-op.ts"
+    "op-auction": "hardhat run ./scripts/op-auction.ts",
+    "op-liquidity": "hardhat run ./scripts/op-liquidity.ts"
   },
   "dependencies": {
     "@inquirer/password": "^4.0.2",

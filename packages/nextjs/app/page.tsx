@@ -5,9 +5,18 @@ import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Address } from "~~/components/scaffold-eth";
+import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
+import { useAuction } from "~~/hooks/useAuction";
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
+  //getActiveAuctions
+  // const { data: activeAuctions } = useScaffoldReadContract({
+  //   contractName: "EnglishAuction",
+  //   functionName: "getActiveAuctions",
+  // });
+  // console.log(activeAuctions);
+
 
   return (
     <>

@@ -3,38 +3,56 @@ pragma solidity ^0.8.22;
 
 import {IERC721} from "@openzeppelin/contracts/interfaces/IERC721.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
+import {DFNFT} from "./DFNFT.sol";
 
 import "hardhat/console.sol"; // used in testing chains
 
-error EnglishAuction__InvalidAddress();
-error EnglishAuction__NotOwner(address nftAddress, uint256 tokenId, address seller);
-error EnglishAuction__NotApproved(address nftAddress, uint256 tokenId, address owner);
-
-error EnglishAuction__AuctionCreated(address nftAddress, uint256 tokenId);
-error EnglishAuction__AuctionNotInProgress(address nftAddress, uint256 tokenId);
-error EnglishAuction__AuctionNotEnded(address nftAddress, uint256 tokenId);
-
-error EnglishAuction__InsufficientAmount(address nftAddress, uint256 tokenId, uint256 price);
-
-error EnglishAuction__SellerIsTheBidder(address seller, address bidder);
-error EnglishAuction__CallerIsNotTheSeller(address caller, address seller);
-error EnglishAuction__AuctionIsNotOverYet(uint256 endingAt);
-
-error EnglishAuction__TransactionFailed();
-error EnglishAuction__NotAuctionSeller(address seller);
-
-// ---
-
-/**
- * @title Simple English Auction Contract
- * @notice This contract works like a sinple mutlisig wallet
- */
 contract EnglishAuction {
 
   IERC20 public immutable dfToken;
+
+
+
+  /// @notice Bidder parameters
+  struct Bidder {
+    address bidder;
+    uint256 bidAmount;
+    uint256 bidTime;
+  }
+
+  struct NFTInfo {
+    address nftAddress;
+    uint256 tokenId;
+    string tokenURI;
+  }
+
+  /// @notice Auction parameters
+  struct Auction {
+    address seller;
+    NFTInfo nftInfo;
+    uint256 startingAt;
+    uint256 endingAt;
+    uint256 startingPrice;
+    uint256 highestBid;
+    address highestBidder;
+    Bidder[] bidders;
+    AuctionStatus status;
+  }
+
+    // 使用单个数组来跟踪所有拍卖
+  struct AuctionInfo {
+    address nftAddress;
+    uint256 tokenId;
+  }
+
+  /// @notice NFT address -> tokenId -> Auction Object
+  mapping(address => mapping(uint256 => Auction)) public auctions;
+  
+  AuctionInfo[] public auctionRegistry;
+
     
   constructor(address _dfTokenAddress) {
-      if (_dfTokenAddress == address(0)) revert EnglishAuction__InvalidAddress();
+      require(_dfTokenAddress != address(0), "Invalid address");
       dfToken = IERC20(_dfTokenAddress);
   }
   /// @dev The available state of the auction
@@ -50,58 +68,18 @@ contract EnglishAuction {
 
   event AuctionEnded(address indexed nftAddress, uint256 indexed tokenId, address winner);
 
-  /// @notice Bidder parameters
-  struct Bidder {
-    address bidder;
-    uint256 bidAmount;
-    uint256 bidTime;
-  }
-
-  /// @notice Auction parameters
-  struct Auction {
-    address seller;
-    address nftAddress;
-    uint256 tokenId;
-    uint256 startingAt;
-    uint256 endingAt;
-    uint256 startingPrice;
-    uint256 highestBid;
-    address highestBidder;
-    Bidder[] bidders;
-    AuctionStatus status;
-  }
-
-  /// @notice NFT address -> tokenId -> Auction Object
-  mapping(address => mapping(uint256 => Auction)) public auctions;
 
   modifier isAuctionNotCreated(address _nftAddress, uint256 _tokenId) {
     Auction memory auction = auctions[_nftAddress][_tokenId];
-    if (auction.status != AuctionStatus.NOT_CREATED) {
-      // You can't revert with the auction params since they will give the default values not the values gived by the connector
-      revert EnglishAuction__AuctionCreated(_nftAddress, _tokenId);
-    }
+    require(auction.status == AuctionStatus.NOT_CREATED, "Auction already created");
     _;
   }
 
   modifier isAuctionInProgress(address _nftAddress, uint256 _tokenId) {
     Auction memory auction = auctions[_nftAddress][_tokenId];
-    if (auction.status != AuctionStatus.IN_PROGRESS) {
-      // You can't revert with the auction params since they will give the default values not the values gived by the connector
-      revert EnglishAuction__AuctionNotInProgress(_nftAddress, _tokenId);
-    }
+    require(auction.status == AuctionStatus.IN_PROGRESS, "Auction not in progress");
     _;
   }
-
-  // You don't need this modifier but we will leave it
-  //
-  // modifier isAuctionEnded(address _nftAddress, uint256 _tokenId) {
-  //   Auction memory auction = auctions[_nftAddress][_tokenId];
-  //   if (auction.status != AuctionStatus.ENDED) {
-  //     // You can't revert with the auction params since they will give the default values not the values gived by the connector
-  //     revert EnglishAuction__AuctionNotEnded(_nftAddress, _tokenId);
-  //   }
-  //   _;
-  // }
 
   ///////////////////////////////////////////////
   //////// external and public function /////////
@@ -122,23 +100,13 @@ contract EnglishAuction {
     uint256 _startingPrice,
     uint256 _duration
   ) external {
-    // Check that nftAddress is valid
-    if (_nftAddress == address(0)) {
-      revert EnglishAuction__InvalidAddress();
-    }
-
-    // check that `msg.sender` owns this NFT item
-    if (IERC721(_nftAddress).ownerOf(_tokenId) != msg.sender) {
-      revert EnglishAuction__NotOwner(_nftAddress, _tokenId, msg.sender);
-    }
-
-    // Check that our contract has an access to this NFT item
-    if (
-      !(IERC721(_nftAddress).getApproved(_tokenId) == address(this) ||
-        IERC721(_nftAddress).isApprovedForAll(msg.sender, address(this)))
-    ) {
-      revert EnglishAuction__NotApproved(_nftAddress, _tokenId, msg.sender);
-    }
+    require(_nftAddress != address(0), "Invalid address");
+    require(IERC721(_nftAddress).ownerOf(_tokenId) == msg.sender, "Not owner of NFT");
+    require(
+      IERC721(_nftAddress).getApproved(_tokenId) == address(this) ||
+      IERC721(_nftAddress).isApprovedForAll(msg.sender, address(this)),
+      "Not approved for NFT"
+    );
 
     // It is better to check for duration and to make it has minimum value like 1 day
 
@@ -176,41 +144,20 @@ contract EnglishAuction {
 
     ) = getAuction(_nftAddress, _tokenId);
 
-    // Check that the seller is not bidder, as he can't buy what he want to sell
-    if (seller == msg.sender) {
-      revert EnglishAuction__SellerIsTheBidder(seller, msg.sender);
-    }
+    require(seller != msg.sender, "Seller cannot bid");
 
-    // Check to see if this is the first bidder or not
-    // if (highestBidder == address(0)) {
-    //   if (_bidAmount < startingPrice)
-    //     revert EnglishAuction__InsufficientAmount(_nftAddress, _tokenId, _bidAmount);
-    //   _addNewBidder(_nftAddress, _tokenId, msg.sender, _bidAmount);
-
-    //   // existing the function to not send transaction to ZeroAddress and to prevent dublicate adding new Bidder
-    //   return;
-    // }
-
-    // 检查出价是否满足最低要求
     if (highestBidder == address(0)) {
-        if (_bidAmount < startingPrice)
-            revert EnglishAuction__InsufficientAmount(_nftAddress, _tokenId, _bidAmount);
+        require(_bidAmount >= startingPrice, "Bid amount too low");
     } else {
-        if (_bidAmount <= highestBid)
-            revert EnglishAuction__InsufficientAmount(_nftAddress, _tokenId, _bidAmount);
+        require(_bidAmount > highestBid, "Bid amount too low");
     }
 
-    // 转移 DAToken 到合约
-    bool success = dfToken.transferFrom(msg.sender, address(this), _bidAmount);
-    if (!success) revert EnglishAuction__TransactionFailed();
+    require(dfToken.transferFrom(msg.sender, address(this), _bidAmount), "Token transfer failed");
 
-    // 如果存在之前的出价，退还给前一个出价者
     if (highestBidder != address(0)) {
-        success = dfToken.transfer(highestBidder, highestBid);
-        if (!success) revert EnglishAuction__TransactionFailed();
+        require(dfToken.transfer(highestBidder, highestBid), "Refund transfer failed");
     }
 
-    // Adding new bidder in the auction
     _addNewBidder(_nftAddress, _tokenId, msg.sender, _bidAmount);
   }
 
@@ -239,13 +186,8 @@ contract EnglishAuction {
             ,
         ) = getAuction(_nftAddress, _tokenId);
 
-        if (seller != msg.sender) {
-            revert EnglishAuction__CallerIsNotTheSeller(msg.sender, seller);
-        }
-
-        if (endingAt > block.timestamp) {
-            revert EnglishAuction__AuctionIsNotOverYet(endingAt);
-        }
+        require(seller == msg.sender, "Only seller can end auction");
+        require(block.timestamp >= endingAt, "Auction not ended yet");
 
         _endAuction(_nftAddress, _tokenId);
 
@@ -254,12 +196,8 @@ contract EnglishAuction {
             return;
         }
 
-        // 转移 NFT 给最高出价者
         IERC721(_nftAddress).safeTransferFrom(seller, highestBidder, _tokenId);
-
-        // 转移 DAToken 给卖家
-        bool success = dfToken.transfer(seller, highestBid);
-        if (!success) revert EnglishAuction__TransactionFailed();
+        require(dfToken.transfer(seller, highestBid), "Token transfer failed");
 
         emit AuctionEnded(_nftAddress, _tokenId, highestBidder);
     }
@@ -283,21 +221,24 @@ contract EnglishAuction {
     uint256 _startingPrice,
     uint256 _duration
   ) private isAuctionNotCreated(_nftAddress, _tokenId) {
-    // console.log("New auction will be created");
-
+    string memory tokenURI = DFNFT(_nftAddress).tokenURI(_tokenId);
+    
     auctions[_nftAddress][_tokenId].seller = msg.sender;
-    auctions[_nftAddress][_tokenId].nftAddress = _nftAddress;
-    auctions[_nftAddress][_tokenId].tokenId = _tokenId;
+    auctions[_nftAddress][_tokenId].nftInfo = NFTInfo({
+      nftAddress: _nftAddress,
+      tokenId: _tokenId,
+      tokenURI: tokenURI
+    });
     auctions[_nftAddress][_tokenId].startingAt = block.timestamp;
     auctions[_nftAddress][_tokenId].endingAt = block.timestamp + _duration;
     auctions[_nftAddress][_tokenId].startingPrice = _startingPrice;
-    // auctions[_nftAddress][_tokenId].highestBid = 0;
-    // auctions[_nftAddress][_tokenId].highestBidder = address(0);
-    // We added ZeroAddress as a  bidder to initialize the bidders array
-    // auctions[_nftAddress][_tokenId].bidders.push(Bidder(address(0), 0, block.timestamp));
     auctions[_nftAddress][_tokenId].status = AuctionStatus.IN_PROGRESS;
 
-    // You can't initialize `bidders` with an `empty array []`
+    // 添加到注册表
+    auctionRegistry.push(AuctionInfo({
+      nftAddress: _nftAddress,
+      tokenId: _tokenId
+    }));
 
     emit AuctionCreated(_nftAddress, _tokenId);
   }
@@ -356,7 +297,7 @@ contract EnglishAuction {
    * @param _nftAddress ERC721 address
    * @param _tokenId token of the listed item in the auction
    * @return seller the address that listed the item
-   * @return nftAddress ERC721 address
+   * @return nftInfo NFTInfo of the listed item
    * @return tokenId token if the listed item in the auction
    * @return startingAt starting data of the auction
    * @return endingAt ending data of the auction
@@ -369,27 +310,23 @@ contract EnglishAuction {
   function getAuction(
     address _nftAddress,
     uint256 _tokenId
-  )
-    public
-    view
-    returns (
-      address seller,
-      address nftAddress,
-      uint256 tokenId,
-      uint256 startingAt,
-      uint256 endingAt,
-      uint256 startingPrice,
-      uint256 highestBid,
-      address highestBidder,
-      Bidder[] memory bidders,
-      AuctionStatus status
-    )
-  {
+  ) public view returns (
+    address seller,
+    NFTInfo memory nftInfo,
+    uint256 tokenId,
+    uint256 startingAt,
+    uint256 endingAt,
+    uint256 startingPrice,
+    uint256 highestBid,
+    address highestBidder,
+    Bidder[] memory bidders,
+    AuctionStatus status
+  ) {
     Auction storage auction = auctions[_nftAddress][_tokenId];
     return (
       auction.seller,
-      auction.nftAddress,
-      auction.tokenId,
+      auction.nftInfo,
+      auction.nftInfo.tokenId,
       auction.startingAt,
       auction.endingAt,
       auction.startingPrice,
@@ -411,5 +348,47 @@ contract EnglishAuction {
     //         require(success, "Transfer failed");
     //     }
     // }
+
+  /// @notice Get all auctions
+  /// @return auctionList Array of all auctions
+  function getAllAuctions() external view returns (Auction[] memory) {
+    Auction[] memory auctionList = new Auction[](auctionRegistry.length);
+    
+    for (uint256 i = 0; i < auctionRegistry.length; i++) {
+      AuctionInfo memory info = auctionRegistry[i];
+      auctionList[i] = auctions[info.nftAddress][info.tokenId];
+    }
+    
+    return auctionList;
+  }
+
+  /// @notice Get all active auctions
+  /// @return activeList Array of active auctions
+  function getActiveAuctions() external view returns (Auction[] memory) {
+    // 首先计算活跃拍卖的数量
+    uint256 activeCount = 0;
+    for (uint256 i = 0; i < auctionRegistry.length; i++) {
+      AuctionInfo memory info = auctionRegistry[i];
+      if (auctions[info.nftAddress][info.tokenId].status == AuctionStatus.IN_PROGRESS) {
+        activeCount++;
+      }
+    }
+
+    // 创建并填充活跃拍卖数组
+    Auction[] memory activeList = new Auction[](activeCount);
+    uint256 currentIndex = 0;
+    
+    for (uint256 i = 0; i < auctionRegistry.length && currentIndex < activeCount; i++) {
+      AuctionInfo memory info = auctionRegistry[i];
+      Auction memory auction = auctions[info.nftAddress][info.tokenId];
+      if (auction.status == AuctionStatus.IN_PROGRESS) {
+        activeList[currentIndex] = auction;
+        currentIndex++;
+      }
+    }
+    
+    return activeList;
+  }
+
 
 }
