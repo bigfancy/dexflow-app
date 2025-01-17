@@ -1,27 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { formatDistance } from "date-fns";
 import CopyAddressButton from "../CopyAddressButton";
+import { formatDistance } from "date-fns";
+import { Auction } from "~~/types/auction-types";
 
 type AuctionStatus = "ongoing" | "ended";
-
-type AuctionCardProps = {
-  transactionHash: string;
-  auctionType: string;
-  auctionId: string;
-  seller: string;
-  nftAddress: string;
-  tokenId: string;
-  tokenURI: string;
-  startingAt: string;
-  endingAt: string;
-  startingPrice: string;
-  highestBid: string;
-  highestBidder: string;
-  bidders: Array<{ bidder: string; value: string }>;
-  status: string;
-  onViewDetail: () => void;
-};
 
 const METADATA_CACHE = new Map<string, any>();
 
@@ -35,7 +18,7 @@ const getIPFSUrl = (url: string) => {
 // 检查 URL 是否是图片
 const isImageUrl = (url: string) => {
   const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
-  return imageExtensions.some((ext) => url.toLowerCase().endsWith(ext));
+  return imageExtensions.some(ext => url.toLowerCase().endsWith(ext));
 };
 
 // 获取元数据的函数
@@ -80,23 +63,7 @@ const getNFTMetadata = async (tokenURI: string) => {
   }
 };
 
-export default function AuctionCard({
-  transactionHash,
-  auctionType,
-  auctionId,
-  seller,
-  nftAddress,
-  tokenId,
-  tokenURI,
-  startingAt,
-  endingAt,
-  startingPrice,
-  highestBid,
-  highestBidder,
-  bidders,
-  status,
-  onViewDetail,
-}: AuctionCardProps) {
+export default function AuctionCard({ auction, onViewDetail }: { auction: Auction; onViewDetail: () => void }) {
   const [nftMetadata, setNftMetadata] = useState<{
     name: string;
     image: string;
@@ -107,7 +74,7 @@ export default function AuctionCard({
   useEffect(() => {
     const loadMetadata = async () => {
       try {
-        const metadata = await getNFTMetadata(tokenURI);
+        const metadata = await getNFTMetadata(auction.tokenURI);
 
         setNftMetadata(metadata);
       } catch (error) {
@@ -116,7 +83,7 @@ export default function AuctionCard({
     };
 
     loadMetadata();
-  }, [tokenURI]);
+  }, [auction.tokenURI]);
 
   // 获取拍卖状态 - 使用传入的 status 值
   const getAuctionStatus = (status: number): AuctionStatus => {
@@ -137,12 +104,12 @@ export default function AuctionCard({
   useEffect(() => {
     const updateTimeAndStatus = () => {
       const now = Date.now();
-      const end = Number(endingAt) * 1000;
+      const end = Number(auction.endingAt) * 1000;
       // const currentStatus = getAuctionStatus(status);
 
       // setAuctionStatus(currentStatus);
 
-      if (status === 2) {
+      if (auction.status === "2") {
         setTimeLeft("Auction Ended");
       } else {
         setTimeLeft(`Ends ${formatDistance(end, now, { addSuffix: true })}`);
@@ -153,7 +120,7 @@ export default function AuctionCard({
     const timer = setInterval(updateTimeAndStatus, 1000);
 
     return () => clearInterval(timer);
-  }, [status, endingAt]);
+  }, [auction.status, auction.endingAt]);
 
   return (
     <div className="bg-gray-800 rounded-xl overflow-hidden  hover:shadow-lg transition-transform  hover:scale-105 hover:bg-gray-750">
@@ -174,10 +141,10 @@ export default function AuctionCard({
         {/* Status Badge */}
         <div
           className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(
-            status === "1" ? "ongoing" : "ended"
+            auction.status === "1" ? "ongoing" : "ended",
           )}`}
         >
-          {status === "1" ? "Active" : "Ended"}
+          {auction.status === "1" ? "Active" : "Ended"}
         </div>
       </div>
 
@@ -186,36 +153,34 @@ export default function AuctionCard({
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-400">Type</span>
-            <span className="text-gray-200">
-              {auctionType === "0" ? "English" : "Dutch"} Auction
-            </span>
+            <span className="text-gray-200">{auction.auctionType === "0" ? "English" : "Dutch"} Auction</span>
           </div>
 
           <div className="flex justify-between">
             <span className="text-gray-400">Starting Price</span>
-            <span className="text-gray-200">{startingPrice} DAT</span>
+            <span className="text-gray-200">{auction.startingPrice} DAT</span>
           </div>
 
           <div className="flex justify-between">
             <span className="text-gray-400">NFT Contract</span>
             <span className="text-gray-200">
-              <CopyAddressButton address={nftAddress} />
+              <CopyAddressButton address={auction.nftAddress} />
             </span>
           </div>
 
           <div className="flex justify-between">
             <span className="text-gray-400">Token ID</span>
-            <span className="text-gray-200">#{tokenId}</span>
+            <span className="text-gray-200">#{auction.tokenId}</span>
           </div>
 
           <div className="flex justify-between">
             <span className="text-gray-400">Highest Bid</span>
-            <span className="text-gray-200">{highestBid || "No bids"} DAT</span>
+            <span className="text-gray-200">{auction.highestBid || "No bids"} DAT</span>
           </div>
         </div>
         {/* View Detail Button */}
         <button
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             onViewDetail();
           }}
@@ -223,18 +188,8 @@ export default function AuctionCard({
             transition-colors duration-200 flex items-center justify-center space-x-2"
         >
           <span>View Details</span>
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
       </div>

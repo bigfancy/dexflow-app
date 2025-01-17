@@ -90,7 +90,7 @@ export default function Header() {
 
       {/* Wallet and Connect Button */}
       <div className="flex items-center gap-4">
-        <div className="md:block">
+        
           <RainbowKitCustomConnectButton />
 
           {/* <ConnectKitButton.Custom>
@@ -117,7 +117,6 @@ export default function Header() {
               );
             }}
           </ConnectKitButton.Custom> */}
-        </div>
       </div>
 
       {/* Mobile menu toggle */}

@@ -1,6 +1,6 @@
 "use client";
 
-import Trade from "@/components/trade/Trade";
+import Trade from "~~/components/trade/Trade";
 
 export default function SwapPage() {
   return (

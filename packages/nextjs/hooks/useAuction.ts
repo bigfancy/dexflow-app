@@ -1,92 +1,41 @@
-import { useScaffoldReadContract } from "./scaffold-eth";
+import { Auction } from "../types/auction-types";
+import { useScaffoldReadContract, useScaffoldWriteContract } from "./scaffold-eth";
 import { ethers } from "ethers";
 
-export interface Auction {
-  auctionType: string;
-  transactionHash: string;
-  auctionId: string;
-  seller: string;
-  nftAddress: string;
-  tokenId: string;
-  tokenURI: string;
-  startingAt: string;
-  endingAt: string;
-  startingPrice: string;
-  status: string;
-  highestBid: string;
-  highestBidder: string;
-  bidders: Array<{ bidder: string; bidAmount: string; bidTime: string }>;
-}
+// 格式化拍卖对象的函数
+const formatAuction = (auction: any): Auction => ({
+  auctionType: "0",
+  transactionHash: "", // 从事件中获取
+  auctionId: `${auction.nftInfo.nftAddress}-${auction.nftInfo.tokenId}`,
+  seller: auction.seller,
+  nftAddress: auction.nftInfo.nftAddress,
+  tokenId: auction.nftInfo.tokenId.toString(),
+  tokenURI: auction.nftInfo.tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/") || "",
+  startingAt: auction.startingAt.toString(),
+  endingAt: auction.endingAt.toString(),
+  startingPrice: ethers.formatEther(auction.startingPrice),
+  status: auction.status.toString(),
+  highestBid: ethers.formatEther(auction.highestBid),
+  highestBidder: auction.highestBidder,
+  bidders: auction.bidders.map((bid: any) => ({
+    bidder: bid.bidder,
+    bidAmount: ethers.formatEther(bid.bidAmount),
+    bidTime: bid.bidTime.toString(),
+  })),
+});
 
-export interface BidEvent {
-  bidder: string;
-  bidAmount: string;
-  bidTime: string;
-}
-
-export const useAuction = () => {
+export const useFetchAuctionList = () => {
   // 获取所有拍卖
   const { data: activeAuctions, isLoading: activeAuctionsLoading } = useScaffoldReadContract({
     contractName: "EnglishAuction",
     functionName: "getActiveAuctions",
   });
-//   console.log("----------useAuction action", activeAuctions);
-
-  // 获取单个拍卖详情
-  //   const getAuctionDetail = async (nftAddress: string, tokenId: string) => {
-  //     const { data: auction } = useScaffoldReadContract({
-  //       contractName: "EnglishAuction",
-  //       functionName: "getAuction",
-  //       args: [nftAddress, tokenId],
-  //     });
-
-  //     if (!auction) return null;
-
-  //     return {
-  //       auctionType: "0",
-  //       transactionHash: "", // 从事件中获取
-  //       auctionId: `${nftAddress}-${tokenId}`,
-  //       seller: auction.seller,
-  //       nftAddress: auction.nftAddress,
-  //       tokenId: auction.tokenId.toString(),
-  //       tokenURI: auction.tokenURI || "",
-  //       startingAt: auction.startingAt.toString(),
-  //       endingAt: auction.endingAt.toString(),
-  //       startingPrice: ethers.formatEther(auction.startingPrice),
-  //       status: auction.status.toString(),
-  //       highestBid: ethers.formatEther(auction.highestBid),
-  //       highestBidder: auction.highestBidder,
-  //       bidders: auction.bidders.map((bid: any) => ({
-  //         bidder: bid.bidder,
-  //         bidAmount: ethers.formatEther(bid.bidAmount),
-  //         bidTime: bid.bidTime.toString(),
-  //       })),
-  //     };
-  //   };
+  console.log("----------useAuction action", activeAuctions);
 
   // 格式化拍卖数据
-  const formatAuctions = (auctions: readonly any[]): Auction[] => {
+  const fetchAuctionList = (auctions: readonly any[]): Auction[] => {
     if (!auctions) return [];
-    return auctions.map((auction: any) => ({
-      auctionType: "0",
-      transactionHash: "", // 从事件中获取
-      auctionId: `${auction.nftInfo.nftAddress}-${auction.nftInfo.tokenId}`,
-      seller: auction.seller,
-      nftAddress: auction.nftInfo.nftAddress,
-      tokenId: auction.nftInfo.tokenId.toString(),
-      tokenURI: auction.nftInfo.tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/") || "",
-      startingAt: auction.startingAt.toString(),
-      endingAt: auction.endingAt.toString(),
-      startingPrice: ethers.formatEther(auction.startingPrice),
-      status: auction.status.toString(),
-      highestBid: ethers.formatEther(auction.highestBid),
-      highestBidder: auction.highestBidder,
-      bidders: auction.bidders.map((bid: any) => ({
-        bidder: bid.bidder,
-        bidAmount: ethers.formatEther(bid.bidAmount),
-        bidTime: bid.bidTime.toString(),
-      })),
-    }));
+    return auctions.map((auction: any) => formatAuction(auction));
   };
 
   // 获取 DAT 余额
@@ -97,7 +46,60 @@ export const useAuction = () => {
   //   });
 
   return {
-    activeAuctions: activeAuctions ? formatAuctions(activeAuctions) : [],
+    activeAuctions: activeAuctions ? fetchAuctionList(activeAuctions) : [],
     isLoading: activeAuctionsLoading,
   };
+};
+
+// approve nft
+// export const useApproveNFT = (nftAddress: string, tokenId: string) => {
+//   console.log("----------useApproveNFT nftAddress", nftAddress);
+//   console.log("----------useApproveNFT tokenId", tokenId);
+//   const { data: approveNFT, isLoading } = useScaffoldWriteContract({
+//     contractName: "EnglishAuction",
+//     functionName: "approveNFT",
+//     args: [nftAddress, BigInt(tokenId)],
+//   });
+// };
+
+export const useFetchAuctionDetail = (nftAddress: string, tokenId: string) => {
+  console.log("----------useFetchAuctionDetail nftAddress", nftAddress);
+  console.log("----------useFetchAuctionDetail tokenId", tokenId);
+  const { data: auctionDetail, isLoading } = useScaffoldReadContract({
+    contractName: "EnglishAuction",
+    functionName: "getAuction",
+    args: [nftAddress, BigInt(tokenId)],
+    watch: true,
+  });
+
+  console.log("----------useFetchAuctionDetail auction", auctionDetail);
+
+  if (!auctionDetail) {
+    console.error("Failed to fetch auction data");
+  }
+
+  const formattedAuctionDetail = formatAuction(auctionDetail);
+
+  return { auctionDetail: formattedAuctionDetail, isLoading };
+};
+
+//create auction
+export const useCreateAuction = (nftAddress: string, tokenId: string, startingPrice: string, duration: string) => {
+  const { writeContractAsync: createAuction } = useScaffoldWriteContract({ contractName: "EnglishAuction" });
+
+  const handleCreateAuction = async () => {
+    try {
+      await createAuction({
+        functionName: "createAuction",
+        args: [nftAddress, BigInt(tokenId), BigInt(startingPrice), BigInt(duration)],
+      });
+    } catch (error) {
+      console.error("Error creating auction:", error);
+      if (error instanceof Error) {
+        alert(error.message);
+      }
+    }
+  };
+
+  return { handleCreateAuction };
 };

@@ -1,17 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { MdArrowBack } from "react-icons/md";
-import Image from "next/image";
-import { AuctionService } from "@/services/auctionService";
-
-interface NFTInfo {
-  tokenURI: string;
-  exists: boolean;
-  image: string;
-  name: string;
-}
+import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useApproveNFT } from "~~/hooks/useApproveNFT";
+import { useCreateAuction } from "~~/hooks/useAuction";
 
 export default function CreateAuctionPage() {
   const router = useRouter();
@@ -22,11 +17,9 @@ export default function CreateAuctionPage() {
   const [auctionType, setAuctionType] = useState<"0" | "1">("0");
 
   // Step 2 - NFT Details
-  const [nftContract, setNftContract] = useState(
-    "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-  );
-  const [tokenId, setTokenId] = useState("10");
-  const [nftInfo, setNftInfo] = useState<NFTInfo | null>(null);
+  const [nftContract, setNftContract] = useState("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+  const [tokenId, setTokenId] = useState("0");
+  // const [nftInfo, setNftInfo] = useState<NFTInfo | null>(null);
   const [nftError, setNftError] = useState<string | null>(null);
   const [isApproving, setIsApproving] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
@@ -37,6 +30,16 @@ export default function CreateAuctionPage() {
   const [priceDecrement, setPriceDecrement] = useState(0);
   const [decrementInterval, setDecrementInterval] = useState(0);
 
+  const { writeContractAsync: approveNFT } = useScaffoldWriteContract({ contractName: "DFNFT" });
+  const { handleCreateAuction } = useCreateAuction(nftContract, tokenId, startingPrice.toString(), duration.toString());
+
+  // Use the new hook
+  const {
+    handleApproveNFT: approveNFTHandler,
+    isLoading: isLoadingNFT,
+    tokenURI,
+  } = useApproveNFT(nftContract, tokenId);
+
   // NFT Approval Handler
   const handleApproveNFT = async () => {
     if (!nftContract || !tokenId) {
@@ -44,58 +47,17 @@ export default function CreateAuctionPage() {
       return;
     }
 
-    setIsApproving(true);
     setNftError(null);
     try {
-      const auctionService = AuctionService.getInstance();
-      const metadata = await auctionService.approveNFT(
-        nftContract,
-        Number(tokenId)
-      );
+      const success = await approveNFTHandler();
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setNftInfo({
-        tokenURI: metadata.tokenURI,
-        exists: true,
-        image: metadata.image,
-        name: metadata.name,
-      });
-      setIsApproved(true);
+      if (success && tokenURI) {
+        setIsApproved(true);
+      }
     } catch (error: any) {
       console.error("NFT approval failed:", error);
       setNftError(error.message || "NFT approval failed");
       setIsApproved(false);
-    } finally {
-      setIsApproving(false);
-    }
-  };
-
-  // Final Submit Handler
-  const handleSubmit = async () => {
-    if (!isApproved) {
-      setNftError("Please approve NFT first");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const auctionService = AuctionService.getInstance();
-      const txHash = await auctionService.createAuction(
-        nftContract,
-        Number(tokenId),
-        startingPrice,
-        duration
-      );
-      console.log("Auction created successfully:", txHash);
-      router.push("/auctions");
-    } catch (error) {
-      console.error("Error creating auction:", error);
-      if (error instanceof Error) {
-        alert(error.message);
-      }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -110,9 +72,7 @@ export default function CreateAuctionPage() {
       </button>
 
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8 mt-8">
-          Create New Auction
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8 mt-8">Create New Auction</h1>
 
         <div className="grid grid-cols-6 gap-8">
           {/* Left Side - Steps */}
@@ -128,19 +88,13 @@ export default function CreateAuctionPage() {
               <div className="flex items-center gap-3">
                 <span
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
-                  ${
-                    currentStep === 1
-                      ? "bg-blue-100 text-blue-700"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
+                  ${currentStep === 1 ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"}`}
                 >
                   1
                 </span>
                 <div>
                   <h3 className="font-semibold">Select Auction Type</h3>
-                  <p className="text-sm text-gray-500">
-                    Choose auction mechanism
-                  </p>
+                  <p className="text-sm text-gray-500">Choose auction mechanism</p>
                 </div>
               </div>
             </div>
@@ -156,19 +110,13 @@ export default function CreateAuctionPage() {
               <div className="flex items-center gap-3">
                 <span
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
-                  ${
-                    currentStep === 2
-                      ? "bg-blue-100 text-blue-700"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
+                  ${currentStep === 2 ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"}`}
                 >
                   2
                 </span>
                 <div>
                   <h3 className="font-semibold">NFT Details</h3>
-                  <p className="text-sm text-gray-500">
-                    Select and approve NFT
-                  </p>
+                  <p className="text-sm text-gray-500">Select and approve NFT</p>
                 </div>
               </div>
             </div>
@@ -184,19 +132,13 @@ export default function CreateAuctionPage() {
               <div className="flex items-center gap-3">
                 <span
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
-                  ${
-                    currentStep === 3
-                      ? "bg-blue-100 text-blue-700"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
+                  ${currentStep === 3 ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"}`}
                 >
                   3
                 </span>
                 <div>
                   <h3 className="font-semibold">Auction Settings</h3>
-                  <p className="text-sm text-gray-500">
-                    Set price and duration
-                  </p>
+                  <p className="text-sm text-gray-500">Set price and duration</p>
                 </div>
               </div>
             </div>
@@ -206,9 +148,7 @@ export default function CreateAuctionPage() {
           <div className="col-span-4 bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
             {currentStep === 1 && (
               <div className="space-y-6">
-                <h2 className="text-xl font-bold mb-4 text-gray-900">
-                  Select Auction Type
-                </h2>
+                <h2 className="text-xl font-bold mb-4 text-gray-900">Select Auction Type</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <label
                     className={`
@@ -224,14 +164,10 @@ export default function CreateAuctionPage() {
                       type="radio"
                       value="0"
                       checked={auctionType === "0"}
-                      onChange={(e) =>
-                        setAuctionType(e.target.value as "0" | "1")
-                      }
+                      onChange={e => setAuctionType(e.target.value as "0" | "1")}
                       className="sr-only"
                     />
-                    <span className="text-xl font-bold mb-2">
-                      English Auction
-                    </span>
+                    <span className="text-xl font-bold mb-2">English Auction</span>
                     <span className="text-sm text-center text-gray-600">
                       Price starts low and increases with each bid
                     </span>
@@ -251,17 +187,11 @@ export default function CreateAuctionPage() {
                       type="radio"
                       value="1"
                       checked={auctionType === "1"}
-                      onChange={(e) =>
-                        setAuctionType(e.target.value as "0" | "1")
-                      }
+                      onChange={e => setAuctionType(e.target.value as "0" | "1")}
                       className="sr-only"
                     />
-                    <span className="text-xl font-bold mb-2">
-                      Dutch Auction
-                    </span>
-                    <span className="text-sm text-center text-gray-600">
-                      Price starts high and decreases over time
-                    </span>
+                    <span className="text-xl font-bold mb-2">Dutch Auction</span>
+                    <span className="text-sm text-center text-gray-600">Price starts high and decreases over time</span>
                   </label>
                 </div>
                 <button
@@ -275,19 +205,15 @@ export default function CreateAuctionPage() {
 
             {currentStep === 2 && (
               <div className="space-y-6">
-                <h2 className="text-xl font-bold mb-4 text-gray-900">
-                  NFT Details
-                </h2>
+                <h2 className="text-xl font-bold mb-4 text-gray-900">NFT Details</h2>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1 text-gray-700">
-                        NFT Contract Address
-                      </label>
+                      <label className="block text-sm font-medium mb-1 text-gray-700">NFT Contract Address</label>
                       <input
                         type="text"
                         value={nftContract}
-                        onChange={(e) => {
+                        onChange={e => {
                           setNftContract(e.target.value);
                           setIsApproved(false);
                         }}
@@ -297,13 +223,11 @@ export default function CreateAuctionPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-1 text-gray-700">
-                        Token ID
-                      </label>
+                      <label className="block text-sm font-medium mb-1 text-gray-700">Token ID</label>
                       <input
                         type="text"
                         value={tokenId}
-                        onChange={(e) => {
+                        onChange={e => {
                           setTokenId(e.target.value);
                           setIsApproved(false);
                         }}
@@ -313,32 +237,30 @@ export default function CreateAuctionPage() {
 
                     <button
                       onClick={handleApproveNFT}
-                      disabled={isApproving || !nftContract || !tokenId}
+                      disabled={isApproving || !nftContract || !tokenId || isLoadingNFT}
                       className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isApproving
-                        ? "Approving..."
-                        : isApproved
-                        ? "Approved ✓"
-                        : "Approve NFT"}
+                      {isLoadingNFT
+                        ? "Checking NFT..."
+                        : isApproving
+                          ? "Approving..."
+                          : isApproved
+                            ? "Approved ✓"
+                            : "Approve NFT"}
                     </button>
 
-                    {nftError && (
-                      <div className="text-red-500 text-sm bg-red-500/10 p-3 rounded-lg">
-                        {nftError}
-                      </div>
-                    )}
+                    {nftError && <div className="text-red-500 text-sm bg-red-500/10 p-3 rounded-lg">{nftError}</div>}
                   </div>
 
                   <div className="relative aspect-square rounded-xl bg-gray-100 overflow-hidden border border-gray-200">
-                    {nftInfo?.image ? (
+                    {tokenURI ? (
                       <Image
-                        src={nftInfo.image}
-                        alt={nftInfo.name || "NFT Preview"}
+                        src={tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/")}
+                        alt={"NFT Preview"}
                         fill
                         loading="lazy"
                         className="object-contain opacity-0 transition-opacity duration-1000"
-                        onLoadingComplete={(image) => {
+                        onLoadingComplete={image => {
                           setTimeout(() => {
                             image.classList.remove("opacity-0");
                           }, 1000);
@@ -382,20 +304,14 @@ export default function CreateAuctionPage() {
 
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h2 className="text-xl font-bold mb-4 text-gray-900">
-                  Auction Settings
-                </h2>
+                <h2 className="text-xl font-bold mb-4 text-gray-900">Auction Settings</h2>
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium mb-1 text-gray-700">
-                      Starting Price (DAT)
-                    </label>
+                    <label className="block text-sm font-medium mb-1 text-gray-700">Starting Price (DAT)</label>
                     <input
                       type="number"
                       value={startingPrice}
-                      onChange={(e) =>
-                        setStartingPrice(parseFloat(e.target.value))
-                      }
+                      onChange={e => setStartingPrice(parseFloat(e.target.value))}
                       className="w-full bg-white border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       min="0"
                       step="0.01"
@@ -403,13 +319,11 @@ export default function CreateAuctionPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1 text-gray-700">
-                      Duration (hours)
-                    </label>
+                    <label className="block text-sm font-medium mb-1 text-gray-700">Duration (hours)</label>
                     <input
                       type="number"
                       value={duration}
-                      onChange={(e) => setDuration(parseFloat(e.target.value))}
+                      onChange={e => setDuration(parseFloat(e.target.value))}
                       className="w-full bg-white border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       min="1"
                     />
@@ -418,15 +332,11 @@ export default function CreateAuctionPage() {
                   {auctionType === "1" && (
                     <>
                       <div>
-                        <label className="block text-sm font-medium mb-1 text-gray-700">
-                          Price Decrement (DAT)
-                        </label>
+                        <label className="block text-sm font-medium mb-1 text-gray-700">Price Decrement (DAT)</label>
                         <input
                           type="number"
                           value={priceDecrement}
-                          onChange={(e) =>
-                            setPriceDecrement(parseFloat(e.target.value))
-                          }
+                          onChange={e => setPriceDecrement(parseFloat(e.target.value))}
                           className="w-full bg-white border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           min="0"
                           step="0.01"
@@ -440,9 +350,7 @@ export default function CreateAuctionPage() {
                         <input
                           type="number"
                           value={decrementInterval}
-                          onChange={(e) =>
-                            setDecrementInterval(parseInt(e.target.value))
-                          }
+                          onChange={e => setDecrementInterval(parseInt(e.target.value))}
                           className="w-full bg-white border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           min="0"
                         />
@@ -459,7 +367,7 @@ export default function CreateAuctionPage() {
                     Back
                   </button>
                   <button
-                    onClick={handleSubmit}
+                    onClick={handleCreateAuction}
                     disabled={loading}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                   >

@@ -42,6 +42,9 @@ export const useScaffoldReadContract = <
   // set watch to true by default
   const defaultWatch = watch ?? true;
 
+  // console.log("----------useScaffoldReadContract deployedContract", deployedContract);
+  // console.log("----------useScaffoldReadContract functionName", functionName);
+  // console.log("----------useScaffoldReadContract args", args);
   const readContractHookRes = useReadContract({
     chainId: selectedNetwork.id,
     functionName,

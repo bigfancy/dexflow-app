@@ -131,31 +131,21 @@ contract EnglishAuction {
     uint256 _tokenId,
     uint256 _bidAmount
   ) external payable isAuctionInProgress(_nftAddress, _tokenId) {
-    (
-      address seller,
-      ,
-      ,
-      ,
-      ,
-      uint256 startingPrice,
-      uint256 highestBid,
-      address highestBidder,
-      ,
+    Auction memory auction = getAuction(_nftAddress, _tokenId);
+  
 
-    ) = getAuction(_nftAddress, _tokenId);
+    require(auction.seller != msg.sender, "Seller cannot bid");
 
-    require(seller != msg.sender, "Seller cannot bid");
-
-    if (highestBidder == address(0)) {
-        require(_bidAmount >= startingPrice, "Bid amount too low");
+    if (auction.highestBidder == address(0)) {
+        require(_bidAmount >= auction.startingPrice, "Bid amount too low");
     } else {
-        require(_bidAmount > highestBid, "Bid amount too low");
+        require(_bidAmount > auction.highestBid, "Bid amount too low");
     }
 
     require(dfToken.transferFrom(msg.sender, address(this), _bidAmount), "Token transfer failed");
 
-    if (highestBidder != address(0)) {
-        require(dfToken.transfer(highestBidder, highestBid), "Refund transfer failed");
+    if (auction.highestBidder != address(0)) {
+        require(dfToken.transfer(auction.highestBidder, auction.highestBid), "Refund transfer failed");
     }
 
     _addNewBidder(_nftAddress, _tokenId, msg.sender, _bidAmount);
@@ -174,32 +164,23 @@ contract EnglishAuction {
         address _nftAddress,
         uint256 _tokenId
     ) external isAuctionInProgress(_nftAddress, _tokenId) {
-        (
-            address seller,
-            ,
-            ,
-            ,
-            uint256 endingAt,
-            ,
-            uint256 highestBid,
-            address highestBidder,
-            ,
-        ) = getAuction(_nftAddress, _tokenId);
+ 
+        Auction memory auction = getAuction(_nftAddress, _tokenId);
 
-        require(seller == msg.sender, "Only seller can end auction");
-        require(block.timestamp >= endingAt, "Auction not ended yet");
+        require(auction.seller == msg.sender, "Only seller can end auction");
+        require(block.timestamp >= auction.endingAt, "Auction not ended yet");
 
         _endAuction(_nftAddress, _tokenId);
 
-        if (highestBidder == address(0) || highestBid == 0) {
+        if (auction.highestBidder == address(0) || auction.highestBid == 0) {
             emit AuctionEnded(_nftAddress, _tokenId, address(0));
             return;
         }
 
-        IERC721(_nftAddress).safeTransferFrom(seller, highestBidder, _tokenId);
-        require(dfToken.transfer(seller, highestBid), "Token transfer failed");
+        IERC721(_nftAddress).safeTransferFrom(auction.seller, auction.highestBidder, _tokenId);
+        require(dfToken.transfer(auction.seller, auction.highestBid), "Token transfer failed");
 
-        emit AuctionEnded(_nftAddress, _tokenId, highestBidder);
+        emit AuctionEnded(_nftAddress, _tokenId, auction.highestBidder);
     }
 
   ///////////////////////////////////////////////
@@ -296,45 +277,14 @@ contract EnglishAuction {
    *
    * @param _nftAddress ERC721 address
    * @param _tokenId token of the listed item in the auction
-   * @return seller the address that listed the item
-   * @return nftInfo NFTInfo of the listed item
-   * @return tokenId token if the listed item in the auction
-   * @return startingAt starting data of the auction
-   * @return endingAt ending data of the auction
-   * @return startingPrice the price at which the auction starts
-   * @return highestBid Highest value offered for buying the item
-   * @return highestBidder The wallet that the highestBid
-   * @return bidders Array of all bidders that participate in the auction
-   * @return status auction status
+   * @return Auction the auction information
    */
   function getAuction(
     address _nftAddress,
     uint256 _tokenId
-  ) public view returns (
-    address seller,
-    NFTInfo memory nftInfo,
-    uint256 tokenId,
-    uint256 startingAt,
-    uint256 endingAt,
-    uint256 startingPrice,
-    uint256 highestBid,
-    address highestBidder,
-    Bidder[] memory bidders,
-    AuctionStatus status
-  ) {
+  ) public view returns (Auction memory) {
     Auction storage auction = auctions[_nftAddress][_tokenId];
-    return (
-      auction.seller,
-      auction.nftInfo,
-      auction.nftInfo.tokenId,
-      auction.startingAt,
-      auction.endingAt,
-      auction.startingPrice,
-      auction.highestBid,
-      auction.highestBidder,
-      auction.bidders,
-      auction.status
-    );
+    return auction;
   }
 
     // 添加紧急取回函数

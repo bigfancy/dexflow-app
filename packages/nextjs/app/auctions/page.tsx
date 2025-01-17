@@ -5,72 +5,39 @@ import { useRouter } from "next/navigation";
 import { FaPlus } from "react-icons/fa";
 import AuctionCard from "~~/components/auction/AuctionCard";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
-import { useAuction } from "~~/hooks/useAuction";
-
-// interface Auction {
-//   auctionId: string;
-//   nftAddress: string;
-//   tokenId: string;
-//   seller: string;
-//   startingPrice: string;
-//   duration: string;
-//   startTime: string;
-//   highestBid: string;
-//   highestBidder: string;
-//   status: string;
-// }
-
-export interface Auction {
-  auctionType: string;
-  transactionHash: string;
-  auctionId: string;
-  seller: string;
-  nftAddress: string;
-  tokenId: string;
-  tokenURI: string;
-  startingAt: string;
-  endingAt: string;
-  startingPrice: string;
-  status: string;
-  highestBid: string;
-  highestBidder: string;
-  bidders: Array<{ bidder: string; bidAmount: string; bidTime: string }>;
-}
+import { useFetchAuctionList } from "~~/hooks/useAuction";
+import { Auction } from "~~/types/auction-types";
 
 export default function AuctionsPage() {
   const router = useRouter();
   // const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [auctions, setAuctions] = useState<Auction[]>([]);
+  // const [auctions, setAuctions] = useState<Auction[]>([]);
 
-  // 使用 scaffold-eth hook 读取合约数据
-  // const { data: activeAuctions, isLoading: isLoadingAuctions } = useScaffoldReadContract({
-  //   contractName: "EnglishAuction",
-  //   functionName: "getActiveAuctions",
-  // });
+  const { activeAuctions: auctions, isLoading } = useFetchAuctionList();
+  // console.log("=============activeAuctions", activeAuctions);
 
-  // console.log(activeAuctions);
-
-  const { activeAuctions, isLoading } = useAuction();
-  console.log("=============activeAuctions", activeAuctions);
-
-  useEffect(() => {
-    if (activeAuctions && activeAuctions.length > 0) {
-      // 仅在 activeAuctions 发生变化时更新状态
-      setAuctions(prevAuctions => {
-        // 仅在新数据与旧数据不同时更新
-        if (JSON.stringify(prevAuctions) !== JSON.stringify(activeAuctions)) {
-          return activeAuctions as Auction[];
-        }
-        return prevAuctions; // 返回旧状态以避免更新
-      });
-      // setLoading(false); // 如果需要，可以在这里设置加载状态
-    }
-  }, [activeAuctions]);
+  // useEffect(() => {
+  //   if (activeAuctions && activeAuctions.length > 0) {
+  //     // 仅在 activeAuctions 发生变化时更新状态
+  //     setAuctions(prevAuctions => {
+  //       // 仅在新数据与旧数据不同时更新
+  //       if (JSON.stringify(prevAuctions) !== JSON.stringify(activeAuctions)) {
+  //         return activeAuctions as Auction[];
+  //       }
+  //       return prevAuctions; // 返回旧状态以避免更新
+  //     });
+  //     // setLoading(false); // 如果需要，可以在这里设置加载状态
+  //   }
+  // }, [activeAuctions]);
 
   const handleViewDetail = (auctionId: string) => {
     router.push(`/auctions/${auctionId}`);
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -111,7 +78,7 @@ export default function AuctionsPage() {
           {auctions.map(auction => (
             <AuctionCard
               key={auction.auctionId}
-              {...auction}
+              auction={auction}
               onViewDetail={() => handleViewDetail(auction.auctionId)}
             />
           ))}

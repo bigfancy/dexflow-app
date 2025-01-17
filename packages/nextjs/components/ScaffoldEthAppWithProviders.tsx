@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
 import { useTheme } from "next-themes";
 import { Toaster } from "react-hot-toast";
@@ -55,6 +56,7 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
         >
           <ScaffoldEthApp>{children}</ScaffoldEthApp>
         </RainbowKitProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </WagmiProvider>
   );
