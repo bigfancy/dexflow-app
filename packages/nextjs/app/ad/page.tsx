@@ -5,24 +5,7 @@ import { useRouter } from "next/navigation";
 import { MdAdd } from "react-icons/md";
 import AdCard from "~~/components/ad/AdCard";
 import { mockAds } from "~~/config/mockAds";
-
-interface Ad {
-  id: string;
-  title: string;
-  image: string;
-  creator: string;
-  advertiser: string;
-  target: string;
-  budget: string;
-  costPerClick: string;
-  totalClicks: number;
-  totalReward: string;
-  impressions: number;
-  startingAt: string;
-  endingAt: string;
-  status: string;
-  isActive: boolean;
-}
+import { Ad } from "~~/types/ad-types";
 
 export default function AdListPage() {
   const router = useRouter();

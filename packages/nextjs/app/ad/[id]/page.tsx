@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { mockAds } from "@/config/mockAds";
-import { shortenAddress } from "@/utils/addresses";
+import { useParams, useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { FaEthereum, FaExternalLinkAlt } from "react-icons/fa";
 import { MdArrowBack } from "react-icons/md";
+import { mockAds } from "~~/config/mockAds";
+import { shortenAddress } from "~~/utils/addresses";
 
 export default function AdDetailPage() {
   const params = useParams();
@@ -19,8 +19,8 @@ export default function AdDetailPage() {
     const fetchAdDetail = async () => {
       try {
         // 模拟 API 延迟
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        const foundAd = mockAds.find((a) => a.id === params.id);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const foundAd = mockAds.find(a => a.id === params.id);
         setAd(foundAd);
       } catch (error) {
         console.error("Failed to fetch ad details:", error);
@@ -70,12 +70,7 @@ export default function AdDetailPage() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
           <div className="relative aspect-video">
-            <Image
-              src={ad.image}
-              alt={ad.title}
-              fill
-              className="object-cover"
-            />
+            <Image src={ad.image} alt={ad.title} fill className="object-cover" />
           </div>
 
           <div className="p-6">
@@ -83,9 +78,7 @@ export default function AdDetailPage() {
               <h1 className="text-3xl font-bold text-gray-900">{ad.title}</h1>
               <div
                 className={`px-3 py-1 rounded-full text-sm ${
-                  ad.isActive
-                    ? "bg-green-100 text-green-800"
-                    : "bg-gray-100 text-gray-800"
+                  ad.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
                 }`}
               >
                 {ad.isActive ? "Active" : "Inactive"}
@@ -94,15 +87,11 @@ export default function AdDetailPage() {
 
             <div className="grid grid-cols-2 gap-8 mb-6">
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">
-                  Advertiser
-                </h3>
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Advertiser</h3>
                 <p className="text-gray-900">{shortenAddress(ad.advertiser)}</p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">
-                  Target URL
-                </h3>
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Target URL</h3>
                 <a
                   href={ad.target}
                   target="_blank"
@@ -117,35 +106,25 @@ export default function AdDetailPage() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">
-                  Budget
-                </h3>
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Budget</h3>
                 <p className="text-xl font-semibold text-gray-900 flex items-center gap-1">
                   <FaEthereum className="text-[#627EEA]" />
                   {ad.budget}
                 </p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">
-                  Cost Per Click
-                </h3>
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Cost Per Click</h3>
                 <p className="text-xl font-semibold text-gray-900 flex items-center gap-1">
                   <FaEthereum className="text-[#627EEA]" />
                   {ad.costPerClick}
                 </p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">
-                  Total Clicks
-                </h3>
-                <p className="text-xl font-semibold text-gray-900">
-                  {ad.totalClicks}
-                </p>
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Total Clicks</h3>
+                <p className="text-xl font-semibold text-gray-900">{ad.totalClicks}</p>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-1">
-                  Total Reward
-                </h3>
+                <h3 className="text-sm font-medium text-gray-500 mb-1">Total Reward</h3>
                 <p className="text-xl font-semibold text-gray-900 flex items-center gap-1">
                   <FaEthereum className="text-[#627EEA]" />
                   {ad.totalReward}
@@ -156,9 +135,7 @@ export default function AdDetailPage() {
             <div className="border-t border-gray-200 pt-6">
               <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">
-                    Start Date
-                  </h3>
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">Start Date</h3>
                   <p className="text-gray-900">
                     {formatDistanceToNow(new Date(ad.startingAt), {
                       addSuffix: true,
@@ -166,9 +143,7 @@ export default function AdDetailPage() {
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">
-                    End Date
-                  </h3>
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">End Date</h3>
                   <p className="text-gray-900">
                     {formatDistanceToNow(new Date(ad.endingAt), {
                       addSuffix: true,

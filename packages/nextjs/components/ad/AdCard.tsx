@@ -4,21 +4,22 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { FaEthereum } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
+import { Ad } from "~~/types/ad-types";
 import { shortenAddress } from "~~/utils/addresses";
 
-interface AdCardProps {
-  id: string;
-  title: string;
-  image: string;
-  creator: string;
-  startingAt: string;
-  endingAt: string;
-  price: string;
-  status: string;
-  clicks: number;
-  impressions: number;
-  targetUrl: string;
-}
+// interface AdCardProps {
+//   id: string;
+//   title: string;
+//   image: string;
+//   creator: string;
+//   startingAt: string;
+//   endingAt: string;
+//   price: string;
+//   status: string;
+//   clicks: number;
+//   impressions: number;
+//   targetUrl: string;
+// }
 
 export default function AdCard({
   id,
@@ -27,17 +28,19 @@ export default function AdCard({
   creator,
   startingAt,
   endingAt,
-  price,
-  status,
-  clicks,
+  budget,
+  costPerClick,
+  totalClicks,
+  totalReward,
   impressions,
-  targetUrl,
-}: AdCardProps) {
+  status,
+  isActive,
+}: Ad) {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
   return (
     <Link href={`/ad/${id}`}>
-      <div className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-blue-500 transition-all hover:shadow-lg">
+      <div className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-lg transition-transform  hover:scale-105">
         {/* Ad Image */}
         <div className="relative aspect-video bg-gray-100">
           <Image
@@ -84,7 +87,7 @@ export default function AdCard({
           <div className="grid grid-cols-2 gap-4 mb-3">
             <div className="text-sm">
               <div className="text-gray-500">Clicks</div>
-              <div className="font-medium text-gray-900">{clicks}</div>
+              <div className="font-medium text-gray-900">{totalClicks}</div>
             </div>
             <div className="text-sm">
               <div className="text-gray-500">Impressions</div>
@@ -96,7 +99,7 @@ export default function AdCard({
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-1">
               <FaEthereum className="text-[#627EEA]" />
-              <span className="font-medium">{price} DAT</span>
+              <span className="font-medium">{budget} DAT</span>
             </div>
             <div className="text-sm text-gray-500">{formatDistanceToNow(new Date(endingAt), { addSuffix: true })}</div>
           </div>
