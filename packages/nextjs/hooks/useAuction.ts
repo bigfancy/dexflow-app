@@ -1,6 +1,6 @@
 import { Auction } from "../types/auction-types";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "./scaffold-eth";
-import { ethers } from "ethers";
+import { formatEther, parseEther } from "viem";
 
 // 格式化拍卖对象的函数
 const formatAuction = (auction: any): Auction => ({
@@ -13,13 +13,13 @@ const formatAuction = (auction: any): Auction => ({
   tokenURI: auction.nftInfo.tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/") || "",
   startingAt: auction.startingAt.toString(),
   endingAt: auction.endingAt.toString(),
-  startingPrice: ethers.formatEther(auction.startingPrice),
+  startingPrice: formatEther(auction.startingPrice),
   status: auction.status.toString(),
-  highestBid: ethers.formatEther(auction.highestBid),
+  highestBid: formatEther(auction.highestBid),
   highestBidder: auction.highestBidder,
   bidders: auction.bidders.map((bid: any) => ({
     bidder: bid.bidder,
-    bidAmount: ethers.formatEther(bid.bidAmount),
+    bidAmount: formatEther(bid.bidAmount),
     bidTime: bid.bidTime.toString(),
   })),
 });

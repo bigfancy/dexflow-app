@@ -1,10 +1,12 @@
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useDisconnect, useAccount } from "wagmi";
-import { FaSignOutAlt, FaImage } from "react-icons/fa";
-import { useEffect, useState } from "react";
+import useDFTokenBalance from "../hooks/useDFToken";
 import MiniNFTCard from "./MiniNFTCard";
-import { AuctionService } from "@/services/auctionService";
+import { FaImage, FaQrcode, FaSignOutAlt } from "react-icons/fa";
+import { useAccount, useDisconnect } from "wagmi";
+import { AddressQRCodeModal } from "~~/components/AddressQRCodeModal";
+import CopyAddressButton from "~~/components/CopyAddressButton";
 
 interface TokenDrawerProps {
   isOpen: boolean;
@@ -27,7 +29,9 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
   const [myNFTs, setMyNFTs] = useState<NFT[]>([]);
   const [loading, setLoading] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
-  const [datBalance, setDatBalance] = useState<string>("0");
+  const [isQRModalVisible, setIsQRModalVisible] = useState(false);
+
+  const { balance, loading: datBalanceLoading } = useDFTokenBalance(address || "");
 
   useEffect(() => {
     const fetchMyNFTs = async () => {
@@ -50,33 +54,33 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
     fetchMyNFTs();
   }, [isOpen]);
 
-  useEffect(() => {
-    const fetchBalances = async () => {
-      if (!address || !isOpen) return;
+  // useEffect(() => {
+  //   const fetchBalances = async () => {
+  //     if (!address || !isOpen) return;
 
-      setLoading(true);
-      try {
-        console.log("===== account address", address);
+  //     setLoading(true);
+  //     try {
+  //       console.log("===== account address", address);
 
-        const auctionService = AuctionService.getInstance();
-        const balance = await auctionService.getDATBalance(address);
-        setDatBalance(balance);
-        console.log("===== account balance", balance);
-      } catch (error) {
-        console.error("Failed to fetch balances:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       const auctionService = AuctionService.getInstance();
+  //       const balance = await auctionService.getDATBalance(address);
+  //       setDatBalance(balance);
+  //       console.log("===== account balance", balance);
+  //     } catch (error) {
+  //       console.error("Failed to fetch balances:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchBalances();
-  }, [address, isOpen]);
+  //   fetchBalances();
+  // }, [address, isOpen]);
 
   const handleDisconnect = async () => {
     setIsDisconnecting(true);
     try {
       await disconnect();
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500));
       onClose();
     } catch (error) {
       console.error("Disconnect failed:", error);
@@ -93,12 +97,7 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
   return (
     <>
       {/* Backdrop */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-[2px] z-40"
-          onClick={onClose}
-        />
-      )}
+      {isOpen && <div className="fixed inset-0 bg-black/20 backdrop-blur-[2px] z-40" onClick={onClose} />}
 
       {/* Drawer */}
       <div
@@ -117,22 +116,38 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
             </button>
           </div>
 
+          {/* Wallet Address Section */}
+          <div className="bg-gray-700/30 rounded-xl p-4 backdrop-blur-sm border border-gray-600/20 mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-gray-300/90">Wallet Address</span>
+              <label
+                htmlFor="qrcode-modal"
+                className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-700/50 transition-colors cursor-pointer"
+              >
+                <FaQrcode />
+              </label>
+            </div>
+            {address && (
+              <div className="flex items-center justify-between">
+                <CopyAddressButton address={address} />
+              </div>
+            )}
+          </div>
+
           <div className="space-y-4 flex-grow overflow-auto">
             <div className="bg-gray-700/30 rounded-xl p-4 backdrop-blur-sm border border-gray-600/20">
               <div className="flex items-center justify-between">
                 <span className="text-gray-300/90">DAT Balance</span>
-                {loading ? (
+                {datBalanceLoading ? (
                   <div className="animate-pulse h-6 w-24 bg-gray-600/50 rounded" />
                 ) : (
-                  <span className="text-white/90 font-bold">
-                    {datBalance} DAT
-                  </span>
+                  <span className="text-white/90 font-bold">{balance} DAT</span>
                 )}
               </div>
             </div>
 
             {/* NFTs Section */}
-            <div className="bg-gray-700/30 rounded-xl p-4 backdrop-blur-sm border border-gray-600/20">
+            {/* <div className="bg-gray-700/30 rounded-xl p-4 backdrop-blur-sm border border-gray-600/20">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-gray-300/90">My NFTs</span>
                 <span className="text-white/90 font-bold">{myNFTs.length}</span>
@@ -157,7 +172,7 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
                   No NFTs found
                 </div>
               )}
-            </div>
+            </div> */}
 
             <Link
               href="/mynfts"
@@ -193,6 +208,9 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
           </button>
         </div>
       </div>
+
+      {/* QR Code Modal */}
+      {address && <AddressQRCodeModal address={address} modalId="qrcode-modal" />}
     </>
   );
 }

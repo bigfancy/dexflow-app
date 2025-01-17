@@ -1,50 +1,25 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { shortenAddress } from "../utils/addresses";
-import { FiCopy } from "react-icons/fi";
+import CopyToClipboard from "react-copy-to-clipboard";
+import { FiCheckCircle, FiCopy } from "react-icons/fi";
 
-const InlineCopyAddressButton: React.FC<{ address: string }> = ({ address }) => {
-  const [tooltip, setTooltip] = useState("");
-
-  const copyToClipboard = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(address);
-      setTooltip("copied");
-      setTimeout(() => setTooltip(""), 2000); // Tooltip disappears after 2 seconds
-    } catch (err) {
-      setTooltip("Failed to copy!");
-      setTimeout(() => setTooltip(""), 2000); // Tooltip disappears after 2 seconds
-    }
-  }, [address]);
+const CopyAddressButton: React.FC<{ address: string }> = ({ address }) => {
+  const [addressCopied, setAddressCopied] = useState(false);
+  const handleCopy = () => {
+    setAddressCopied(true);
+    setTimeout(() => setAddressCopied(false), 2000); // Tooltip disappears after 2 seconds
+  };
 
   return (
-    <div
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        position: "relative",
-      }}
-    >
+    <div style={{ display: "inline-flex", alignItems: "center", position: "relative" }}>
       <span style={{ marginRight: "8px" }}>{shortenAddress(address)}</span>
-      <button onClick={copyToClipboard} style={{ border: "none", background: "none", cursor: "pointer" }}>
-        <FiCopy />
-        {tooltip && <div style={tooltipStyle}>{tooltip}</div>}
-      </button>
+      <CopyToClipboard text={address} onCopy={handleCopy}>
+        <button style={{ border: "none", background: "none", cursor: "pointer" }}>
+          {addressCopied ? <FiCheckCircle /> : <FiCopy />}
+        </button>
+      </CopyToClipboard>
     </div>
   );
 };
 
-// CSS for the tooltip
-const tooltipStyle: React.CSSProperties = {
-  position: "absolute",
-  bottom: "100%",
-  left: "80%",
-  transform: "translateX(-50%)",
-  padding: "8px",
-  color: "white",
-  backgroundColor: "black",
-  borderRadius: "4px",
-  fontSize: "14px",
-  whiteSpace: "nowrap",
-};
-
-export default InlineCopyAddressButton;
+export default CopyAddressButton;

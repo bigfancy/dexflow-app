@@ -90,10 +90,9 @@ export default function Header() {
 
       {/* Wallet and Connect Button */}
       <div className="flex items-center gap-4">
-        
-          <RainbowKitCustomConnectButton />
+        <RainbowKitCustomConnectButton />
 
-          {/* <ConnectKitButton.Custom>
+        {/* <ConnectKitButton.Custom>
             {({ isConnected, show, truncatedAddress, ensName }) => {
               const handleClick = () => {
                 if (isConnected) {
@@ -171,10 +170,7 @@ export default function Header() {
       )}
 
       {/* Token Balance Drawer */}
-      {/* <TokenDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-      /> */}
+      <TokenDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
       {/* Invite Modal */}
       <InviteModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} userAddress={address || ""} />
