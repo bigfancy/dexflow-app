@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import CopyAddressButton from "~~/components/CopyAddressButton";
 import CreateBidModal from "~~/components/auction/CreateBidModal";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { useFetchAuctionDetail } from "~~/hooks/useAuctionDetail";
 import { Auction } from "~~/types/auction-types";
 import { shortenAddress } from "~~/utils/addresses";
@@ -19,17 +18,9 @@ export default function AuctionDetailsPage() {
   const [auction, setAuction] = useState<Auction | null>(null);
 
   const auctionId = Array.isArray(params.id) ? params.id[0] : params.id; // 确保是字符串
-  // split auctionId into nftAddress, tokenId by -
   const [nftAddress, tokenId] = auctionId.split("-");
-  // Use scaffold-eth hook to read auction details
   const { auctionDetail, isLoading } = useFetchAuctionDetail(nftAddress, tokenId);
   console.log("auctionDetail", auctionDetail);
-
-  // useEffect(() => {
-  //   if (auctionDetail !== auction) {
-  //     setAuction(() => auctionDetail);
-  //   }
-  // }, [auctionDetail]);
 
   const handleBidSuccess = () => {
     // Refresh auction details by refetching
@@ -133,7 +124,7 @@ export default function AuctionDetailsPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Highest Bidder</span>
                   <span className="text-gray-200">
-                    <CopyAddressButton address={auctionDetail.highestBidder || ""} />
+                    {auctionDetail.highestBidder && <CopyAddressButton address={auctionDetail.highestBidder} />}
                   </span>
                 </div>
               </div>

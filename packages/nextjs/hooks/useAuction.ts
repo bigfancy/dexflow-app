@@ -1,6 +1,6 @@
 import { Auction } from "../types/auction-types";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "./scaffold-eth";
-import { formatEther, parseEther } from "viem";
+import { formatEther, parseEther, zeroAddress } from "viem";
 
 // 格式化拍卖对象的函数
 const formatAuction = (auction: any): Auction => ({
@@ -16,7 +16,7 @@ const formatAuction = (auction: any): Auction => ({
   startingPrice: formatEther(auction.startingPrice),
   status: auction.status.toString(),
   highestBid: formatEther(auction.highestBid),
-  highestBidder: auction.highestBidder,
+  highestBidder: auction.highestBidder !== zeroAddress ? auction.highestBidder : "",
   bidders: auction.bidders.map((bid: any) => ({
     bidder: bid.bidder,
     bidAmount: formatEther(bid.bidAmount),

@@ -1,43 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaPlus } from "react-icons/fa";
 import AuctionCard from "~~/components/auction/AuctionCard";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 import { useFetchAuctionList } from "~~/hooks/useAuction";
-import { Auction } from "~~/types/auction-types";
 
 export default function AuctionsPage() {
   const router = useRouter();
-  // const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  // const [auctions, setAuctions] = useState<Auction[]>([]);
 
   const { activeAuctions: auctions, isLoading } = useFetchAuctionList();
-  // console.log("=============activeAuctions", activeAuctions);
-
-  // useEffect(() => {
-  //   if (activeAuctions && activeAuctions.length > 0) {
-  //     // 仅在 activeAuctions 发生变化时更新状态
-  //     setAuctions(prevAuctions => {
-  //       // 仅在新数据与旧数据不同时更新
-  //       if (JSON.stringify(prevAuctions) !== JSON.stringify(activeAuctions)) {
-  //         return activeAuctions as Auction[];
-  //       }
-  //       return prevAuctions; // 返回旧状态以避免更新
-  //     });
-  //     // setLoading(false); // 如果需要，可以在这里设置加载状态
-  //   }
-  // }, [activeAuctions]);
 
   const handleViewDetail = (auctionId: string) => {
     router.push(`/auctions/${auctionId}`);
   };
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -61,17 +36,6 @@ export default function AuctionsPage() {
       {isLoading ? (
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        </div>
-      ) : error ? (
-        <div className="flex justify-center items-center min-h-[400px]">
-          <div className="text-red-500 text-center">
-            <p className="text-xl mb-4">😕</p>
-            <p>{error}</p>
-          </div>
-        </div>
-      ) : auctions.length === 0 ? (
-        <div className="text-center text-gray-400 py-12">
-          <p className="mb-4">No active auctions at the moment</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
