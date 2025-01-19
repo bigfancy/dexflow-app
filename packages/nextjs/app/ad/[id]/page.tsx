@@ -1,38 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { formatDistanceToNow } from "date-fns";
 import { FaEthereum, FaExternalLinkAlt } from "react-icons/fa";
 import { MdArrowBack } from "react-icons/md";
-import { mockAds } from "~~/config/mockAds";
+import { useAdDetail } from "~~/hooks/useAd";
 import { shortenAddress } from "~~/utils/addresses";
 
 export default function AdDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [ad, setAd] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { ad, isLoading } = useAdDetail(params.id as string);
 
-  useEffect(() => {
-    const fetchAdDetail = async () => {
-      try {
-        // 模拟 API 延迟
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const foundAd = mockAds.find(a => a.id === params.id);
-        setAd(foundAd);
-      } catch (error) {
-        console.error("Failed to fetch ad details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAdDetail();
-  }, [params.id]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8 animate-pulse">
         <div className="max-w-4xl mx-auto">
@@ -52,6 +32,9 @@ export default function AdDetailPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900">Ad not found</h2>
+          <button onClick={() => router.push("/ad")} className="mt-4 text-blue-600 hover:text-blue-700">
+            Back to Ads
+          </button>
         </div>
       </div>
     );
@@ -70,12 +53,12 @@ export default function AdDetailPage() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
           <div className="relative aspect-video">
-            <Image src={ad.image} alt={ad.title} fill className="object-cover" />
+            <Image src={ad.imageUrl} alt="Ad" fill className="object-cover" />
           </div>
 
           <div className="p-6">
             <div className="flex justify-between items-start mb-4">
-              <h1 className="text-3xl font-bold text-gray-900">{ad.title}</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Ad Details</h1>
               <div
                 className={`px-3 py-1 rounded-full text-sm ${
                   ad.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
@@ -93,12 +76,12 @@ export default function AdDetailPage() {
               <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-1">Target URL</h3>
                 <a
-                  href={ad.target}
+                  href={ad.targetUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:text-blue-700 flex items-center gap-2"
                 >
-                  {new URL(ad.target).hostname}
+                  {new URL(ad.targetUrl).hostname}
                   <FaExternalLinkAlt className="w-3 h-3" />
                 </a>
               </div>
@@ -135,20 +118,12 @@ export default function AdDetailPage() {
             <div className="border-t border-gray-200 pt-6">
               <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Start Date</h3>
-                  <p className="text-gray-900">
-                    {formatDistanceToNow(new Date(ad.startingAt), {
-                      addSuffix: true,
-                    })}
-                  </p>
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">Duration</h3>
+                  <p className="text-gray-900">{parseInt(ad.duration) / (24 * 60 * 60)} days</p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">End Date</h3>
-                  <p className="text-gray-900">
-                    {formatDistanceToNow(new Date(ad.endingAt), {
-                      addSuffix: true,
-                    })}
-                  </p>
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">Status</h3>
+                  <p className="text-gray-900">{ad.isActive ? "Active" : "Inactive"}</p>
                 </div>
               </div>
             </div>

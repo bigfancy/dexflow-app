@@ -198,7 +198,12 @@ const deployedContracts = {
             },
             {
               internalType: "string",
-              name: "target",
+              name: "targetUrl",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "imageUrl",
               type: "string",
             },
             {
@@ -226,6 +231,11 @@ const deployedContracts = {
               name: "isActive",
               type: "bool",
             },
+            {
+              internalType: "uint256",
+              name: "duration",
+              type: "uint256",
+            },
           ],
           stateMutability: "view",
           type: "function",
@@ -238,6 +248,11 @@ const deployedContracts = {
               type: "string",
             },
             {
+              internalType: "string",
+              name: "_imageUrl",
+              type: "string",
+            },
+            {
               internalType: "uint256",
               name: "_budget",
               type: "uint256",
@@ -245,6 +260,11 @@ const deployedContracts = {
             {
               internalType: "uint256",
               name: "_costPerClick",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_duration",
               type: "uint256",
             },
           ],
@@ -283,6 +303,278 @@ const deployedContracts = {
             },
           ],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getActiveAds",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "advertiser",
+                  type: "address",
+                },
+                {
+                  internalType: "string",
+                  name: "targetUrl",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "imageUrl",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "budget",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "costPerClick",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "totalClicks",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "totalReward",
+                  type: "uint256",
+                },
+                {
+                  internalType: "bool",
+                  name: "isActive",
+                  type: "bool",
+                },
+                {
+                  internalType: "uint256",
+                  name: "duration",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct AdAlliance.Ad[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_adId",
+              type: "uint256",
+            },
+          ],
+          name: "getAd",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "advertiser",
+                  type: "address",
+                },
+                {
+                  internalType: "string",
+                  name: "targetUrl",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "imageUrl",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "budget",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "costPerClick",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "totalClicks",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "totalReward",
+                  type: "uint256",
+                },
+                {
+                  internalType: "bool",
+                  name: "isActive",
+                  type: "bool",
+                },
+                {
+                  internalType: "uint256",
+                  name: "duration",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct AdAlliance.Ad",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getAllAds",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "advertiser",
+                  type: "address",
+                },
+                {
+                  internalType: "string",
+                  name: "targetUrl",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "imageUrl",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "budget",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "costPerClick",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "totalClicks",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "totalReward",
+                  type: "uint256",
+                },
+                {
+                  internalType: "bool",
+                  name: "isActive",
+                  type: "bool",
+                },
+                {
+                  internalType: "uint256",
+                  name: "duration",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct AdAlliance.Ad[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_user",
+              type: "address",
+            },
+          ],
+          name: "getUserAds",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint256",
+                  name: "id",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "advertiser",
+                  type: "address",
+                },
+                {
+                  internalType: "string",
+                  name: "targetUrl",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "imageUrl",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "budget",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "costPerClick",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "totalClicks",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "totalReward",
+                  type: "uint256",
+                },
+                {
+                  internalType: "bool",
+                  name: "isActive",
+                  type: "bool",
+                },
+                {
+                  internalType: "uint256",
+                  name: "duration",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct AdAlliance.Ad[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {

@@ -5,12 +5,14 @@ contract AdAlliance {
     struct Ad {
         uint256 id;
         address advertiser;
-        string target;
+        string targetUrl;
+        string imageUrl;
         uint256 budget;
         uint256 costPerClick;
         uint256 totalClicks;
         uint256 totalReward;
         bool isActive;
+        uint256 duration;
     }
 
     // Token used for settlement
@@ -25,6 +27,12 @@ contract AdAlliance {
     uint256 public linkCounter;
 
     address public admin;
+
+    // Track all ad IDs
+    uint256[] private allAdIds;
+    
+    // Track user's ads
+    mapping(address => uint256[]) private userAds;
 
     // Events
     event AdCreated(uint256 indexed adId, address indexed advertiser, string target, uint256 budget);
@@ -48,22 +56,35 @@ contract AdAlliance {
     }
 
     // 1. Create a new ad
-    function createAd(string calldata _target, uint256 _budget, uint256 _costPerClick) external {
+    function createAd(
+        string calldata _target, 
+        string calldata _imageUrl,
+        uint256 _budget, 
+        uint256 _costPerClick,
+        uint256 _duration
+    ) external {
         require(_budget > 0, "Budget must be greater than 0");
         require(_costPerClick > 0, "Cost per click must be greater than 0");
+        require(_duration > 0, "Duration must be greater than 0");
         require(datToken.transferFrom(msg.sender, address(this), _budget), "Budget transfer failed");
 
         adCount++;
         ads[adCount] = Ad({
             id: adCount,
             advertiser: msg.sender,
-            target: _target,
+            targetUrl: _target,
+            imageUrl: _imageUrl,
             budget: _budget,
             costPerClick: _costPerClick,
             totalClicks: 0,
             totalReward: 0,
-            isActive: true
+            isActive: true,
+            duration: _duration
         });
+
+        uint256 newAdId = adCount;
+        allAdIds.push(newAdId);
+        userAds[msg.sender].push(newAdId);
 
         emit AdCreated(adCount, msg.sender, _target, _budget);
     }
@@ -117,6 +138,64 @@ contract AdAlliance {
         }
 
         emit ClicksSettled(_adId, totalClicks, totalCost);
+    }
+
+    // Get all ads
+    function getAllAds() external view returns (Ad[] memory) {
+        Ad[] memory allAds = new Ad[](allAdIds.length);
+        
+        for (uint256 i = 0; i < allAdIds.length; i++) {
+            uint256 adId = allAdIds[i];
+            allAds[i] = ads[adId];
+        }
+        
+        return allAds;
+    }
+
+    // Get user's ads
+    function getUserAds(address _user) external view returns (Ad[] memory) {
+        uint256[] storage userAdIds = userAds[_user];
+        Ad[] memory userAdList = new Ad[](userAdIds.length);
+        
+        for (uint256 i = 0; i < userAdIds.length; i++) {
+            uint256 adId = userAdIds[i];
+            userAdList[i] = ads[adId];
+        }
+        
+        return userAdList;
+    }
+
+    // Get single ad
+    function getAd(uint256 _adId) external view returns (Ad memory) {
+        require(_adId > 0 && _adId <= adCount, "Invalid ad ID");
+        return ads[_adId];
+    }
+
+    // Get active ads
+    function getActiveAds() external view returns (Ad[] memory) {
+        uint256 activeCount = 0;
+        
+        // First count active ads
+        for (uint256 i = 0; i < allAdIds.length; i++) {
+            if (ads[allAdIds[i]].isActive) {
+                activeCount++;
+            }
+        }
+        
+        // Create array of correct size
+        Ad[] memory activeAds = new Ad[](activeCount);
+        uint256 currentIndex = 0;
+        
+        // Fill array with active ads
+        for (uint256 i = 0; i < allAdIds.length; i++) {
+            uint256 adId = allAdIds[i];
+            if (ads[adId].isActive) {
+                activeAds[currentIndex] = ads[adId];
+                currentIndex++;
+            }
+        }
+        
+        return activeAds;
     }
 }
 

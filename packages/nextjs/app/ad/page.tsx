@@ -1,33 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MdAdd } from "react-icons/md";
 import AdCard from "~~/components/ad/AdCard";
-import { mockAds } from "~~/config/mockAds";
-import { Ad } from "~~/types/ad-types";
+import { useActiveAds } from "~~/hooks/useAd";
 
 export default function AdListPage() {
   const router = useRouter();
-  const [ads, setAds] = useState<Ad[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // 使用 mock 数据
-    const fetchAds = async () => {
-      try {
-        // 模拟 API 延迟
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setAds(mockAds);
-      } catch (error) {
-        console.error("Failed to fetch ads:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAds();
-  }, []);
+  const { ads, isLoading } = useActiveAds();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -45,7 +25,7 @@ export default function AdListPage() {
         </button>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="bg-white rounded-2xl overflow-hidden border border-gray-200 animate-pulse">
@@ -58,10 +38,15 @@ export default function AdListPage() {
             </div>
           ))}
         </div>
+      ) : ads.length === 0 ? (
+        <div className="text-center py-12">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No active ads</h3>
+          <p className="text-gray-500">Create your first ad to get started</p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {ads.map(ad => (
-            <AdCard key={ad.id} {...ad} />
+            <AdCard key={ad.id} {...ad} onClick={() => router.push(`/ad/${ad.id}`)} />
           ))}
         </div>
       )}

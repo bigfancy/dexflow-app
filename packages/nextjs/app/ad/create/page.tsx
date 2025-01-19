@@ -7,6 +7,7 @@ import { notification } from "antd";
 import axios from "axios";
 import { MdArrowBack, MdCloudUpload } from "react-icons/md";
 import { useAccount } from "wagmi";
+import { useCreateAd } from "~~/hooks/useAd";
 
 interface UploadedFile {
   preview: string;
@@ -26,6 +27,16 @@ export default function CreateAdPage() {
   const [costPerClick, setCostPerClick] = useState("");
   const [duration, setDuration] = useState("");
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
+
+  // Use create ad hook
+  const { handleCreateAd, isCreating } = useCreateAd(
+    title,
+    targetUrl,
+    uploadedFile?.preview || "",
+    budget,
+    costPerClick,
+    duration,
+  );
 
   // Handle file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,24 +106,11 @@ export default function CreateAdPage() {
       // Upload image to IPFS
       const ipfsUrl = await uploadToPinata(uploadedFile.file);
 
-      // TODO: Call smart contract to create ad
-      const adData = {
-        title,
-        targetUrl,
-        budget,
-        costPerClick,
-        duration,
-        mediaUrl: ipfsUrl,
-        advertiser: address,
-      };
-
-      console.log("Creating ad:", adData);
-
-      notification.success({
-        message: "Ad created successfully",
-        description: "Your ad has been created and is now pending review",
-      });
-      router.push("/ad");
+      // Create ad using the hook
+      const success = await handleCreateAd();
+      if (success) {
+        router.push("/ad");
+      }
     } catch (error: any) {
       console.error("Failed to create ad:", error);
       notification.error({
@@ -306,10 +304,10 @@ export default function CreateAdPage() {
                     </button>
                     <button
                       type="submit"
-                      disabled={loading || !isConnected}
+                      disabled={loading || isCreating || !isConnected}
                       className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                     >
-                      {loading ? "Creating..." : "Create Ad"}
+                      {isCreating ? "Creating..." : "Create Ad"}
                     </button>
                   </div>
                 </div>
