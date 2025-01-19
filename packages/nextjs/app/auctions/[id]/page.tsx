@@ -177,16 +177,16 @@ export default function AuctionDetailsPage() {
               </button>
 
               {/* Bid Modal */}
-              {/* <CreateBidModal
+              <CreateBidModal
                 isOpen={isBidModalOpen}
                 onClose={() => setIsBidModalOpen(false)}
                 nftAddress={auctionDetail.nftAddress}
                 tokenId={auctionDetail.tokenId}
                 startingPrice={Number(auctionDetail.startingPrice)}
                 highestBid={Number(auctionDetail.highestBid)}
-                isSubmitting={isSubmitting}
+                isSubmitting={false}
                 onSuccess={handleBidSuccess}
-              /> */}
+              />
             </div>
           </div>
         </div>

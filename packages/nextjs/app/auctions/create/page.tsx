@@ -17,7 +17,7 @@ export default function CreateAuctionPage() {
   const [auctionType, setAuctionType] = useState<"0" | "1">("0");
 
   // Step 2 - NFT Details
-  const [nftContract, setNftContract] = useState("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+  const [nftContract, setNftContract] = useState("0x5FbDB2315678afecb367f032d93F642f64180aa3");
   const [tokenId, setTokenId] = useState("0");
   // const [nftInfo, setNftInfo] = useState<NFTInfo | null>(null);
   const [nftError, setNftError] = useState<string | null>(null);
