@@ -20,7 +20,9 @@ contract AdAlliance {
 
     // Mappings for ads and user associations
     mapping(uint256 => Ad) public ads;
+    // adId => linkId => user
     mapping(uint256 => mapping(uint256 => address)) public adLinks;
+    // user => adId => linkId
     mapping(address => mapping(uint256 => uint256)) public userLinkIds;
 
     uint256 public adCount;

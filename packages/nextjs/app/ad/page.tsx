@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { log } from "console";
 import { MdAdd } from "react-icons/md";
 import AdCard from "~~/components/ad/AdCard";
 import { useActiveAds } from "~~/hooks/useAd";
@@ -8,6 +9,7 @@ import { useActiveAds } from "~~/hooks/useAd";
 export default function AdListPage() {
   const router = useRouter();
   const { ads, isLoading } = useActiveAds();
+  console.log("===========ads", ads);
 
   return (
     <div className="container mx-auto px-4 py-8">

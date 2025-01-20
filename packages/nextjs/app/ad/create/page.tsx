@@ -21,22 +21,15 @@ export default function CreateAdPage() {
   const [currentStep, setCurrentStep] = useState(1);
 
   // Form states
-  const [title, setTitle] = useState("");
   const [targetUrl, setTargetUrl] = useState("");
   const [budget, setBudget] = useState("");
   const [costPerClick, setCostPerClick] = useState("");
   const [duration, setDuration] = useState("");
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
+  const [imageUrl, setImageUrl] = useState("");
 
   // Use create ad hook
-  const { handleCreateAd, isCreating } = useCreateAd(
-    title,
-    targetUrl,
-    uploadedFile?.preview || "",
-    budget,
-    costPerClick,
-    duration,
-  );
+  const { handleCreateAd, isCreating } = useCreateAd(targetUrl, imageUrl, budget, costPerClick, duration);
 
   // Handle file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,8 +98,12 @@ export default function CreateAdPage() {
     try {
       // Upload image to IPFS
       const ipfsUrl = await uploadToPinata(uploadedFile.file);
+      setImageUrl(ipfsUrl);
 
-      // Create ad using the hook
+      // Wait for state update to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Create ad using the hook with the updated imageUrl
       const success = await handleCreateAd();
       if (success) {
         router.push("/ad");
@@ -233,17 +230,6 @@ export default function CreateAdPage() {
               {currentStep === 2 && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium mb-1 text-gray-700">Title</label>
-                      <input
-                        type="text"
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                        className="w-full bg-white border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        required
-                      />
-                    </div>
-
                     <div>
                       <label className="block text-sm font-medium mb-1 text-gray-700">Target URL</label>
                       <input

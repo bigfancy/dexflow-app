@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "./scaffold-eth";
 import { notification } from "antd";
-import { Address, parseEther, formatEther } from "viem";
+import { Address, formatEther, parseEther } from "viem";
 import { useAccount } from "wagmi";
 
 export interface Ad {
@@ -72,6 +72,8 @@ export const useCreateAd = (
       });
       return;
     }
+
+    console.log(`Budget: ${budget}, Cost per Click: ${costPerClick}, Duration: ${duration}`);
 
     setIsCreating(true);
     try {
