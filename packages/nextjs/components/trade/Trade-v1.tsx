@@ -30,7 +30,7 @@ const TOKENS: Token[] = [
     logoURI: "https://token-icons.s3.amazonaws.com/eth.png",
   },
   {
-    symbol: "DAT",
+    symbol: "DFT",
     name: "DAuction Token",
     icon: <MdToken className="w-6 h-6 text-blue-500" />,
     logoURI: "/logo1.png",

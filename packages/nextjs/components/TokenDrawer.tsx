@@ -137,11 +137,11 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
           <div className="space-y-4 flex-grow overflow-auto">
             <div className="bg-gray-700/30 rounded-xl p-4 backdrop-blur-sm border border-gray-600/20">
               <div className="flex items-center justify-between">
-                <span className="text-gray-300/90">DAT Balance</span>
+                <span className="text-gray-300/90">DFT Balance</span>
                 {datBalanceLoading ? (
                   <div className="animate-pulse h-6 w-24 bg-gray-600/50 rounded" />
                 ) : (
-                  <span className="text-white/90 font-bold">{balance} DAT</span>
+                  <span className="text-white/90 font-bold">{balance} DFT</span>
                 )}
               </div>
             </div>

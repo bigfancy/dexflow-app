@@ -100,7 +100,7 @@ export const usePool = () => {
         const poolsData: PairInfo[] = [
           {
             id: 1,
-            pair: "ETH/DAT",
+            pair: "ETH/DFT",
             version: "v2",
             fee: "0.3%",
             tvl: "$155.1M",

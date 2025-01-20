@@ -307,7 +307,7 @@ export default function CreateAuctionPage() {
                 <h2 className="text-xl font-bold mb-4 text-gray-900">Auction Settings</h2>
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium mb-1 text-gray-700">Starting Price (DAT)</label>
+                    <label className="block text-sm font-medium mb-1 text-gray-700">Starting Price (DFT)</label>
                     <input
                       type="number"
                       value={startingPrice}
@@ -332,7 +332,7 @@ export default function CreateAuctionPage() {
                   {auctionType === "1" && (
                     <>
                       <div>
-                        <label className="block text-sm font-medium mb-1 text-gray-700">Price Decrement (DAT)</label>
+                        <label className="block text-sm font-medium mb-1 text-gray-700">Price Decrement (DFT)</label>
                         <input
                           type="number"
                           value={priceDecrement}

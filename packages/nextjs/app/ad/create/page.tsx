@@ -256,7 +256,7 @@ export default function CreateAdPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-1 text-gray-700">Budget (DAT)</label>
+                      <label className="block text-sm font-medium mb-1 text-gray-700">Budget (DFT)</label>
                       <input
                         type="number"
                         value={budget}
@@ -269,7 +269,7 @@ export default function CreateAdPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-1 text-gray-700">Cost Per Click (DAT)</label>
+                      <label className="block text-sm font-medium mb-1 text-gray-700">Cost Per Click (DFT)</label>
                       <input
                         type="number"
                         value={costPerClick}

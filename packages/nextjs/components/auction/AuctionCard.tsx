@@ -158,7 +158,7 @@ export default function AuctionCard({ auction, onViewDetail }: { auction: Auctio
 
           <div className="flex justify-between">
             <span className="text-gray-400">Starting Price</span>
-            <span className="text-gray-200">{auction.startingPrice} DAT</span>
+            <span className="text-gray-200">{auction.startingPrice} DFT</span>
           </div>
 
           <div className="flex justify-between">
@@ -175,7 +175,7 @@ export default function AuctionCard({ auction, onViewDetail }: { auction: Auctio
 
           <div className="flex justify-between">
             <span className="text-gray-400">Highest Bid</span>
-            <span className="text-gray-200">{auction.highestBid || "No bids"} DAT</span>
+            <span className="text-gray-200">{auction.highestBid || "No bids"} DFT</span>
           </div>
         </div>
         {/* View Detail Button */}

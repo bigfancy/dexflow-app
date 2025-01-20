@@ -42,7 +42,7 @@ export const useFetchAuctionList = () => {
     return auctions.map((auction: any) => formatAuction(auction));
   };
 
-  // 获取 DAT 余额
+  // 获取 DFT 余额
   //   const { data: datBalance } = useScaffoldReadContract({
   //     contractName: "DFToken",
   //     functionName: "balanceOf",

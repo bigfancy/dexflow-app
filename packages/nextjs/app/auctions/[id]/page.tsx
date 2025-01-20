@@ -112,13 +112,13 @@ export default function AuctionDetailsPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Current Bid</span>
                   <div className="flex items-center gap-2 text-2xl font-bold text-gray-100">
-                    <span>{auctionDetail.highestBid} DAT</span>
+                    <span>{auctionDetail.highestBid} DFT</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Starting Price</span>
                   <div className="flex items-center gap-2 text-gray-200">
-                    <span>{auctionDetail.startingPrice} DAT</span>
+                    <span>{auctionDetail.startingPrice} DFT</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center">
@@ -151,7 +151,7 @@ export default function AuctionDetailsPage() {
                               <td className="py-3">
                                 <CopyAddressButton address={bidder.bidder} />
                               </td>
-                              <td className="py-3">{bidder.bidAmount} DAT</td>
+                              <td className="py-3">{bidder.bidAmount} DFT</td>
                               <td className="py-3">{new Date(Number(bidder.bidTime) * 1000).toLocaleString()}</td>
                             </tr>
                           ))

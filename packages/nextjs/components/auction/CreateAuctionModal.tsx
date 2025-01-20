@@ -86,7 +86,7 @@ export default function CreateAuctionModal({
         </label>
 
         <label className="block mb-4">
-          <span className="text-gray-300">Starting Price (DAT)</span>
+          <span className="text-gray-300">Starting Price (DFT)</span>
           <input
             type="number"
             className="w-full p-2 mt-1 bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none"
@@ -96,7 +96,7 @@ export default function CreateAuctionModal({
         </label>
 
         <label className="block mb-4">
-          <span className="text-gray-300">Reserve Price (DAT)</span>
+          <span className="text-gray-300">Reserve Price (DFT)</span>
           <input
             type="number"
             className="w-full p-2 mt-1 bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none"
@@ -138,7 +138,7 @@ export default function CreateAuctionModal({
         {auctionType === 1 && (
           <>
             <label className="block mb-4">
-              <span className="text-gray-300">Price Decrement (DAT)</span>
+              <span className="text-gray-300">Price Decrement (DFT)</span>
               <input
                 type="number"
                 className="w-full p-2 mt-1 bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none"

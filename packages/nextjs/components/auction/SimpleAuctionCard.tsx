@@ -51,7 +51,7 @@ export default function SimpleAuctionCard({
               Current Bid
             </p>
             <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">
-              {currentBid} DAT
+              {currentBid} DFT
             </p>
           </div>
           <div className="text-right space-y-1">

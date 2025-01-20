@@ -1,6 +1,7 @@
-import { ethers } from "ethers";
 import EnglishAuctionABI from "../abi/EnglishAuction.json";
 import { BlockchainService } from "./blockchainService";
+import { ethers } from "ethers";
+
 // import { useAuctionContract } from "../hooks/useContract";
 
 export interface AuctionCreated {
@@ -62,7 +63,7 @@ export class AuctionService {
     return AuctionService.instance;
   }
 
-  private formatDATAmount(amount: bigint, decimals: number = 18): string {
+  private formatDATAmount(amount: bigint, decimals = 18): string {
     return ethers.formatUnits(amount, decimals);
   }
 
@@ -81,22 +82,15 @@ export class AuctionService {
         this.provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await this.provider.getSigner();
         if (!signer) {
-          throw new Error(
-            "Signer is not available. Please connect your wallet."
-          );
+          throw new Error("Signer is not available. Please connect your wallet.");
         }
-        const contractAddress =
-          process.env.NEXT_PUBLIC_AUCTION_CONTRACT_ADDRESS;
+        const contractAddress = process.env.NEXT_PUBLIC_AUCTION_CONTRACT_ADDRESS;
 
         if (!contractAddress) {
           throw new Error("Auction contract address not configured");
         }
 
-        this.contract = new ethers.Contract(
-          contractAddress,
-          EnglishAuctionABI.abi,
-          signer
-        );
+        this.contract = new ethers.Contract(contractAddress, EnglishAuctionABI.abi, signer);
         console.log("============this.contract", this.contract);
         console.log("Contract instance created successfully");
       }
@@ -128,16 +122,13 @@ export class AuctionService {
     }
   }
 
-  public async getNFTInfo(
-    nftAddress: string,
-    tokenId: string
-  ): Promise<NFTMetadata> {
+  public async getNFTInfo(nftAddress: string, tokenId: string): Promise<NFTMetadata> {
     try {
       const signer = await this.provider!.getSigner();
       const nftAddressInstance = new ethers.Contract(
         nftAddress,
         ["function tokenURI(uint256) view returns (string)"],
-        signer
+        signer,
       );
 
       const tokenURI = await nftAddressInstance.tokenURI(Number(tokenId));
@@ -148,10 +139,7 @@ export class AuctionService {
     }
   }
 
-  public async approveNFT(
-    nftAddress: string,
-    tokenId: number
-  ): Promise<NFTMetadata> {
+  public async approveNFT(nftAddress: string, tokenId: number): Promise<NFTMetadata> {
     try {
       const contract = await this.getContract();
       const signer = await this.provider!.getSigner();
@@ -185,26 +173,20 @@ export class AuctionService {
           "function getApproved(uint256 tokenId) view returns (address)",
           "function tokenCounter() view returns (uint256)",
         ],
-        signer
+        signer,
       );
 
       try {
         // 首先检查代币是否存在
         const tokenCounter = await nftAddressInstance.tokenCounter();
         if (BigInt(tokenId) >= tokenCounter) {
-          throw new Error(
-            `Token ID ${tokenId} does not exist. Current max Token ID is ${
-              tokenCounter - 1
-            }`
-          );
+          throw new Error(`Token ID ${tokenId} does not exist. Current max Token ID is ${tokenCounter - 1}`);
         }
 
         // 检查所有权
         const owner = await nftAddressInstance.ownerOf(tokenId);
         if (owner.toLowerCase() !== signerAddress.toLowerCase()) {
-          throw new Error(
-            `You are not the owner of this NFT. Owner: ${owner}, Your address: ${signerAddress}`
-          );
+          throw new Error(`You are not the owner of this NFT. Owner: ${owner}, Your address: ${signerAddress}`);
         }
 
         // 检查特定 NFT 的授权状态
@@ -219,10 +201,7 @@ export class AuctionService {
           // 准备交易参数
           const approveTx = {
             to: nftAddress,
-            data: nftAddressInstance.interface.encodeFunctionData("approve", [
-              auctionAddress,
-              tokenId,
-            ]),
+            data: nftAddressInstance.interface.encodeFunctionData("approve", [auctionAddress, tokenId]),
           };
 
           console.log("Transaction parameters:", approveTx);
@@ -232,18 +211,14 @@ export class AuctionService {
           try {
             const tx = await signer.sendTransaction(approveTx);
             await tx.wait(); // 等待交易确认
-            console.log("DAT approved successfully");
+            console.log("DFT approved successfully");
           } catch (error) {
             console.error("Failed to send transaction:", error);
           }
 
           // 验证授权是否成功
-          const newApprovedAddress = await nftAddressInstance.getApproved(
-            tokenId
-          );
-          if (
-            newApprovedAddress.toLowerCase() !== auctionAddress.toLowerCase()
-          ) {
+          const newApprovedAddress = await nftAddressInstance.getApproved(tokenId);
+          if (newApprovedAddress.toLowerCase() !== auctionAddress.toLowerCase()) {
             throw new Error("NFT approval failed, please try again");
           }
         }
@@ -271,7 +246,7 @@ export class AuctionService {
     nftAddress: string,
     tokenId: number,
     startingPrice: number,
-    duration: number
+    duration: number,
   ): Promise<string> {
     try {
       const contract = await this.getContract();
@@ -318,12 +293,7 @@ export class AuctionService {
       });
 
       // 调用合约的 createAuction 方法
-      const tx = await contract.createAuction(
-        nftAddress,
-        tokenId,
-        startingPriceWei,
-        duration
-      );
+      const tx = await contract.createAuction(nftAddress, tokenId, startingPriceWei, duration);
       const receipt = await tx.wait();
       console.log("Auction created successfully, transaction hash:", tx.hash);
       return tx.hash;
@@ -337,11 +307,7 @@ export class AuctionService {
     const datTokenAbi = ["function decimals() view returns (uint8)"];
     const datTokenAddress = process.env.NEXT_PUBLIC_DAT_CONTRACT_ADDRESS;
     const provider = new ethers.BrowserProvider(window.ethereum);
-    const datContract = new ethers.Contract(
-      datTokenAddress || "",
-      datTokenAbi,
-      provider
-    );
+    const datContract = new ethers.Contract(datTokenAddress || "", datTokenAbi, provider);
     return await datContract.decimals();
   }
 
@@ -353,12 +319,8 @@ export class AuctionService {
     return ethers.formatEther(amount);
   }
 
-  // 更新 bid 方法，接收 DAT 单位的输入
-  public async bid(
-    nftAddress: string,
-    tokenId: number,
-    bidAmount: string
-  ): Promise<void> {
+  // 更新 bid 方法，接收 DFT 单位的输入
+  public async bid(nftAddress: string, tokenId: number, bidAmount: string): Promise<void> {
     try {
       const contract = await this.getContract();
       const signer = await this.provider!.getSigner();
@@ -372,23 +334,13 @@ export class AuctionService {
         "function approve(address spender, uint256 amount) returns (bool)",
         "function allowance(address owner, address spender) view returns (uint256)",
       ];
-      const datContract = new ethers.Contract(
-        datTokenAddress || "",
-        datTokenAbi,
-        signer
-      );
+      const datContract = new ethers.Contract(datTokenAddress || "", datTokenAbi, signer);
 
-      const allowance = await datContract.allowance(
-        await signer.getAddress(),
-        auctionAddress
-      );
+      const allowance = await datContract.allowance(await signer.getAddress(), auctionAddress);
 
       if (allowance < bidAmountWei) {
         console.log("Requesting approval for bid amount...");
-        const approveTx = await datContract.approve(
-          auctionAddress,
-          bidAmountWei
-        );
+        const approveTx = await datContract.approve(auctionAddress, bidAmountWei);
         await approveTx.wait(); // 等待批准交易确认
         console.log("Approval successful");
       }
@@ -451,10 +403,7 @@ export class AuctionService {
   }
 
   // 获取活跃拍卖
-  private async getActiveAuctions(
-    contract: ethers.Contract,
-    fromBlock: number
-  ): Promise<AuctionCreated[]> {
+  private async getActiveAuctions(contract: ethers.Contract, fromBlock: number): Promise<AuctionCreated[]> {
     try {
       // 获取 AuctionCreated 事件
       const filter = contract.filters.AuctionCreated();
@@ -493,7 +442,7 @@ export class AuctionService {
             })),
             status: auction.status.toString(),
           };
-        })
+        }),
       );
 
       console.log("============Active auctions:", activeAuctions);
@@ -560,29 +509,17 @@ export class AuctionService {
     }
   }
 
-  // 更新 checkAllowance 方法，返回 DAT 单位的字符串
-  public async checkAllowance(
-    auctionId: string,
-    amount: string
-  ): Promise<string> {
-    const datTokenAbi = [
-      "function allowance(address owner, address spender) view returns (uint256)",
-    ];
+  // 更新 checkAllowance 方法，返回 DFT 单位的字符串
+  public async checkAllowance(auctionId: string, amount: string): Promise<string> {
+    const datTokenAbi = ["function allowance(address owner, address spender) view returns (uint256)"];
 
     const datTokenAddress = process.env.NEXT_PUBLIC_DAT_CONTRACT_ADDRESS;
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
-    const datContract = new ethers.Contract(
-      datTokenAddress || "",
-      datTokenAbi,
-      signer
-    );
+    const datContract = new ethers.Contract(datTokenAddress || "", datTokenAbi, signer);
     const auctionAddress = await (await this.getContract()).getAddress();
 
-    const allowanceWei = await datContract.allowance(
-      await signer.getAddress(),
-      auctionAddress
-    );
+    const allowanceWei = await datContract.allowance(await signer.getAddress(), auctionAddress);
     return this.fromWei(allowanceWei);
   }
 
@@ -614,34 +551,25 @@ export class AuctionService {
   //   await tx.wait();
   // }
 
-  // 更新 approve 方法，接收 DAT 单位的输入
+  // 更新 approve 方法，接收 DFT 单位的输入
   public async approve(spender: string, amount: string): Promise<void> {
-    const datTokenAbi = [
-      "function approve(address spender, uint256 amount) returns (bool)",
-    ];
+    const datTokenAbi = ["function approve(address spender, uint256 amount) returns (bool)"];
     const datTokenAddress = process.env.NEXT_PUBLIC_DAT_CONTRACT_ADDRESS;
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
-    const datContract = new ethers.Contract(
-      datTokenAddress || "",
-      datTokenAbi,
-      signer
-    );
+    const datContract = new ethers.Contract(datTokenAddress || "", datTokenAbi, signer);
 
     const amountWei = this.toWei(amount);
     const tx = await datContract.approve(spender, amountWei);
     await tx.wait();
   }
 
-  public async deposit(
-    auctionId: string,
-    depositAmount: string
-  ): Promise<void> {
+  public async deposit(auctionId: string, depositAmount: string): Promise<void> {
     try {
       const datTokenAddress = process.env.NEXT_PUBLIC_DAT_CONTRACT_ADDRESS;
 
       if (!datTokenAddress) {
-        throw new Error("DAT contract address not configured");
+        throw new Error("DFT contract address not configured");
       }
 
       // 创建 Provider 和 Signer
@@ -649,38 +577,28 @@ export class AuctionService {
       const signer = await provider.getSigner();
       const signerAddress = await signer.getAddress();
 
-      // DAT Token 的 ABI
+      // DFT Token 的 ABI
       const datTokenAbi = [
         "function approve(address spender, uint256 amount) returns (bool)",
         "function allowance(address owner, address spender) view returns (uint256)",
       ];
 
-      const datContract = new ethers.Contract(
-        datTokenAddress,
-        datTokenAbi,
-        signer
-      );
+      const datContract = new ethers.Contract(datTokenAddress, datTokenAbi, signer);
       const contract = await this.getContract(); // 获取拍卖合约实例
       const auctionAddress = await contract.getAddress(); // 获取拍卖合约地址
       const depositAmountWei = ethers.parseEther(depositAmount); // 将押金金额转换为 Wei
 
-      console.log("Checking DAT allowance...");
-      const allowance = await datContract.allowance(
-        signerAddress,
-        auctionAddress
-      );
+      console.log("Checking DFT allowance...");
+      const allowance = await datContract.allowance(signerAddress, auctionAddress);
 
       // 检查授权额度
       if (allowance < depositAmountWei) {
-        console.log("Requesting DAT approval...");
+        console.log("Requesting DFT approval...");
 
         // 准备交易参数
         const approveTx = {
-          to: datTokenAddress, // DAT 合约地址
-          data: datContract.interface.encodeFunctionData("approve", [
-            auctionAddress,
-            depositAmountWei,
-          ]),
+          to: datTokenAddress, // DFT 合约地址
+          data: datContract.interface.encodeFunctionData("approve", [auctionAddress, depositAmountWei]),
         };
 
         console.log("Transaction parameters:", approveTx);
@@ -688,7 +606,7 @@ export class AuctionService {
           // 发送交易以请求授权
           const tx = await signer.sendTransaction(approveTx);
           await tx.wait(); // 等待交易确认
-          console.log("DAT approved successfully");
+          console.log("DFT approved successfully");
         } catch (error) {
           console.error("Failed to send approval transaction:", error);
           throw new Error("Approval transaction failed");
@@ -711,33 +629,27 @@ export class AuctionService {
       const datTokenAddress = process.env.NEXT_PUBLIC_DAT_CONTRACT_ADDRESS;
 
       if (!datTokenAddress) {
-        throw new Error("DAT contract address not configured");
+        throw new Error("DFT contract address not configured");
       }
 
       // 确保 provider 已初始化
       const provider = await this.blockchainService.getProvider();
 
-      // DAT Token 的基础 ABI
+      // DFT Token 的基础 ABI
       const datTokenAbi = [
         "function balanceOf(address account) view returns (uint256)",
         "function decimals() view returns (uint8)",
       ];
 
-      const datContract = new ethers.Contract(
-        datTokenAddress,
-        datTokenAbi,
-        provider
-      );
+      const datContract = new ethers.Contract(datTokenAddress, datTokenAbi, provider);
 
       const balance = (await datContract.balanceOf(address)).toString();
       const decimals = await datContract.decimals();
-      const formattedBalance = parseFloat(ethers.formatEther(balance)).toFixed(
-        2
-      );
+      const formattedBalance = parseFloat(ethers.formatEther(balance)).toFixed(2);
 
       return formattedBalance.toString();
     } catch (error) {
-      console.error("Failed to get DAT balance:", error);
+      console.error("Failed to get DFT balance:", error);
       throw error;
     }
   }

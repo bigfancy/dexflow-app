@@ -106,7 +106,7 @@ export default function Header() {
                 <button
                   onClick={handleClick}
                   className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-                  title="Invite each Friend For 100 DAT"
+                  title="Invite each Friend For 100 DFT"
                 >
                   <FaWallet className="text-lg" />
                   <span className="hidden md:inline">

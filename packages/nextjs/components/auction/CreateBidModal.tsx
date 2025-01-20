@@ -34,12 +34,12 @@ export default function CreateBidModal({
       setError(null);
 
       if (bidAmount < startingPrice) {
-        setError(`Bid cannot be lower than minimum bid ${startingPrice} DAT`);
+        setError(`Bid cannot be lower than minimum bid ${startingPrice} DFT`);
         return;
       }
 
       if (bidAmount <= highestBid) {
-        setError(`Bid must be higher than current highest bid ${highestBid} DAT`);
+        setError(`Bid must be higher than current highest bid ${highestBid} DFT`);
         return;
       }
 
@@ -63,7 +63,7 @@ export default function CreateBidModal({
         <div className="space-y-4">
           {error && <p className="text-red-500">{error}</p>}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Bid Amount (DAT)</label>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Bid Amount (DFT)</label>
             <input
               type="number"
               className="w-full p-2 bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -77,8 +77,8 @@ export default function CreateBidModal({
           </div>
 
           <div className="text-sm text-gray-400">
-            <p>Starting Price: {startingPrice} DAT</p>
-            <p>Current Highest Bid: {highestBid} DAT</p>
+            <p>Starting Price: {startingPrice} DFT</p>
+            <p>Current Highest Bid: {highestBid} DFT</p>
           </div>
 
           <div className="flex justify-end space-x-2">

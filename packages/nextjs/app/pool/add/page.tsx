@@ -31,7 +31,7 @@ const steps: Step[] = [
 export default function AddLiquidity() {
   const [currentStep, setCurrentStep] = useState(1);
   const [token0, setToken0] = useState("ETH");
-  const [token1, setToken1] = useState("DAT");
+  const [token1, setToken1] = useState("DFT");
   const [amount0, setAmount0] = useState("");
   const [amount1, setAmount1] = useState("");
 
