@@ -12,18 +12,26 @@ contract AdAlliance {
         uint256 totalClicks;
         uint256 totalReward;
         bool isActive;
-        uint256 duration;
+    }
+
+    // Store link info
+    struct AdLink {
+        uint256 adId;
+        address user;
+        uint256 clicks;
+        uint256 rewards;
     }
 
     // Token used for settlement
-    IERC20 public datToken;
+    IERC20 public dftToken;
 
     // Mappings for ads and user associations
+    // adId => Ad
     mapping(uint256 => Ad) public ads;
-    // adId => linkId => user
-    mapping(uint256 => mapping(uint256 => address)) public adLinks;
-    // user => adId => linkId
-    mapping(address => mapping(uint256 => uint256)) public userLinkIds;
+    // linkId => AdLink
+    mapping(uint256 => AdLink) public adLinks;
+    // user => adId => linkId (to prevent duplicate links)
+    mapping(address => mapping(uint256 => uint256)) public userAdLinks;
 
     uint256 public adCount;
     uint256 public linkCounter;
@@ -34,16 +42,17 @@ contract AdAlliance {
     uint256[] private allAdIds;
     
     // Track user's ads
+    // user => adId
     mapping(address => uint256[]) private userAds;
 
     // Events
     event AdCreated(uint256 indexed adId, address indexed advertiser, string target, uint256 budget);
     event AdUpdated(uint256 indexed adId, bool isActive, uint256 budget);
-    event LinkGenerated(uint256 indexed adId, uint256 indexed linkId, address indexed user);
-    event ClicksSettled(uint256 indexed adId, uint256 totalClicks, uint256 totalCost);
+    event LinkGenerated(uint256 indexed linkId, uint256 indexed adId, address indexed user);
+    event ClicksSettled(uint256 indexed linkId, uint256 indexed clickCounts);
 
-    constructor(address _datTokenAddress) {
-        datToken = IERC20(_datTokenAddress);
+    constructor(address _dftTokenAddress) {
+        dftToken = IERC20(_dftTokenAddress);
         admin = msg.sender;
     }
 
@@ -62,13 +71,11 @@ contract AdAlliance {
         string calldata _target, 
         string calldata _imageUrl,
         uint256 _budget, 
-        uint256 _costPerClick,
-        uint256 _duration
+        uint256 _costPerClick
     ) external {
         require(_budget > 0, "Budget must be greater than 0");
         require(_costPerClick > 0, "Cost per click must be greater than 0");
-        require(_duration > 0, "Duration must be greater than 0");
-        require(datToken.transferFrom(msg.sender, address(this), _budget), "Budget transfer failed");
+        require(dftToken.transferFrom(msg.sender, address(this), _budget), "Budget transfer failed");
 
         adCount++;
         ads[adCount] = Ad({
@@ -80,8 +87,7 @@ contract AdAlliance {
             costPerClick: _costPerClick,
             totalClicks: 0,
             totalReward: 0,
-            isActive: true,
-            duration: _duration
+            isActive: true
         });
 
         uint256 newAdId = adCount;
@@ -94,52 +100,52 @@ contract AdAlliance {
     // 2. Generate a unique link for a user
     function generateAdLink(uint256 _adId) external returns (uint256) {
         require(ads[_adId].isActive, "Ad is not active");
-        require(userLinkIds[msg.sender][_adId] == 0, "Link already exists for user");
+        require(userAdLinks[msg.sender][_adId] == 0, "Link already exists for user");
 
         linkCounter++;
-        adLinks[_adId][linkCounter] = msg.sender;
-        userLinkIds[msg.sender][_adId] = linkCounter;
+        adLinks[linkCounter] = AdLink({
+            adId: _adId,
+            user: msg.sender,
+            clicks: 0,
+            rewards: 0
+        });
+        userAdLinks[msg.sender][_adId] = linkCounter;
 
-        emit LinkGenerated(_adId, linkCounter, msg.sender);
+        emit LinkGenerated(linkCounter, _adId, msg.sender);
         return linkCounter;
     }
 
     // 3. Settle daily clicks and distribute rewards
-    function settleClicks(uint256 _adId, uint256[] calldata linkIds, uint256[] calldata clickCounts) external onlyAdmin {
+    function settleClicks(uint256[] calldata linkIds, uint256[] calldata clickCounts) external onlyAdmin {
         require(linkIds.length == clickCounts.length, "Array lengths mismatch");
-        Ad storage ad = ads[_adId];
-        require(ad.isActive, "Ad is not active");
-
-        uint256 totalClicks = 0;
-        uint256 totalCost = 0;
 
         for (uint256 i = 0; i < linkIds.length; i++) {
             uint256 linkId = linkIds[i];
             uint256 clicks = clickCounts[i];
-
-            // Find user associated with linkId
-            address user = adLinks[_adId][linkId];
-            require(user != address(0), "Invalid linkId");
+            
+            AdLink storage link = adLinks[linkId];
+            require(link.user != address(0), "Invalid link");
+            
+            Ad storage ad = ads[link.adId];
+            require(ad.isActive, "Ad is not active");
 
             uint256 reward = clicks * ad.costPerClick;
             require(ad.budget >= reward, "Insufficient budget");
 
             ad.budget -= reward;
-            totalClicks += clicks;
-            totalCost += reward;
+            link.clicks += clicks;
+            link.rewards += reward;
+            ad.totalClicks += clicks;
+            ad.totalReward += reward;
 
             // Transfer reward to user
-            require(datToken.transfer(user, reward), "Reward transfer failed");
+            require(dftToken.transfer(link.user, reward), "Reward transfer failed");
+
+            if (ad.budget < ad.costPerClick) {
+                ad.isActive = false;
+            }
         }
 
-        ad.totalClicks += totalClicks;
-        ad.totalReward += totalCost;
-
-        if (ad.budget < ad.costPerClick) {
-            ad.isActive = false;
-        }
-
-        emit ClicksSettled(_adId, totalClicks, totalCost);
     }
 
     // Get all ads
@@ -172,31 +178,30 @@ contract AdAlliance {
         require(_adId > 0 && _adId <= adCount, "Invalid ad ID");
         return ads[_adId];
     }
+    // get userAdLinks
+    function getUserAdLink(address _user, uint256 _adId) external view returns (uint256) {
+        return userAdLinks[_user][_adId];
+    }
 
     // Get active ads
     function getActiveAds() external view returns (Ad[] memory) {
         uint256 activeCount = 0;
-        
-        // First count active ads
-        for (uint256 i = 0; i < allAdIds.length; i++) {
-            if (ads[allAdIds[i]].isActive) {
-                activeCount++;
-            }
-        }
-        
-        // Create array of correct size
-        Ad[] memory activeAds = new Ad[](activeCount);
-        uint256 currentIndex = 0;
-        
-        // Fill array with active ads
         for (uint256 i = 0; i < allAdIds.length; i++) {
             uint256 adId = allAdIds[i];
             if (ads[adId].isActive) {
-                activeAds[currentIndex] = ads[adId];
-                currentIndex++;
+                activeCount++;
             }
         }
-        
+
+        Ad[] memory activeAds = new Ad[](activeCount);
+        uint256 index = 0;
+        for (uint256 i = 0; i < allAdIds.length; i++) {
+            uint256 adId = allAdIds[i];
+            if (ads[adId].isActive) {
+                activeAds[index] = ads[adId];
+                index++;
+            }
+        }
         return activeAds;
     }
 }

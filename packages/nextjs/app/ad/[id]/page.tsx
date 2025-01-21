@@ -1,16 +1,46 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { FaEthereum, FaExternalLinkAlt } from "react-icons/fa";
 import { MdArrowBack } from "react-icons/md";
-import { useAdDetail } from "~~/hooks/useAd";
+import { useAccount } from "wagmi";
+import { useAdDetail, useGenerateAdLink } from "~~/hooks/useAd";
 import { shortenAddress } from "~~/utils/addresses";
 
 export default function AdDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { ad, isLoading } = useAdDetail(params.id as string);
+  const { address } = useAccount();
+  const [generatingLink, setGeneratingLink] = useState(false);
+  const [adLink, setAdLink] = useState<string | null>(null);
+  const { handleGenerateLink, isGenerating, linkId } = useGenerateAdLink(params.id as string);
+
+  console.log("======imageUrl", ad?.imageUrl);
+
+  useEffect(() => {
+    if (linkId) {
+      setAdLink(`${window.location.origin}/api/ad/click?adLinkId=${linkId}`);
+    }
+  }, [linkId]);
+
+  const onGenerateLink = async () => {
+    if (!address) return;
+
+    setGeneratingLink(true);
+    try {
+      const newLinkId = await handleGenerateLink();
+      if (newLinkId) {
+        setAdLink(`${window.location.origin}/api/ad/click?adLinkId=${newLinkId}`);
+      }
+    } catch (error) {
+      console.error("Failed to generate link:", error);
+    } finally {
+      setGeneratingLink(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -115,18 +145,95 @@ export default function AdDetailPage() {
               </div>
             </div>
 
-            <div className="border-t border-gray-200 pt-6">
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Duration</h3>
-                  <p className="text-gray-900">{parseInt(ad.duration) / (24 * 60 * 60)} days</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">Status</h3>
-                  <p className="text-gray-900">{ad.isActive ? "Active" : "Inactive"}</p>
-                </div>
+            {address && (
+              <div className="mt-6 border-t border-gray-200 pt-6">
+                {!linkId ? (
+                  <button
+                    onClick={onGenerateLink}
+                    disabled={generatingLink || isGenerating}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {generatingLink || isGenerating ? "Generating..." : "Generate Ad Link"}
+                  </button>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-green-600">
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </span>
+                      <p className="text-sm font-medium text-gray-900">Ad link has been generated</p>
+                    </div>
+
+                    <div className="mt-4 space-y-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-500 mb-2">Your Ad Link:</p>
+                        <div className="flex items-center gap-2">
+                          <input type="text" value={adLink} readOnly className="flex-1 p-2 border rounded" />
+                          <button
+                            onClick={() => navigator.clipboard.writeText(adLink!)}
+                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                          >
+                            Copy
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <p className="text-sm font-medium text-gray-500 mb-2">Ad Code:</p>
+                        <div className="relative">
+                          <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm">
+                            <code className="language-html">
+                              {`<a href="${window.location.origin}/api/ad/click?adLinkId=${linkId}" target="_blank">
+                              <img 
+                                  src="${ad?.imageUrl}"
+                                  alt="Ad Image"
+                                  style="width: 300px; height: auto; border: 1px solid #ccc;"
+                              />
+                            </a>`}
+                            </code>
+                          </pre>
+                          <button
+                            onClick={() =>
+                              navigator.clipboard.writeText(
+                                `<a href="${window.location.origin}/api/ad/click?adLinkId=${linkId}" target="_blank">
+                                    <img 
+                                        src="${ad?.imageUrl}"
+                                        alt="Ad Image"
+                                        style="width: 300px; height: auto; border: 1px solid #ccc;"
+                                    />
+                                </a>`,
+                              )
+                            }
+                            className="absolute top-2 right-2 px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
+                          >
+                            Copy
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <p className="text-sm font-medium text-gray-500 mb-2">Preview:</p>
+                        <div className="border rounded-lg p-4 bg-white">
+                          <a href={`${window.location.origin}/api/ad/click?adLinkId=${linkId}`} target="_blank">
+                            <img
+                              src={ad?.imageUrl}
+                              alt="Ad Image"
+                              className="w-[300px] h-auto border border-gray-200"
+                            />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,5 +1,10 @@
 import { useCallback, useState } from "react";
-import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "./scaffold-eth";
+import {
+  useDeployedContractInfo,
+  useScaffoldEventHistory,
+  useScaffoldReadContract,
+  useScaffoldWriteContract,
+} from "./scaffold-eth";
 import { notification } from "antd";
 import { Address, formatEther, parseEther } from "viem";
 import { useAccount } from "wagmi";
@@ -14,7 +19,6 @@ export interface Ad {
   totalClicks: string;
   totalReward: string;
   isActive: boolean;
-  duration: string;
 }
 
 // Format ad data from contract
@@ -28,17 +32,10 @@ const formatAd = (ad: any): Ad => ({
   totalClicks: ad.totalClicks.toString(),
   totalReward: ad.totalReward.toString(),
   isActive: ad.isActive,
-  duration: ad.duration.toString(),
 });
 
 // Create ad
-export const useCreateAd = (
-  targetUrl: string,
-  imageUrl: string,
-  budget: string,
-  costPerClick: string,
-  duration: string,
-) => {
+export const useCreateAd = (targetUrl: string, imageUrl: string, budget: string, costPerClick: string) => {
   const [isCreating, setIsCreating] = useState(false);
   const { address } = useAccount();
 
@@ -73,7 +70,7 @@ export const useCreateAd = (
       return;
     }
 
-    console.log(`Budget: ${budget}, Cost per Click: ${costPerClick}, Duration: ${duration}`);
+    console.log(`Budget: ${budget}, Cost per Click: ${costPerClick}`);
 
     setIsCreating(true);
     try {
@@ -105,13 +102,7 @@ export const useCreateAd = (
 
       await createAd({
         functionName: "createAd",
-        args: [
-          targetUrl,
-          imageUrl,
-          budgetBigInt,
-          parseEther(costPerClick),
-          BigInt(parseInt(duration) * 24 * 60 * 60), // Convert days to seconds
-        ],
+        args: [targetUrl, imageUrl, budgetBigInt, parseEther(costPerClick)],
       });
 
       notification.success({
@@ -130,18 +121,7 @@ export const useCreateAd = (
     } finally {
       setIsCreating(false);
     }
-  }, [
-    address,
-    AdAllianceInfo?.address,
-    targetUrl,
-    imageUrl,
-    budget,
-    costPerClick,
-    duration,
-    approve,
-    createAd,
-    allowance,
-  ]);
+  }, [address, AdAllianceInfo?.address, targetUrl, imageUrl, budget, costPerClick, approve, createAd, allowance]);
 
   return {
     handleCreateAd,
@@ -200,5 +180,77 @@ export const useActiveAds = () => {
   return {
     ads: ads ? ads.map(formatAd) : [],
     isLoading,
+  };
+};
+
+// Generate ad link
+export const useGenerateAdLink = (adId: string) => {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const { address } = useAccount();
+
+  const { data: AdAllianceInfo } = useDeployedContractInfo({
+    contractName: "AdAlliance",
+  });
+
+  const { writeContractAsync: generateLink } = useScaffoldWriteContract({
+    contractName: "AdAlliance",
+  });
+
+  // 添加 getUserAdLink 调用
+  const { data: linkId, refetch: refetchLinkId } = useScaffoldReadContract({
+    contractName: "AdAlliance",
+    functionName: "getUserAdLink",
+    args: [address as Address, BigInt(adId)],
+  });
+
+  const handleGenerateLink = useCallback(async () => {
+    if (!address || !AdAllianceInfo?.address) {
+      notification.error({
+        message: "Error",
+        description: "Please connect your wallet",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      console.log("======generateLink adId", adId);
+
+      // 调用合约生成链接
+      await generateLink({
+        functionName: "generateAdLink",
+        args: [BigInt(adId)],
+      });
+
+      // 重新获取 linkId
+      const { data: newLinkId } = await refetchLinkId();
+      console.log("Generated linkId:", newLinkId);
+
+      if (newLinkId) {
+        notification.success({
+          message: "Link generated successfully",
+          description: `Your ad link has been generated with ID: ${newLinkId}`,
+        });
+
+        return newLinkId;
+      }
+
+      throw new Error("Failed to get link ID");
+    } catch (error: any) {
+      console.error("Failed to generate link:", error);
+      notification.error({
+        message: "Failed to generate link",
+        description: error.message || "Please try again",
+      });
+      return null;
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [address, AdAllianceInfo?.address, adId, generateLink, refetchLinkId]);
+
+  return {
+    handleGenerateLink,
+    isGenerating,
+    linkId: linkId ? Number(linkId) : null, // 返回当前的 linkId
   };
 };

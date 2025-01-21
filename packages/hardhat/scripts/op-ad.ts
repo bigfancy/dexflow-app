@@ -50,15 +50,13 @@ async function main() {
             // Create advertisement parameters
             const targetUrl = `https://example.com/ad${i + 1}`;
             const costPerClick = parseEther("0.1"); // Incremental cost per click: 0.1, 0.15, 0.2
-            const duration = 86400 * (i + 1); // Incremental duration: 1 day, 2 days, 3 days
 
             // Create advertisement
             await adAlliance.connect(addr1).createAd(
                 targetUrl,
                 imageUrls[i],
                 budget,
-                costPerClick,
-                duration
+                costPerClick
             );
 
             console.log(`Advertisement #${i + 1} created successfully`);
@@ -66,7 +64,6 @@ async function main() {
             console.log(`- Image URL: ${imageUrls[i]}`);
             console.log(`- Budget: ${ethers.formatEther(budget)} DFToken`);
             console.log(`- Cost per click: ${ethers.formatEther(costPerClick)} DFToken`);
-            console.log(`- Duration: ${duration} seconds`);
         }
 
         // Print total number of advertisements
@@ -86,7 +83,6 @@ async function main() {
             console.log(`- Total Clicks: ${ad.totalClicks}`);
             console.log(`- Total Reward: ${ethers.formatEther(ad.totalReward)} DFToken`);
             console.log(`- Status: ${ad.isActive ? 'Active' : 'Inactive'}`);
-            console.log(`- Duration: ${ad.duration} seconds`);
         }
 
     } catch (error) {

@@ -24,12 +24,11 @@ export default function CreateAdPage() {
   const [targetUrl, setTargetUrl] = useState("");
   const [budget, setBudget] = useState("");
   const [costPerClick, setCostPerClick] = useState("");
-  const [duration, setDuration] = useState("");
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [imageUrl, setImageUrl] = useState("");
 
   // Use create ad hook
-  const { handleCreateAd, isCreating } = useCreateAd(targetUrl, imageUrl, budget, costPerClick, duration);
+  const { handleCreateAd, isCreating } = useCreateAd(targetUrl, imageUrl, budget, costPerClick);
 
   // Handle file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -267,7 +266,7 @@ export default function CreateAdPage() {
                       />
                     </div>
 
-                    <div>
+                    {/* <div>
                       <label className="block text-sm font-medium mb-1 text-gray-700">Duration (Days)</label>
                       <input
                         type="number"
@@ -277,7 +276,7 @@ export default function CreateAdPage() {
                         className="w-full bg-white border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         required
                       />
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="flex justify-between">

@@ -13,7 +13,7 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "address",
-              name: "_datTokenAddress",
+              name: "_dftTokenAddress",
               type: "address",
             },
           ],
@@ -82,19 +82,13 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "uint256",
-              name: "adId",
+              name: "linkId",
               type: "uint256",
             },
             {
-              indexed: false,
+              indexed: true,
               internalType: "uint256",
-              name: "totalClicks",
-              type: "uint256",
-            },
-            {
-              indexed: false,
-              internalType: "uint256",
-              name: "totalCost",
+              name: "clickCounts",
               type: "uint256",
             },
           ],
@@ -107,13 +101,13 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "uint256",
-              name: "adId",
+              name: "linkId",
               type: "uint256",
             },
             {
               indexed: true,
               internalType: "uint256",
-              name: "linkId",
+              name: "adId",
               type: "uint256",
             },
             {
@@ -146,18 +140,28 @@ const deployedContracts = {
               name: "",
               type: "uint256",
             },
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
           ],
           name: "adLinks",
           outputs: [
             {
+              internalType: "uint256",
+              name: "adId",
+              type: "uint256",
+            },
+            {
               internalType: "address",
-              name: "",
+              name: "user",
               type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "clicks",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "rewards",
+              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -231,11 +235,6 @@ const deployedContracts = {
               name: "isActive",
               type: "bool",
             },
-            {
-              internalType: "uint256",
-              name: "duration",
-              type: "uint256",
-            },
           ],
           stateMutability: "view",
           type: "function",
@@ -262,11 +261,6 @@ const deployedContracts = {
               name: "_costPerClick",
               type: "uint256",
             },
-            {
-              internalType: "uint256",
-              name: "_duration",
-              type: "uint256",
-            },
           ],
           name: "createAd",
           outputs: [],
@@ -275,7 +269,7 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "datToken",
+          name: "dftToken",
           outputs: [
             {
               internalType: "contract IERC20",
@@ -356,11 +350,6 @@ const deployedContracts = {
                   name: "isActive",
                   type: "bool",
                 },
-                {
-                  internalType: "uint256",
-                  name: "duration",
-                  type: "uint256",
-                },
               ],
               internalType: "struct AdAlliance.Ad[]",
               name: "",
@@ -427,11 +416,6 @@ const deployedContracts = {
                   name: "isActive",
                   type: "bool",
                 },
-                {
-                  internalType: "uint256",
-                  name: "duration",
-                  type: "uint256",
-                },
               ],
               internalType: "struct AdAlliance.Ad",
               name: "",
@@ -492,15 +476,34 @@ const deployedContracts = {
                   name: "isActive",
                   type: "bool",
                 },
-                {
-                  internalType: "uint256",
-                  name: "duration",
-                  type: "uint256",
-                },
               ],
               internalType: "struct AdAlliance.Ad[]",
               name: "",
               type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_user",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_adId",
+              type: "uint256",
+            },
+          ],
+          name: "getUserAdLink",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
             },
           ],
           stateMutability: "view",
@@ -563,11 +566,6 @@ const deployedContracts = {
                   name: "isActive",
                   type: "bool",
                 },
-                {
-                  internalType: "uint256",
-                  name: "duration",
-                  type: "uint256",
-                },
               ],
               internalType: "struct AdAlliance.Ad[]",
               name: "",
@@ -592,11 +590,6 @@ const deployedContracts = {
         },
         {
           inputs: [
-            {
-              internalType: "uint256",
-              name: "_adId",
-              type: "uint256",
-            },
             {
               internalType: "uint256[]",
               name: "linkIds",
@@ -626,7 +619,7 @@ const deployedContracts = {
               type: "uint256",
             },
           ],
-          name: "userLinkIds",
+          name: "userAdLinks",
           outputs: [
             {
               internalType: "uint256",

@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model AdLink {
+  id          Int      @id @default(autoincrement())
+  adId        Int
+  linkId      Int      @unique
+  userId      String
+  clicks      Int      @default(0)
+  lastClick   DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  clickLogs   ClickLog[]
+}
+
+model ClickLog {
+  id        Int      @id @default(autoincrement())
+  adLinkId  Int
+  ip        String
+  userAgent String
+  clickedAt DateTime @default(now())
+  adLink    AdLink   @relation(fields: [adLinkId], references: [id])
+} 
