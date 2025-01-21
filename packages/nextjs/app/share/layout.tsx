@@ -1,7 +1,7 @@
 export const metadata = {
-  title: 'Advertisement',
-  description: 'Advertisement Content',
-}
+  title: "Advertisement",
+  description: "Advertisement Content",
+};
 
 export default function ShareLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -191,7 +191,7 @@ export default function AdDetailPage() {
                             <code className="language-html">
                               {`<div id="ad-container">
   <iframe
-    src="${window.location.origin}/ad/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}"
+    src="${window.location.origin}/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}"
     style="border: none; width: 300px; height: 250px;"
     scrolling="no"
     allow="fullscreen"
@@ -205,7 +205,7 @@ export default function AdDetailPage() {
                               navigator.clipboard.writeText(
                                 `<div id="ad-container">
                                   <iframe
-                                    src="${window.location.origin}/ad/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}"
+                                    src="${window.location.origin}/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}"
                                     style="border: none; width: 300px; height: 250px;"
                                     scrolling="no"
                                     allow="fullscreen"
@@ -226,8 +226,8 @@ export default function AdDetailPage() {
                         <div className="border rounded-lg p-4 bg-white">
                           <div id="ad-container">
                             <iframe
-                              src={`${window.location.origin}/ad/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}`}
-                              style={{ border: "none", width: "300px", height: "250px" }}
+                              src={`${window.location.origin}/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}`}
+                              style={{ border: "none", width: "600px", height: "500px" }}
                               scrolling="no"
                               allow="fullscreen"
                               title="Advertisement"
