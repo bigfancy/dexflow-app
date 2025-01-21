@@ -44,10 +44,10 @@ yarn deploy
 
 # Introduction
 
-![DexFlow](./packages/nextjs/public/images/dexflow1.png)
+![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/dexflow1.png)
 
-![DexFlow](./packages/nextjs/public/images/dexflow2.png)
+![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/dexflow2.png)
 
-![DexFlow](./packages/nextjs/public/images/dexflow3.png)
+![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/dexflow3.png)
 
-![DexFlow](./packages/nextjs/public/images/dexflow4.png)
+![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/dexflow4.png)
