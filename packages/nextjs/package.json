@@ -13,7 +13,9 @@
     "vercel": "vercel --build-env YARN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1 --build-env VERCEL_TELEMETRY_DISABLED=1",
     "vercel:login": "vercel login",
     "vercel:yolo": "vercel --build-env YARN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1 --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true --build-env VERCEL_TELEMETRY_DISABLED=1",
-    "test-prisma": "tsx scripts/test-prisma.ts"
+    "test-prisma": "tsx scripts/test-prisma.ts",
+    "settle": "ts-node scripts/settleClicks.ts",
+    "cron": "ts-node scripts/cronJobs.ts"
   },
   "dependencies": {
     "@heroicons/react": "~2.1.5",
@@ -27,10 +29,12 @@
     "blo": "~1.2.0",
     "burner-connector": "0.0.9",
     "daisyui": "4.12.10",
+    "dotenv": "^16.0.3",
     "ethers": "^6.13.5",
     "next": "~14.2.11",
     "next-nprogress-bar": "~2.3.13",
     "next-themes": "~0.3.0",
+    "node-cron": "^3.0.3",
     "prisma": "^6.2.1",
     "qrcode.react": "~4.0.1",
     "react": "~18.3.1",
@@ -46,6 +50,7 @@
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "~4.3.0",
     "@types/node": "^22.10.7",
+    "@types/node-cron": "^3.0.11",
     "@types/react": "~18.3.5",
     "@typescript-eslint/eslint-plugin": "~5.40.0",
     "abitype": "1.0.6",

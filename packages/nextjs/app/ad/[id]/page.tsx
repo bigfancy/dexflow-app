@@ -18,13 +18,11 @@ export default function AdDetailPage() {
   const [adLink, setAdLink] = useState<string | null>(null);
   const { handleGenerateLink, isGenerating, linkId } = useGenerateAdLink(params.id as string);
 
-  console.log("======imageUrl", ad?.imageUrl);
-
   useEffect(() => {
     if (linkId) {
-      setAdLink(`${window.location.origin}/api/ad/click?adLinkId=${linkId}`);
+      setAdLink(`${window.location.origin}/ad/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}`);
     }
-  }, [linkId]);
+  }, [linkId, params.id, ad?.imageUrl]);
 
   const onGenerateLink = async () => {
     if (!address) return;
@@ -33,7 +31,9 @@ export default function AdDetailPage() {
     try {
       const newLinkId = await handleGenerateLink();
       if (newLinkId) {
-        setAdLink(`${window.location.origin}/api/ad/click?adLinkId=${newLinkId}`);
+        setAdLink(
+          `${window.location.origin}/ad/share?adId=${params.id}&adLinkId=${newLinkId}&imageUrl=${ad?.imageUrl}`,
+        );
       }
     } catch (error) {
       console.error("Failed to generate link:", error);
@@ -171,7 +171,7 @@ export default function AdDetailPage() {
                     </div>
 
                     <div className="mt-4 space-y-4">
-                      <div>
+                      {/* <div>
                         <p className="text-sm font-medium text-gray-500 mb-2">Your Ad Link:</p>
                         <div className="flex items-center gap-2">
                           <input type="text" value={adLink} readOnly className="flex-1 p-2 border rounded" />
@@ -182,32 +182,36 @@ export default function AdDetailPage() {
                             Copy
                           </button>
                         </div>
-                      </div>
+                      </div> */}
 
                       <div className="mt-4">
-                        <p className="text-sm font-medium text-gray-500 mb-2">Ad Code:</p>
+                        <p className="text-sm font-medium text-gray-500 mb-2">Your Ad Link Code:</p>
                         <div className="relative">
                           <pre className="bg-gray-50 p-4 rounded-lg overflow-x-auto text-sm">
                             <code className="language-html">
-                              {`<a href="${window.location.origin}/api/ad/click?adLinkId=${linkId}" target="_blank">
-                              <img 
-                                  src="${ad?.imageUrl}"
-                                  alt="Ad Image"
-                                  style="width: 300px; height: auto; border: 1px solid #ccc;"
-                              />
-                            </a>`}
+                              {`<div id="ad-container">
+  <iframe
+    src="${window.location.origin}/ad/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}"
+    style="border: none; width: 300px; height: 250px;"
+    scrolling="no"
+    allow="fullscreen"
+    title="Advertisement"
+  ></iframe>
+</div>`}
                             </code>
                           </pre>
                           <button
                             onClick={() =>
                               navigator.clipboard.writeText(
-                                `<a href="${window.location.origin}/api/ad/click?adLinkId=${linkId}" target="_blank">
-                                    <img 
-                                        src="${ad?.imageUrl}"
-                                        alt="Ad Image"
-                                        style="width: 300px; height: auto; border: 1px solid #ccc;"
-                                    />
-                                </a>`,
+                                `<div id="ad-container">
+                                  <iframe
+                                    src="${window.location.origin}/ad/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}"
+                                    style="border: none; width: 300px; height: 250px;"
+                                    scrolling="no"
+                                    allow="fullscreen"
+                                    title="Advertisement"
+                                  ></iframe>
+                                </div>`,
                               )
                             }
                             className="absolute top-2 right-2 px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
@@ -220,13 +224,15 @@ export default function AdDetailPage() {
                       <div className="mt-4">
                         <p className="text-sm font-medium text-gray-500 mb-2">Preview:</p>
                         <div className="border rounded-lg p-4 bg-white">
-                          <a href={`${window.location.origin}/api/ad/click?adLinkId=${linkId}`} target="_blank">
-                            <img
-                              src={ad?.imageUrl}
-                              alt="Ad Image"
-                              className="w-[300px] h-auto border border-gray-200"
-                            />
-                          </a>
+                          <div id="ad-container">
+                            <iframe
+                              src={`${window.location.origin}/ad/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}`}
+                              style={{ border: "none", width: "300px", height: "250px" }}
+                              scrolling="no"
+                              allow="fullscreen"
+                              title="Advertisement"
+                            ></iframe>
+                          </div>
                         </div>
                       </div>
                     </div>

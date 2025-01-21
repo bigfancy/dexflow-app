@@ -8,78 +8,62 @@ async function main() {
 
     // Cleanup existing data
     console.log("Cleaning up existing data...");
-    await prisma.clickLog.deleteMany({});
-    await prisma.adLink.deleteMany({});
+    await prisma.adClick.deleteMany({});
     console.log("✅ Database cleaned\n");
 
-    // Create AdLink
-    console.log("Testing AdLink creation...");
-    const adLink = await prisma.adLink.create({
+    // Test data
+    const adId = 1;
+    const linkId = 1;
+
+    // Create a new ad click
+    console.log("Creating a new ad click...");
+    const newClick = await prisma.adClick.create({
       data: {
-        adId: 1,
-        linkId: 12345,
-        userId: "0x123...abc",
-        clicks: 0,
+        adId,
+        linkId,
+        userId: "test-user",
+        clicks: 1,
+        lastClick: new Date(),
       },
     });
-    console.log("Created AdLink:", adLink);
-    console.log("✅ AdLink creation test passed\n");
+    console.log("Created Ad Click:", newClick);
+    console.log("✅ Ad Click creation test passed\n");
 
-    // Create ClickLog
-    console.log("Testing ClickLog creation...");
-    const clickLog = await prisma.clickLog.create({
-      data: {
-        adLinkId: adLink.id,
-        ip: "127.0.0.1",
-        userAgent: "Mozilla/5.0 Test Browser",
-      },
-    });
-    console.log("Created ClickLog:", clickLog);
-    console.log("✅ ClickLog creation test passed\n");
-
-    // Update AdLink clicks
-    console.log("Testing AdLink update...");
-    const updatedAdLink = await prisma.adLink.update({
-      where: { id: adLink.id },
-      data: { clicks: { increment: 1 } },
-    });
-    console.log("Updated AdLink:", updatedAdLink);
-    console.log("✅ AdLink update test passed\n");
-
-    // Read AdLink with related ClickLogs
-    console.log("Testing AdLink read with relations...");
-    const adLinkWithLogs = await prisma.adLink.findUnique({
-      where: { id: adLink.id },
-      include: { clickLogs: true },
-    });
-    console.log("AdLink with ClickLogs:", adLinkWithLogs);
-    console.log("✅ AdLink read test passed\n");
-
-    // Query ClickLogs for specific AdLink
-    console.log("Testing ClickLog query...");
-    const clickLogs = await prisma.clickLog.findMany({
-      where: { adLinkId: adLink.id },
-      include: { adLink: true },
-    });
-    console.log("Found ClickLogs:", clickLogs);
-    console.log("✅ ClickLog query test passed\n");
-
-    // Test statistics
-    console.log("Testing statistics queries...");
-    const stats = await prisma.adLink.findMany({
-      select: {
-        adId: true,
-        clicks: true,
-        _count: {
-          select: { clickLogs: true },
+    // Update the ad click
+    console.log("Updating the ad click...");
+    const updatedClick = await prisma.adClick.upsert({
+      where: {
+        adId_linkId: {
+          adId,
+          linkId,
         },
       },
-      where: {
-        clicks: { gt: 0 },
+      update: {
+        clicks: { increment: 1 },
+        lastClick: new Date(),
+      },
+      create: {
+        adId,
+        linkId,
+        userId: "test-user",
+        clicks: 1,
+        lastClick: new Date(),
       },
     });
-    console.log("Statistics:", stats);
-    console.log("✅ Statistics query test passed\n");
+    console.log("Updated Ad Click:", updatedClick);
+    console.log("✅ Ad Click update test passed\n");
+
+    // Verify the click count
+    const clickRecord = await prisma.adClick.findUnique({
+      where: {
+        adId_linkId: {
+          adId,
+          linkId,
+        },
+      },
+    });
+    console.log("Click Record:", clickRecord);
+    console.log("✅ Click record verification test passed\n");
 
     console.log("🎉 All tests completed successfully!");
   } catch (error) {
