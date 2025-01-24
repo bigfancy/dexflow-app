@@ -26,7 +26,7 @@ interface AssetSection {
 export default function MyAssetsPage() {
   const router = useRouter();
   const { address } = useAccount();
-  const [activeTab, setActiveTab] = useState("My NFTs");
+  const [activeTab, setActiveTab] = useState("NFTs");
   // nft address get from  deployedContract
   const nftAddress = deployedContracts[31337].DFNFT.address;
 
@@ -94,7 +94,7 @@ export default function MyAssetsPage() {
           </div>
         );
 
-      case "Advertisements":
+      case "Advertising":
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {(section.items as any[]).map(ad => (
@@ -144,11 +144,11 @@ export default function MyAssetsPage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">ETH Deposited:</span>
-                    <span className="font-medium">{formatEther(position.reserve0)} ETH</span>
+                    <span className="font-medium">{parseFloat(formatEther(position.reserve0)).toFixed(2)} ETH</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">DFT Deposited:</span>
-                    <span className="font-medium">{formatEther(position.reserve1)} DFT</span>
+                    <span className="font-medium">{parseFloat(formatEther(position.reserve1)).toFixed(2)} DFT</span>
                   </div>
                 </div>
                 <div className="mt-4 flex gap-2">
@@ -191,7 +191,7 @@ export default function MyAssetsPage() {
       loading: auctionsLoading,
     },
     {
-      title: "Advertisements",
+      title: "Advertising",
       description: "Track your ad campaigns",
       items: myAds || [],
       viewAllLink: "/ad",

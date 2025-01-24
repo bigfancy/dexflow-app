@@ -136,6 +136,22 @@ export const usePool = () => {
             reserve0: formatEther(allPairsInfo[0].reserve0),
             reserve1: formatEther(allPairsInfo[0].reserve1),
           },
+          {
+            id: 2,
+            pair: "ETH/DFT",
+            version: "v2",
+            fee: "0.3%",
+            tvl: formatEther(allPairsInfo[1].totalSupply),
+            apr: "1.2%",
+            volume24h: formatEther(allPairsInfo[1].totalSupply),
+            token0Icon: "https://token-icons.s3.amazonaws.com/eth.png",
+            token1Icon: "/logo1.png",
+            token0Address: deployedContracts[31337].WETH.address,
+            token1Address: deployedContracts[31337].DFToken.address,
+            pairAddress: allPairsInfo[1].pair,
+            reserve0: formatEther(allPairsInfo[1].reserve0),
+            reserve1: formatEther(allPairsInfo[1].reserve1),
+          },
         ];
 
         setPools(poolsData);

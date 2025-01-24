@@ -32,7 +32,7 @@ async function main() {
         console.log("\n=== Initializing Test Environment ===");
 
         // Mint tokens for test accounts
-        const tokenAmount = parseEther("1000");
+        const tokenAmount = 1000;
         for (const account of [owner, addr1, addr2]) {
             await dfToken.mint(account.address, tokenAmount);
             console.log(`${account.address} DFToken balance: ${await dfToken.balanceOf(account.address)}`);

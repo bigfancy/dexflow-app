@@ -68,7 +68,7 @@ export default function PoolPage() {
             {/* Reserves */}
             <div className="flex items-center text-gray-900  col-span-2">
               <span className="whitespace-nowrap">
-                {parseFloat(pool.reserve0).toFixed(3)} ETH / {parseFloat(pool.reserve1).toFixed(3)} DFT
+                {parseFloat(pool.reserve0).toFixed(3)} ETH / {parseFloat(pool.reserve1).toFixed(2)} DFT
               </span>
             </div>
 
