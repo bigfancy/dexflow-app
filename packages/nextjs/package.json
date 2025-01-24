@@ -14,8 +14,8 @@
     "vercel:login": "vercel login",
     "vercel:yolo": "vercel --build-env YARN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1 --build-env NEXT_PUBLIC_IGNORE_BUILD_ERROR=true --build-env VERCEL_TELEMETRY_DISABLED=1",
     "test-prisma": "tsx scripts/test-prisma.ts",
-    "settle": "ts-node scripts/settleClicks.ts",
-    "cron": "ts-node scripts/cronJobs.ts"
+    "settle": "tsx scripts/settleClicks.ts",
+    "cron": "tsx scripts/cronJobs.ts"
   },
   "dependencies": {
     "@heroicons/react": "~2.1.5",

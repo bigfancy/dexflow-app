@@ -14,7 +14,7 @@ contract UniswapV2ERC20 is IUniswapV2ERC20 {
     bytes32 public override DOMAIN_SEPARATOR;
     // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
     bytes32 public constant override PERMIT_TYPEHASH =
-        0x6865f2394a41413087d9d12e7cddcbc774e625fe69857c217d802e8adfdbd022;
+        0x99862f0478c2b3a8dcd67f078739cb4bdd9ef7b7f8f0ab9fadaec22c518882e2;
     mapping(address => uint256) public override nonces;
 
     constructor() {

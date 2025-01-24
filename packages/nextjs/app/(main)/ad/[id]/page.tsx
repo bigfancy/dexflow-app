@@ -171,19 +171,7 @@ export default function AdDetailPage() {
                     </div>
 
                     <div className="mt-4 space-y-4">
-                      {/* <div>
-                        <p className="text-sm font-medium text-gray-500 mb-2">Your Ad Link:</p>
-                        <div className="flex items-center gap-2">
-                          <input type="text" value={adLink} readOnly className="flex-1 p-2 border rounded" />
-                          <button
-                            onClick={() => navigator.clipboard.writeText(adLink!)}
-                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
-                          >
-                            Copy
-                          </button>
-                        </div>
-                      </div> */}
-
+                    
                       <div className="mt-4">
                         <p className="text-sm font-medium text-gray-500 mb-2">Your Ad Link Code:</p>
                         <div className="relative">
@@ -192,7 +180,7 @@ export default function AdDetailPage() {
                               {`<div id="ad-container">
   <iframe
     src="${window.location.origin}/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}"
-    style="border: none; width: 300px; height: 250px;"
+    style="border: none;width: 600px; height: 500px;"
     scrolling="no"
     allow="fullscreen"
     title="Advertisement"
@@ -206,7 +194,7 @@ export default function AdDetailPage() {
                                 `<div id="ad-container">
                                   <iframe
                                     src="${window.location.origin}/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}"
-                                    style="border: none; width: 300px; height: 250px;"
+                                    style="border: none; width: 600px; height: 400px;"
                                     scrolling="no"
                                     allow="fullscreen"
                                     title="Advertisement"
@@ -227,7 +215,7 @@ export default function AdDetailPage() {
                           <div id="ad-container">
                             <iframe
                               src={`${window.location.origin}/share?adId=${params.id}&adLinkId=${linkId}&imageUrl=${ad?.imageUrl}`}
-                              style={{ border: "none", width: "600px", height: "500px" }}
+                              style={{ border: "none", width: "600px", height: "400px" }}
                               scrolling="no"
                               allow="fullscreen"
                               title="Advertisement"

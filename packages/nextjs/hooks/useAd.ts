@@ -30,7 +30,7 @@ const formatAd = (ad: any): Ad => ({
   budget: formatEther(ad.budget),
   costPerClick: formatEther(ad.costPerClick),
   totalClicks: ad.totalClicks.toString(),
-  totalReward: ad.totalReward.toString(),
+  totalReward: formatEther(ad.totalReward),
   isActive: ad.isActive,
 });
 

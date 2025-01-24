@@ -127,6 +127,18 @@ contract UniswapV2Router is IUniswapV2Router {
         ensure(deadline)
         returns (uint256 amountToken, uint256 amountETH, uint256 liquidity)
     {
+        // 检查输入参数
+        require(token != address(0), "UniswapV2Router: INVALID_TOKEN");
+        require(amountTokenDesired > 0, "UniswapV2Router: INSUFFICIENT_TOKEN_AMOUNT");
+        require(msg.value > 0, "UniswapV2Router: INSUFFICIENT_ETH_AMOUNT");
+        require(to != address(0), "UniswapV2Router: INVALID_TO");
+
+        // 检查 Factory 合约
+        require(factory != address(0), "UniswapV2Router: FACTORY_NOT_SET");
+        
+        // 检查 WETH 合约
+        require(WETH != address(0), "UniswapV2Router: WETH_NOT_SET");
+
         (amountToken, amountETH) = _addLiquidity(
             token,
             WETH,
@@ -135,14 +147,29 @@ contract UniswapV2Router is IUniswapV2Router {
             amountTokenMin,
             amountETHMin
         );
+
         address pair = UniswapV2Library.pairFor(factory, token, WETH);
+        require(pair != address(0), "UniswapV2Router: PAIR_NOT_CREATED");
+
+        // 检查代币余额和授权
+        uint256 balance = IERC20(token).balanceOf(msg.sender);
+        require(balance >= amountToken, "UniswapV2Router: INSUFFICIENT_TOKEN_BALANCE");
+        
+        uint256 allowance = IERC20(token).allowance(msg.sender, address(this));
+        require(allowance >= amountToken, "UniswapV2Router: INSUFFICIENT_TOKEN_ALLOWANCE");
+
         TransferHelper.safeTransferFrom(token, msg.sender, pair, amountToken);
         IWETH(WETH).deposit{value: amountETH}();
         assert(IWETH(WETH).transfer(pair, amountETH));
         liquidity = IUniswapV2Pair(pair).mint(to);
+        
+        require(liquidity > 0, "UniswapV2Router: INSUFFICIENT_LIQUIDITY_MINTED");
+
         // refund dust eth, if any
         if (msg.value > amountETH)
             TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
+
+        emit LiquidityAdded(token, WETH, amountToken, amountETH, liquidity, to);
     }
 
     // **** REMOVE LIQUIDITY ****
@@ -743,4 +770,14 @@ contract UniswapV2Router is IUniswapV2Router {
     ) public view virtual override returns (uint256[] memory amounts) {
         return UniswapV2Library.getAmountsIn(factory, amountOut, path);
     }
+
+    // 添加事件
+    event LiquidityAdded(
+        address indexed tokenA,
+        address indexed tokenB,
+        uint256 amountA,
+        uint256 amountB,
+        uint256 liquidity,
+        address indexed to
+    );
 }

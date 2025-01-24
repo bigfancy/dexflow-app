@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { DFNFT, DFToken, EnglishAuction, ERC20Token, UniswapV2Router, WETH, UniswapV2Query } from "../typechain-types";
 import { expandTo18Decimals } from "./utils/utilities";
+import { parseEther, formatEther } from "viem";
 
 const ADDRESS_FILE = path.join(__dirname, '../config/contracts.json');
 
@@ -17,33 +18,18 @@ async function main() {
     const [owner, addr1, addr2] = await ethers.getSigners();
     const addresses = getDeployedAddresses();
 
-    // IPFS URIs for test NFTs
-    const nftUrls: string[] = [
-        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
-        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
-        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN",
-        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
-        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
-        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN",
-        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
-        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
-        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN",
-        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
-        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
-        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN"
-    ];
-
     try {
-        
         const weth = (await ethers.getContractFactory("WETH")).attach(addresses.WETH) as WETH;
         const router = (await ethers.getContractFactory("UniswapV2Router")).attach(addresses.UniswapV2Router) as UniswapV2Router;
         const uniswapQuery = (await ethers.getContractFactory("UniswapV2Query")).attach(addresses.UniswapV2Query) as UniswapV2Query;
-   
+        const dfToken = (await ethers.getContractFactory("DFToken")).attach(addresses.DFToken) as DFToken;
 
         console.log("\n=== Initializing Test Environment ===");
 
+        // 设置一个足够长的 deadline
+        const deadline = Math.floor(Date.now() / 1000) + 60 * 60 * 10; // 10 hour from now
         
-        // 部署两个新的测试代币
+        // 部署测试代币
         const Token1 = await ethers.getContractFactory("ERC20Token");
         const token1 = await Token1.deploy("Token1", "TK1", 1000000);
         await token1.waitForDeployment();
@@ -54,72 +40,109 @@ async function main() {
         await token2.waitForDeployment();
         console.log("Token2 deployed to:", await token2.getAddress());
 
-        // 为代币对添加流动性
-        const deadline = Math.floor(Date.now() / 1000) + 36000; // 10小时后过期
+        // 授权
+        console.log("Approving tokens...");
+        const routerAddress = await router.getAddress();
+        console.log("Router address:", routerAddress);
+        console.log("WETH address:", addresses.WETH);
 
-        // 为 DFToken-WETH 添加流动性
-        const dfTokenAmount = expandTo18Decimals(1000);
-        const wethAmount = expandTo18Decimals(10);
-        
-        // await dfToken.approve(router.getAddress(), dfTokenAmount);
-        
-        // await router.addLiquidityETH(
-        //     await dfToken.getAddress(),
-        //     dfTokenAmount,
-        //     0,
-        //     0,
-        //     owner.address,
-        //     deadline,
-        //     { value: wethAmount }
-        // );
-        // console.log("Added DFToken-ETH liquidity");
+        // 检查代币部署
+        const token1Address = await token1.getAddress();
+        console.log("Token1 address:", token1Address);
+        const token1Supply = await token1.totalSupply();
+        console.log("Token1 total supply:", ethers.formatEther(token1Supply));
+        const token1Balance = await token1.balanceOf(owner.address);
+        console.log("Token1 balance:", ethers.formatEther(token1Balance));
 
-        // 添加 Token1-ETH 流动性
-        const token1Amount = expandTo18Decimals(1000);
-        const ethAmount = expandTo18Decimals(10);
-        
-        await token1.approve(router.getAddress(), token1Amount);
-        
-        await router.addLiquidityETH(
-            await token1.getAddress(),
-            token1Amount,
-            0,
-            0,
-            owner.address,
-            deadline,
-            { value: ethAmount }
-        );
-        console.log("Added Token1-ETH liquidity");
+        await dfToken.approve(await router.getAddress(), ethers.MaxUint256);
+        await token1.approve(await router.getAddress(), ethers.MaxUint256);
+        await token2.approve(await router.getAddress(), ethers.MaxUint256);
 
-        // 添加 Token1-Token2 流动性
-        const token2Amount = expandTo18Decimals(1000);
-        await token2.approve(router.getAddress(), token2Amount);
-        await token1.approve(router.getAddress(), token1Amount);
+        // 检查授权
+        const allowance = await token1.allowance(owner.address, routerAddress);
+        console.log("Token1 allowance:", ethers.formatEther(allowance));
 
-        await router.addLiquidity(
-            await token1.getAddress(),
-            await token2.getAddress(),
-            token1Amount,
-            token2Amount,
-            0,
-            0,
-            owner.address,
-            deadline
-        );
-        console.log("Added Token1-Token2 liquidity");
+        try {
+            // 添加 DFToken-ETH 流动性
+            console.log("Adding DFToken-ETH liquidity...");
+            const dfTokenAmount = ethers.parseEther("100");
+            const ethAmount = ethers.parseEther("1");
+            
+            const tx1 = await router.addLiquidityETH(
+                await dfToken.getAddress(),
+                dfTokenAmount,
+                0, // 最小代币数量设置为实际数量
+                0,     // 最小 ETH 数量设置为实际数量
+                owner.address,
+                deadline,
+                { value: ethAmount }
+            );
+            await tx1.wait();
+            console.log("DFToken-ETH liquidity added");
+
+            // 添加 Token1-ETH 流动性
+            console.log("Adding Token1-ETH liquidity...");
+            const token1Amount = ethers.parseEther("100");
+            const minToken1 = token1Amount;
+            const minEth = ethAmount;
+            
+            // 检查 Factory 地址
+            const factoryAddress = await router.factory();
+            console.log("Factory address:", factoryAddress);
+
+            // 检查 ETH 余额
+            const ethBalance = await ethers.provider.getBalance(owner.address);
+            console.log("ETH balance:", ethers.formatEther(ethBalance));
+            console.log("Required ETH:", ethers.formatEther(ethAmount));
+            
+            const tx2 = await router.addLiquidityETH(
+                token1Address,
+                token1Amount,
+                minToken1,
+                minEth,
+                owner.address,
+                deadline,
+                { value: ethAmount }
+            );
+            console.log("Waiting for transaction...");
+            await tx2.wait();
+            console.log("Transaction confirmed");
+            console.log("Token1-ETH liquidity added");
+
+            // 添加 Token1-Token2 流动性
+            console.log("Adding Token1-Token2 liquidity...");
+            const token2Amount = ethers.parseEther("100");
+            
+            const tx3 = await router.addLiquidity(
+                await token1.getAddress(),
+                await token2.getAddress(),
+                token1Amount,
+                token2Amount,
+                0, // amountAMin
+                0, // amountBMin
+                owner.address,
+                deadline
+            );
+            await tx3.wait();
+            console.log("Token1-Token2 liquidity added");
+
+        } catch (error) {
+            console.error("Error:", error);
+            throw error;
+        }
 
         // 在添加流动性后获取流动性池信息
         console.log("\n=== 查询流动性池信息 ===");
         // 获取特定代币对的信息
-        // const pairInfo = await uniswapQuery.getPairInfo(token1.getAddress(), addresses.WETH);
-        // console.log("Pair Info:", pairInfo);
+        const pairInfo = await uniswapQuery.getPairInfo(token1.getAddress(), addresses.WETH);
+        console.log("Pair Info:", pairInfo);
 
         // 获取所有流动性池的信息
         const allPairsInfo = await uniswapQuery.getAllPairsInfo();
         console.log("All Pairs Info:", allPairsInfo);
 
         // ETH swap 到 Token1
-        const swapEthAmount = expandTo18Decimals(1);
+        const swapEthAmount = parseEther("1");
         await router.swapExactETHForTokens(
             0, // 接受任何数量的代币
             [await weth.getAddress(), await token1.getAddress()],
@@ -130,7 +153,7 @@ async function main() {
         console.log("Swapped ETH for Token1");
 
         // Token1 swap 到 Token2
-        const swapToken1Amount = expandTo18Decimals(100);
+        const swapToken1Amount = parseEther("100");
         await token1.approve(router.getAddress(), swapToken1Amount);
         
         await router.swapExactTokensForTokens(
@@ -144,10 +167,16 @@ async function main() {
 
         // 打印最终余额
         console.log("\n=== Final Token Balances ===");
-        console.log("Token1 balance:", ethers.formatEther(await token1.balanceOf(owner.address)));
-        console.log("Token2 balance:", ethers.formatEther(await token2.balanceOf(owner.address)));
+        const balance = await token1.balanceOf(owner.address);
+        console.log("Token1 balance:", ethers.formatEther(balance));
 
-        
+        // 检查ETH余额
+        const ethBalance = await ethers.provider.getBalance(owner.address);
+        console.log("ETH balance:", ethers.formatEther(ethBalance));
+
+        // 检查授权额度
+        const allowance1 = await token1.allowance(owner.address, router.getAddress());
+        console.log("Token1 allowance:", ethers.formatEther(allowance1));
 
     } catch (error) {
         console.error("Operation failed:", error);

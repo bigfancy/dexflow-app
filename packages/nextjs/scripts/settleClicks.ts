@@ -1,7 +1,7 @@
-import AdAllianceABI from "../artifacts/contracts/AdAlliance.sol/AdAlliance.json";
 import { PrismaClient } from "@prisma/client";
 import { config } from "dotenv";
 import { ethers } from "ethers";
+import deployedContracts from "~~/contracts/deployedContracts";
 
 config(); // 加载环境变量
 
@@ -34,8 +34,10 @@ async function settleClicks() {
     const provider = new ethers.JsonRpcProvider(process.env.RPC_URL || "http://localhost:8545");
     const wallet = new ethers.Wallet(process.env.ADMIN_PRIVATE_KEY || "", provider);
 
-    // 创建合约实例
-    const adAlliance = new ethers.Contract(process.env.AD_ALLIANCE_ADDRESS || "", AdAllianceABI.abi, wallet);
+    // 使用 deployedContracts 创建合约实例
+    const chainId = 31337; // hardhat 网络的 chainId
+    const adAllianceContract = deployedContracts[chainId].AdAlliance;
+    const adAlliance = new ethers.Contract(adAllianceContract.address, adAllianceContract.abi, wallet);
 
     // 准备结算数据
     const linkIds = clickRecords.map(record => record.linkId);

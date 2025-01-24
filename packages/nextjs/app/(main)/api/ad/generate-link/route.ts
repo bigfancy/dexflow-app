@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
     const { adId, userId, linkId } = await req.json();
 
     // 保存链接到数据库
-    await prisma.adLink.create({
+    await prisma.adClick.create({
       data: {
         adId,
         linkId: parseInt(linkId),
@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       linkId,
-      adLink: `http://localhost:3000/ad/${linkId}`,
     });
   } catch (error) {
     console.error("Failed to save ad link:", error);

@@ -35,6 +35,10 @@ const config: HardhatUserConfig = {
             // https://docs.soliditylang.org/en/latest/using-the-compiler.html#optimizer-options
             runs: 200,
           },
+          debug: {
+            revertStrings: "debug",
+            // verboseRevertReason: true
+          }
         },
       },
     ],
@@ -54,6 +58,12 @@ const config: HardhatUserConfig = {
         url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKey}`,
         enabled: process.env.MAINNET_FORKING_ENABLED === "true",
       },
+      chainId: 31337,
+      mining: {
+        auto: true,
+        interval: 0,
+      },
+      loggingEnabled: true,
     },
     mainnet: {
       url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKey}`,
