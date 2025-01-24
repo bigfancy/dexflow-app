@@ -1,35 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import TokenSelectModal from "../TokenSelectModal";
 import { FaEthereum, FaExchangeAlt } from "react-icons/fa";
 import { MdKeyboardArrowDown, MdToken } from "react-icons/md";
 import { useAccount } from "wagmi";
-import { Token, useSwap } from "~~/hooks/useSwap";
-
-const TOKENS: Token[] = [
-  {
-    symbol: "ETH",
-    name: "Ethereum",
-    icon: <FaEthereum className="w-6 h-6 text-[#627EEA]" />,
-    logoURI: "https://token-icons.s3.amazonaws.com/eth.png",
-  },
-  {
-    symbol: "DFT",
-    name: "DAuction Token",
-    icon: <MdToken className="w-6 h-6 text-blue-500" />,
-    logoURI: "/logo1.png",
-  },
-];
+import { useSwap } from "~~/hooks/useSwap";
+import { Token, useTokenList } from "~~/hooks/useTokenList";
 
 export default function Swap() {
-  const [fromToken, setFromToken] = useState<Token>(TOKENS[0]);
-  const [toToken, setToToken] = useState<Token>(TOKENS[1]);
+  const { tokens } = useTokenList();
+  const [fromToken, setFromToken] = useState<Token | null>(null);
+  const [toToken, setToToken] = useState<Token | null>(null);
   const [fromAmount, setFromAmount] = useState<string>("");
   const [isSelectingFromToken, setIsSelectingFromToken] = useState(false);
   const [isSelectingToToken, setIsSelectingToToken] = useState(false);
 
   const { isConnected } = useAccount();
   const { toAmount, isLoading, handleSwap } = useSwap(fromToken, toToken, fromAmount);
+
+  useEffect(() => {
+    if (tokens.length > 0 && !fromToken && !toToken) {
+      setFromToken(tokens[0]);
+      setToToken(tokens[1]);
+    }
+  }, [tokens, fromToken, toToken]);
 
   return (
     <div className="space-y-4">
@@ -51,12 +45,12 @@ export default function Swap() {
             onClick={() => setIsSelectingFromToken(true)}
             className="flex items-center gap-2 bg-white px-3 py-2 rounded-2xl hover:bg-gray-100"
           >
-            {fromToken.logoURI ? (
+            {fromToken?.logoURI ? (
               <Image src={fromToken.logoURI} alt={fromToken.symbol} width={28} height={28} className="rounded-full" />
             ) : (
-              fromToken.icon
+              fromToken?.icon
             )}
-            <span className="font-medium">{fromToken.symbol}</span>
+            <span className="font-medium">{fromToken?.symbol}</span>
             <MdKeyboardArrowDown className="w-5 h-5" />
           </button>
         </div>
@@ -87,12 +81,12 @@ export default function Swap() {
             onClick={() => setIsSelectingToToken(true)}
             className="flex items-center gap-2 bg-white px-3 py-2 rounded-2xl hover:bg-gray-100"
           >
-            {toToken.logoURI ? (
+            {toToken?.logoURI ? (
               <Image src={toToken.logoURI} alt={toToken.symbol} width={28} height={28} className="rounded-full" />
             ) : (
-              toToken.icon
+              toToken?.icon
             )}
-            <span className="font-medium">{toToken.symbol}</span>
+            <span className="font-medium">{toToken?.symbol}</span>
             <MdKeyboardArrowDown className="w-5 h-5" />
           </button>
         </div>
@@ -113,7 +107,7 @@ export default function Swap() {
       </button>
 
       {/* Token Select Modal */}
-      {/* <TokenSelectModal
+      <TokenSelectModal
         isOpen={isSelectingFromToken || isSelectingToToken}
         onClose={() => {
           setIsSelectingFromToken(false);
@@ -130,7 +124,7 @@ export default function Swap() {
           setIsSelectingToToken(false);
         }}
         selectedToken={isSelectingFromToken ? fromToken : toToken}
-      /> */}
+      />
     </div>
   );
 }

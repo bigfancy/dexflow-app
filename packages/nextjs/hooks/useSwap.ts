@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { Address, Transaction } from "viem";
+import { Address, Transaction, formatEther } from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
+import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -19,8 +20,9 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
   const publicClient = usePublicClient();
   const { data: walletClient } = useWalletClient();
 
-  const fromTokenAddress = process.env.NEXT_PUBLIC_WETH_ADDRESS as Address;
-  const toTokenAddress = process.env.NEXT_PUBLIC_DAT_CONTRACT_ADDRESS as Address;
+  // use deployedContracts
+  const fromTokenAddress = deployedContracts[31337].WETH.address;
+  const toTokenAddress = deployedContracts[31337].DFToken.address;
 
   // Read amounts out
   const { data: amountsOut } = useScaffoldReadContract({
@@ -37,7 +39,8 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
   // Calculate output amount
   useEffect(() => {
     if (amountsOut && amountsOut[1]) {
-      const outputAmount = (Number(amountsOut[1]) / 1e18).toFixed(2);
+      //use formatEther
+      const outputAmount = parseFloat(formatEther(amountsOut[1])).toFixed(3);
       setToAmount(outputAmount);
     } else {
       setToAmount("");

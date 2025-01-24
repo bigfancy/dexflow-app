@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Address } from "viem";
 import { useAccount } from "wagmi";
+import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -26,24 +27,34 @@ export const usePool = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address, isConnected } = useAccount();
 
-  // Read factory address
-  const { data: factoryAddress } = useScaffoldReadContract({
-    contractName: "UniswapV2Factory",
-    functionName: "allPairsLength",
+  //UniswapV2Query getAllPairsInfo
+  const { data: allPairsInfo } = useScaffoldReadContract({
+    contractName: "UniswapV2Query",
+    functionName: "getAllPairsInfo",
   });
+  console.log("allPairsInfo", allPairsInfo);
 
-  // Read all pairs
-  const { data: allPairs } = useScaffoldReadContract({
-    contractName: "UniswapV2Factory",
-    functionName: "allPairs",
-    args: [BigInt(0)], // Start from index 0
-  });
+  //   // Read factory address
+  //   const { data: factoryAddress } = useScaffoldReadContract({
+  //     contractName: "UniswapV2Factory",
+  //     functionName: "allPairsLength",
+  //   });
 
-  // Read pair info
-  const { data: pairInfo } = useScaffoldReadContract({
-    contractName: "UniswapV2Pair",
-    functionName: "getReserves",
-  });
+  //   // Read all pairs
+  //   const { data: allPairs } = useScaffoldReadContract({
+  //     contractName: "UniswapV2Factory",
+  //     functionName: "allPairs",
+  //     args: [BigInt(0)], // Start from index 0
+  //   });
+
+  //   // Read pair info
+  //   const { data: pairInfo } = useScaffoldReadContract({
+  //     contractName: "UniswapV2Factory",
+  //     functionName: "getPair",
+  //     args: [deployedContracts[31337].WETH.address, deployedContracts[31337].DFToken.address],
+  //   });
+
+  //   console.log("pairInfo", pairInfo);
 
   // Add liquidity
   const { writeContractAsync: addLiquidity } = useScaffoldWriteContract({
@@ -92,7 +103,7 @@ export const usePool = () => {
   // Fetch pools data
   useEffect(() => {
     const fetchPools = async () => {
-      if (!factoryAddress || !allPairs || !pairInfo) return;
+      if (!allPairsInfo) return;
 
       setIsLoading(true);
       try {
@@ -108,13 +119,15 @@ export const usePool = () => {
             volume24h: "$999.5K",
             token0Icon: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
             token1Icon: "/logo1.png",
-            token0Address: process.env.NEXT_PUBLIC_WETH_ADDRESS as Address,
-            token1Address: process.env.NEXT_PUBLIC_DAT_CONTRACT_ADDRESS as Address,
-            pairAddress: allPairs,
-            reserve0: pairInfo[0],
-            reserve1: pairInfo[1],
+            token0Address: deployedContracts[31337].WETH.address,
+            token1Address: deployedContracts[31337].DFToken.address,
+            pairAddress: allPairsInfo[0].pair,
+            reserve0: BigInt(allPairsInfo[0].reserve0),
+            reserve1: BigInt(allPairsInfo[0].reserve1),
           },
         ];
+
+        console.log("=====poolsData", poolsData);
 
         setPools(poolsData);
       } catch (error) {
@@ -126,7 +139,7 @@ export const usePool = () => {
     };
 
     fetchPools();
-  }, [factoryAddress, allPairs, pairInfo]);
+  }, [allPairsInfo]);
 
   return {
     pools,
