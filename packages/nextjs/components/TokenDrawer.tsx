@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useDFTokenBalance from "../hooks/useDFToken";
 import MiniNFTCard from "./MiniNFTCard";
-import { FaImage, FaQrcode, FaSignOutAlt } from "react-icons/fa";
+import { FaImage, FaQrcode, FaSignOutAlt, FaWallet } from "react-icons/fa";
 import { useAccount, useDisconnect } from "wagmi";
 import { AddressQRCodeModal } from "~~/components/AddressQRCodeModal";
 import CopyAddressButton from "~~/components/CopyAddressButton";
@@ -89,10 +89,6 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
     }
   };
 
-  const handleNFTClick = (id: string) => {
-    router.push(`/mynfts/${id}`);
-    onClose();
-  };
 
   return (
     <>
@@ -107,7 +103,10 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
       >
         <div className="p-6 flex flex-col h-full">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold text-white/90">My Wallet</h2>
+            <h2 className="text-xl font-bold text-white/90 flex items-center gap-2">
+              <FaWallet className="text-lg" />
+              My Wallet
+            </h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-700/50 transition-colors"
@@ -175,13 +174,13 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
             </div> */}
 
             <Link
-              href="/mynfts"
+              href="/my"
               className="block w-full text-center bg-purple-600/90 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl transition duration-200"
               onClick={onClose}
             >
               <div className="flex items-center justify-center gap-2">
                 <FaImage />
-                <span>View My NFTs</span>
+                <span>View My Assets</span>
               </div>
             </Link>
           </div>

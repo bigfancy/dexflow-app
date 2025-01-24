@@ -124,25 +124,36 @@ async function main() {
 
         // Create additional English auctions
         console.log("\n=== Creating Additional English Auctions ===");
-        for(let i = 1; i < nftUrls.length-2; i++) {
+        for (let i = 1; i < nftUrls.length - 2; i++) {
             console.log(`\nCreating English Auction for NFT #${nftIds[i]}`);
             
-            // Transfer NFT to addr1
-            await dfnft.connect(owner).transferFrom(owner.address, addr1.address, nftIds[i]);
-            console.log(`NFT #${nftIds[i]} transferred to ${addr1.address}`);
-            
-            // Approve NFT for auction contract
-            await dfnft.connect(addr1).approve(englishAuction.getAddress(), nftIds[i]);
-            
-            // Create auction with different starting prices
             const startingPrice = expandTo18Decimals(30 + i * 5); // Incremental starting prices
-            await englishAuction.connect(addr1).createAuction(
-                addresses.DFNFT,
-                nftIds[i],
-                startingPrice,
-                englishAuctionParams.duration
-            );
-            console.log(`English auction created for NFT #${nftIds[i]} with starting price ${30 + i * 5} tokens`);
+
+            // 让前两个拍卖由 owner 创建
+            if (i <= 2) {
+                // owner 直接批准并创建拍卖，无需转移
+                await dfnft.connect(owner).approve(englishAuction.getAddress(), nftIds[i]);
+                await englishAuction.connect(owner).createAuction(
+                    addresses.DFNFT,
+                    nftIds[i],
+                    startingPrice,
+                    englishAuctionParams.duration
+                );
+                console.log(`English auction created by owner for NFT #${nftIds[i]} with starting price ${30 + i * 5} tokens`);
+            } else {
+                // 其他拍卖转移给 addr1 创建
+                await dfnft.connect(owner).transferFrom(owner.address, addr1.address, nftIds[i]);
+                console.log(`NFT #${nftIds[i]} transferred to ${addr1.address}`);
+                
+                await dfnft.connect(addr1).approve(englishAuction.getAddress(), nftIds[i]);
+                await englishAuction.connect(addr1).createAuction(
+                    addresses.DFNFT,
+                    nftIds[i],
+                    startingPrice,
+                    englishAuctionParams.duration
+                );
+                console.log(`English auction created by addr1 for NFT #${nftIds[i]} with starting price ${30 + i * 5} tokens`);
+            }
         }
 
         // 打印所有拍卖

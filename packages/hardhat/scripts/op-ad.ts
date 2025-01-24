@@ -39,31 +39,39 @@ async function main() {
         }
 
         // Create advertisements
-        console.log("\n=== Creating Advertisements ===");
+        console.log("\n=== Creating Additional Advertisements ===");
         for (let i = 0; i < imageUrls.length; i++) {
             console.log(`\nCreating Advertisement #${i + 1}`);
 
             // Approve token allowance
             const budget = parseEther("100"); // Incremental budget: 100, 150, 200
-            await dfToken.connect(addr1).approve(adAlliance.getAddress(), budget);
 
-            // Create advertisement parameters
-            const targetUrl = `https://example.com/ad${i + 1}`;
-            const costPerClick = parseEther("0.1"); // Incremental cost per click: 0.1, 0.15, 0.2
+            // 让第一个广告由 owner 创建
+            if (i === 0) {
+                await dfToken.connect(owner).approve(adAlliance.getAddress(), budget);
+                await adAlliance.connect(owner).createAd(
+                    `https://example.com/ad${i + 1}`,
+                    imageUrls[i],
+                    budget,
+                    parseEther("0.1") // Cost per click
+                );
+                console.log(`Advertisement #${i + 1} created by owner successfully`);
+            } else {
+                // 其他广告由 addr1 创建
+                await dfToken.connect(addr1).approve(adAlliance.getAddress(), budget);
+                await adAlliance.connect(addr1).createAd(
+                    `https://example.com/ad${i + 1}`,
+                    imageUrls[i],
+                    budget,
+                    parseEther("0.1") // Cost per click
+                );
+                console.log(`Advertisement #${i + 1} created by addr1 successfully`);
+            }
 
-            // Create advertisement
-            await adAlliance.connect(addr1).createAd(
-                targetUrl,
-                imageUrls[i],
-                budget,
-                costPerClick
-            );
-
-            console.log(`Advertisement #${i + 1} created successfully`);
-            console.log(`- Target URL: ${targetUrl}`);
+            console.log(`- Target URL: https://example.com/ad${i + 1}`);
             console.log(`- Image URL: ${imageUrls[i]}`);
             console.log(`- Budget: ${ethers.formatEther(budget)} DFToken`);
-            console.log(`- Cost per click: ${ethers.formatEther(costPerClick)} DFToken`);
+            console.log(`- Cost per click: ${ethers.formatEther(parseEther("0.1"))} DFToken`);
         }
 
         // Print total number of advertisements

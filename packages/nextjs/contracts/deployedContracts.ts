@@ -2397,6 +2397,106 @@ const deployedContracts = {
           stateMutability: "view",
           type: "function",
         },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_user",
+              type: "address",
+            },
+          ],
+          name: "getAuctionsByUser",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "seller",
+                  type: "address",
+                },
+                {
+                  components: [
+                    {
+                      internalType: "address",
+                      name: "nftAddress",
+                      type: "address",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "tokenId",
+                      type: "uint256",
+                    },
+                    {
+                      internalType: "string",
+                      name: "tokenURI",
+                      type: "string",
+                    },
+                  ],
+                  internalType: "struct EnglishAuction.NFTInfo",
+                  name: "nftInfo",
+                  type: "tuple",
+                },
+                {
+                  internalType: "uint256",
+                  name: "startingAt",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "endingAt",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "startingPrice",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "highestBid",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "highestBidder",
+                  type: "address",
+                },
+                {
+                  components: [
+                    {
+                      internalType: "address",
+                      name: "bidder",
+                      type: "address",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "bidAmount",
+                      type: "uint256",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "bidTime",
+                      type: "uint256",
+                    },
+                  ],
+                  internalType: "struct EnglishAuction.Bidder[]",
+                  name: "bidders",
+                  type: "tuple[]",
+                },
+                {
+                  internalType: "enum EnglishAuction.AuctionStatus",
+                  name: "status",
+                  type: "uint8",
+                },
+              ],
+              internalType: "struct EnglishAuction.Auction[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
       ],
       inheritedFunctions: {},
     },

@@ -10,6 +10,7 @@ import { ConnectKitButton } from "connectkit";
 import { FaUserFriends, FaWallet } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
 import { useAccount } from "wagmi";
+// import { NavLink } from "~~/components/NavLink";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 
 export default function Header() {
@@ -90,32 +91,17 @@ export default function Header() {
 
       {/* Wallet and Connect Button */}
       <div className="flex items-center gap-4">
+        {/* <Link href="/my">
+          <div
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors ${
+              pathname === "/my" ? "bg-gray-800" : ""
+            }`}
+          >
+            <FaWallet className="text-lg" />
+            <span className="font-medium">My Assets</span>
+          </div>
+        </Link> */}
         <RainbowKitCustomConnectButton />
-
-        {/* <ConnectKitButton.Custom>
-            {({ isConnected, show, truncatedAddress, ensName }) => {
-              const handleClick = () => {
-                if (isConnected) {
-                  setIsDrawerOpen(true);
-                } else if (show) {
-                  show();
-                }
-              };
-
-              return (
-                <button
-                  onClick={handleClick}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-                  title="Invite each Friend For 100 DFT"
-                >
-                  <FaWallet className="text-lg" />
-                  <span className="hidden md:inline">
-                    {isConnected ? ensName || truncatedAddress : "Connect Wallet"}
-                  </span>
-                </button>
-              );
-            }}
-          </ConnectKitButton.Custom> */}
       </div>
 
       {/* Mobile menu toggle */}

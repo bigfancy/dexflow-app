@@ -312,6 +312,32 @@ contract EnglishAuction {
     return auctionList;
   }
 
+  function getAuctionsByUser(address _user) external view returns (Auction[] memory) {
+    // 1. 首先计算用户的拍卖数量
+    uint256 userAuctionCount = 0;
+    for (uint256 i = 0; i < auctionRegistry.length; i++) {
+        AuctionInfo memory info = auctionRegistry[i];
+        if (auctions[info.nftAddress][info.tokenId].seller == _user) {
+            userAuctionCount++;
+        }
+    }
+
+    // 2. 创建正确大小的数组
+    Auction[] memory userAuctions = new Auction[](userAuctionCount);
+    
+    // 3. 填充数组
+    uint256 currentIndex = 0;
+    for (uint256 i = 0; i < auctionRegistry.length; i++) {
+        AuctionInfo memory info = auctionRegistry[i];
+        if (auctions[info.nftAddress][info.tokenId].seller == _user) {
+            userAuctions[currentIndex] = auctions[info.nftAddress][info.tokenId];
+            currentIndex++;
+        }
+    }
+
+    return userAuctions;
+  } 
+
   /// @notice Get all active auctions
   /// @return activeList Array of active auctions
   function getActiveAuctions() external view returns (Auction[] memory) {
