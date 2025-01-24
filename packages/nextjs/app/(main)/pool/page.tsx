@@ -28,21 +28,21 @@ export default function PoolPage() {
 
       <div className="bg-white rounded-xl overflow-hidden shadow-lg">
         {/* Table Header */}
-        <div className="grid grid-cols-6 gap-4 p-4 border-b border-gray-200 text-gray-600 bg-gray-50">
+        <div className="grid grid-cols-8 gap-4 p-4 border-b border-gray-200 text-gray-600 bg-gray-50">
           <div className="col-span-2"># Pool</div>
           <div className="flex items-center gap-1">
             TVL <FaCaretDown className="text-gray-400" />
           </div>
-          <div>APR</div>
+          <div className="col-span-2">Reserves</div>
           <div>24h Volume</div>
-          <div></div>
+          <div className="flex items-center justify-center col-span-2">Action</div>
         </div>
 
         {/* Pool List */}
         {pools.map(pool => (
           <div
             key={pool.id}
-            className="grid grid-cols-6 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            className="grid grid-cols-8 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
           >
             {/* Pool Info and Icons */}
             <div className="col-span-2 flex items-center gap-4">
@@ -63,16 +63,20 @@ export default function PoolPage() {
             </div>
 
             {/* TVL */}
-            <div className="flex items-center font-medium text-gray-900">{pool.tvl}</div>
+            <div className="flex items-center font-medium text-gray-900">${parseFloat(pool.tvl).toFixed(2)}</div>
 
-            {/* APR */}
-            <div className="flex items-center text-green-600">{pool.apr}</div>
+            {/* Reserves */}
+            <div className="flex items-center text-gray-900  col-span-2">
+              <span className="whitespace-nowrap">
+                {parseFloat(pool.reserve0).toFixed(3)} ETH / {parseFloat(pool.reserve1).toFixed(3)} DFT
+              </span>
+            </div>
 
             {/* 24h Volume */}
-            <div className="flex items-center text-gray-900">{pool.volume24h}</div>
+            <div className="flex items-center text-gray-900">${parseFloat(pool.volume24h).toFixed(2)}</div>
 
             {/* Action Button */}
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-center col-span-2">
               <button
                 onClick={handleAddLiquidity}
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
