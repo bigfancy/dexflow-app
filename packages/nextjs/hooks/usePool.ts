@@ -1,9 +1,26 @@
 import { useCallback, useEffect, useState } from "react";
 import { Address, formatEther, parseEther } from "viem";
-import { useAccount } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
+
+const LP_ABI = [
+  {
+    constant: true,
+    inputs: [{ name: "owner", type: "address" }],
+    name: "balanceOf",
+    outputs: [{ name: "balance", type: "uint256" }],
+    type: "function",
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: "decimals",
+    outputs: [{ name: "", type: "uint8" }],
+    type: "function",
+  },
+];
 
 export interface PairInfo {
   id: number;
@@ -83,25 +100,31 @@ export const usePool = () => {
           functionName: "approve",
           args: [deployedContracts[31337].UniswapV2Router.address as Address, tokenAmountWei],
         });
-        notification.success("Token approved successfully");
-        //tokenAmountWei
-        console.log("tokenAmountWei", tokenAmountWei);
-        console.log("ethAmountWei", ethAmountWei);
-        // 2. 添加 ETH 流动性
-        await addLiquidityETH({
-          functionName: "addLiquidityETH",
-          args: [
-            deployedContracts[31337].DFToken.address, // token address (DFT)
-            tokenAmountWei, // token amount
-            0n, // min token amount (no slippage for first liquidity)
-            0n, // min ETH amount (no slippage for first liquidity)
-            address, // recipient
-            deadline, // deadline
-          ],
-          value: ethAmountWei, // ETH value to send
-        });
 
-        notification.success("Successfully added liquidity!");
+        // 2. 添加 ETH 流动性
+        await addLiquidityETH(
+          {
+            functionName: "addLiquidityETH",
+            args: [
+              deployedContracts[31337].DFToken.address, // token address (DFT)
+              tokenAmountWei, // token amount
+              0n, // min token amount (no slippage for first liquidity)
+              0n, // min ETH amount (no slippage for first liquidity)
+              address, // recipient
+              deadline, // deadline
+            ],
+            value: ethAmountWei, // ETH value to send
+          },
+          {
+            onBlockConfirmation: () => {
+              notification.success("Successfully added liquidity!");
+            },
+          },
+        );
+
+        // 3. 等待交易完成
+
+        // notification.success("Successfully added liquidity!");
       } catch (error: any) {
         console.error("Failed to add liquidity:", error);
         notification.error(error?.message || "Failed to add liquidity");
@@ -170,5 +193,100 @@ export const usePool = () => {
     pools,
     isLoading,
     handleAddLiquidity,
+  };
+};
+
+interface EstimatedAmounts {
+  ethAmount: string;
+  tokenAmount: string;
+}
+
+export const useRemoveLiquidity = (lpAmount: string, pairAddress: string, token0: string, token1: string) => {
+  const [balance, setBalance] = useState<string>();
+  const [estimatedAmounts, setEstimatedAmounts] = useState<EstimatedAmounts>();
+  const [isLoading, setIsLoading] = useState(false);
+  const { address, isConnected } = useAccount();
+
+  // 获取 LP 代币余额
+  //根据 pairAddress 获取 LP
+  const {
+    data: lpBalance,
+    isLoading: lpBalanceLoading,
+    error: lpBalanceError,
+  } = useReadContract({
+    chainId: 31337,
+    address: pairAddress,
+    abi: LP_ABI,
+    functionName: "balanceOf",
+    args: [address as Address],
+  });
+
+  // 获取预估数量
+  const { data: amounts } = useScaffoldReadContract({
+    contractName: "UniswapV2Router",
+    functionName: "getAmountsOut",
+    args: [
+      lpAmount ? BigInt(lpAmount) : BigInt(0),
+      [deployedContracts[31337].WETH.address, deployedContracts[31337].DFToken.address],
+    ],
+  });
+
+  console.log("===== amounts", amounts);
+
+  // 移除流动性
+  const { writeContractAsync: removeLiquidity } = useScaffoldWriteContract({
+    contractName: "UniswapV2Router",
+  });
+
+  // 更新余额显示
+  useEffect(() => {
+    if (lpBalance) {
+      setBalance((Number(lpBalance) / 1e18).toString());
+    }
+  }, [lpBalance]);
+
+  // 更新预估数量
+  useEffect(() => {
+    if (amounts) {
+      setEstimatedAmounts({
+        ethAmount: amounts[0].toString(),
+        tokenAmount: amounts[1].toString(),
+      });
+    }
+  }, [amounts]);
+
+  // 处理移除流动性
+  const handleRemove = useCallback(async () => {
+    if (!isConnected || !address || !lpAmount) {
+      notification.error("Please connect wallet and enter amount");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24); // 24 hours
+      const amountLP = parseEther(lpAmount);
+      const minETH = BigInt(Number(estimatedAmounts?.ethAmount || 0) * 0.95 * 1e18); // 5% slippage
+      const minTokens = BigInt(Number(estimatedAmounts?.tokenAmount || 0) * 0.95 * 1e18);
+
+      await removeLiquidity({
+        functionName: "removeLiquidityETH",
+        args: [deployedContracts[31337].DFToken.address, amountLP, minTokens, minETH, address, deadline],
+      });
+
+      notification.success("Successfully removed liquidity!");
+    } catch (error: any) {
+      console.error("Failed to remove liquidity:", error);
+      notification.error(error.message || "Failed to remove liquidity");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [lpAmount, address, isConnected, estimatedAmounts, removeLiquidity]);
+
+  return {
+    balance,
+    estimatedAmounts,
+    isLoading,
+    handleRemove,
   };
 };

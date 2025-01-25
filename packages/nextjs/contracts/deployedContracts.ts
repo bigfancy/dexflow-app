@@ -38,7 +38,7 @@ const deployedContracts = {
             {
               indexed: false,
               internalType: "string",
-              name: "target",
+              name: "imageUrl",
               type: "string",
             },
             {
@@ -202,11 +202,6 @@ const deployedContracts = {
             },
             {
               internalType: "string",
-              name: "targetUrl",
-              type: "string",
-            },
-            {
-              internalType: "string",
               name: "imageUrl",
               type: "string",
             },
@@ -241,11 +236,6 @@ const deployedContracts = {
         },
         {
           inputs: [
-            {
-              internalType: "string",
-              name: "_target",
-              type: "string",
-            },
             {
               internalType: "string",
               name: "_imageUrl",
@@ -317,11 +307,6 @@ const deployedContracts = {
                 },
                 {
                   internalType: "string",
-                  name: "targetUrl",
-                  type: "string",
-                },
-                {
-                  internalType: "string",
                   name: "imageUrl",
                   type: "string",
                 },
@@ -383,11 +368,6 @@ const deployedContracts = {
                 },
                 {
                   internalType: "string",
-                  name: "targetUrl",
-                  type: "string",
-                },
-                {
-                  internalType: "string",
                   name: "imageUrl",
                   type: "string",
                 },
@@ -440,11 +420,6 @@ const deployedContracts = {
                   internalType: "address",
                   name: "advertiser",
                   type: "address",
-                },
-                {
-                  internalType: "string",
-                  name: "targetUrl",
-                  type: "string",
                 },
                 {
                   internalType: "string",
@@ -530,11 +505,6 @@ const deployedContracts = {
                   internalType: "address",
                   name: "advertiser",
                   type: "address",
-                },
-                {
-                  internalType: "string",
-                  name: "targetUrl",
-                  type: "string",
                 },
                 {
                   internalType: "string",

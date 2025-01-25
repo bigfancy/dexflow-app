@@ -5,7 +5,6 @@ contract AdAlliance {
     struct Ad {
         uint256 id;
         address advertiser;
-        string targetUrl;
         string imageUrl;
         uint256 budget;
         uint256 costPerClick;
@@ -46,7 +45,7 @@ contract AdAlliance {
     mapping(address => uint256[]) private userAds;
 
     // Events
-    event AdCreated(uint256 indexed adId, address indexed advertiser, string target, uint256 budget);
+    event AdCreated(uint256 indexed adId, address indexed advertiser, string imageUrl, uint256 budget);
     event AdUpdated(uint256 indexed adId, bool isActive, uint256 budget);
     event LinkGenerated(uint256 indexed linkId, uint256 indexed adId, address indexed user);
     event ClicksSettled(uint256 indexed linkId, uint256 indexed clickCounts);
@@ -67,8 +66,7 @@ contract AdAlliance {
     }
 
     // 1. Create a new ad
-    function createAd(
-        string calldata _target, 
+    function createAd( 
         string calldata _imageUrl,
         uint256 _budget, 
         uint256 _costPerClick
@@ -80,8 +78,7 @@ contract AdAlliance {
         adCount++;
         ads[adCount] = Ad({
             id: adCount,
-            advertiser: msg.sender,
-            targetUrl: _target,
+            advertiser: msg.sender,            
             imageUrl: _imageUrl,
             budget: _budget,
             costPerClick: _costPerClick,
@@ -94,7 +91,7 @@ contract AdAlliance {
         allAdIds.push(newAdId);
         userAds[msg.sender].push(newAdId);
 
-        emit AdCreated(adCount, msg.sender, _target, _budget);
+        emit AdCreated(adCount, msg.sender, _imageUrl, _budget);
     }
 
     // 2. Generate a unique link for a user

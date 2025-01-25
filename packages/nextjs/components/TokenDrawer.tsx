@@ -37,6 +37,9 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
     setIsDisconnecting(true);
     try {
       await disconnect();
+      // 清除本地存储的连接状态
+      localStorage.removeItem("wagmi.connected");
+      localStorage.removeItem("wagmi.account");
       await new Promise(resolve => setTimeout(resolve, 100));
       onClose();
       router.push("/");
@@ -91,7 +94,7 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
           </div>
 
           <div className="space-y-4 flex-grow overflow-auto">
-            <div className="bg-gray-700/30 rounded-xl p-4 backdrop-blur-sm border border-gray-600/20">
+            <div className="bg-gray-700/30 rounded-xl p-4 backdrop-blur-sm border border-gray-600/20 mb-4">
               <div className="flex items-center justify-between">
                 <span className="text-gray-300/90">DFT Balance</span>
                 {datBalanceLoading ? (
@@ -104,7 +107,7 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
 
             <Link
               href="/my"
-              className="block w-full text-center bg-purple-600/90 hover:bg-purple-700 text-white font-bold mt-4 py-3 px-4 rounded-xl transition duration-200"
+              className="block w-full text-center bg-purple-600/90 hover:bg-purple-700 text-white font-bold mt-8 py-3 px-4 rounded-xl transition duration-200"
               onClick={onClose}
             >
               <div className="flex items-center justify-center gap-2">

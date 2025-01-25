@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { FaEthereum, FaExternalLinkAlt } from "react-icons/fa";
 import { MdArrowBack } from "react-icons/md";
+import { SiDogecoin } from "react-icons/si";
 import { useAccount } from "wagmi";
 import { useAdDetail, useGenerateAdLink } from "~~/hooks/useAd";
 import { shortenAddress } from "~~/utils/addresses";
@@ -103,7 +104,7 @@ export default function AdDetailPage() {
                 <h3 className="text-sm font-medium text-gray-500 mb-1">Advertiser</h3>
                 <p className="text-gray-900">{shortenAddress(ad.advertiser)}</p>
               </div>
-              <div>
+              {/* <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-1">Target URL</h3>
                 <a
                   href={ad.targetUrl}
@@ -114,23 +115,17 @@ export default function AdDetailPage() {
                   {new URL(ad.targetUrl).hostname}
                   <FaExternalLinkAlt className="w-3 h-3" />
                 </a>
-              </div>
+              </div> */}
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
               <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-1">Budget</h3>
-                <p className="text-xl font-semibold text-gray-900 flex items-center gap-1">
-                  <FaEthereum className="text-[#627EEA]" />
-                  {ad.budget}
-                </p>
+                <p className="text-xl font-semibold text-gray-900 flex items-center gap-1">{ad.budget} DFT</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-1">Cost Per Click</h3>
-                <p className="text-xl font-semibold text-gray-900 flex items-center gap-1">
-                  <FaEthereum className="text-[#627EEA]" />
-                  {ad.costPerClick}
-                </p>
+                <p className="text-xl font-semibold text-gray-900 flex items-center gap-1">{ad.costPerClick} DFT</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-1">Total Clicks</h3>
@@ -138,10 +133,7 @@ export default function AdDetailPage() {
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500 mb-1">Total Reward</h3>
-                <p className="text-xl font-semibold text-gray-900 flex items-center gap-1">
-                  <FaEthereum className="text-[#627EEA]" />
-                  {ad.totalReward}
-                </p>
+                <p className="text-xl font-semibold text-gray-900 flex items-center gap-1">{ad.totalReward} DFT</p>
               </div>
             </div>
 
@@ -171,7 +163,6 @@ export default function AdDetailPage() {
                     </div>
 
                     <div className="mt-4 space-y-4">
-                    
                       <div className="mt-4">
                         <p className="text-sm font-medium text-gray-500 mb-2">Your Ad Link Code:</p>
                         <div className="relative">

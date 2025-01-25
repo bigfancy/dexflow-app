@@ -44,6 +44,7 @@ export default function MyAssetsPage() {
     contractName: "UniswapV2Query",
     functionName: "getAllPairsInfo",
   });
+  console.log("liquidityPositions", liquidityPositions);
 
   // 获取我的广告
   const { data: myAds, isLoading: adsLoading } = useScaffoldReadContract({
@@ -108,7 +109,6 @@ export default function MyAssetsPage() {
                 totalClicks={ad.totalClicks.toString()}
                 totalReward={ad.totalReward}
                 isActive={ad.isActive}
-                duration={ad.duration}
                 advertiser={ad.advertiser}
                 onClick={() => router.push(`/ad/${ad.id}`)}
               />
@@ -120,10 +120,7 @@ export default function MyAssetsPage() {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {(section.items as any[]).map(position => (
-              <div
-                key={position.pairAddress}
-                className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow"
-              >
+              <div key={position.pair} className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
                 <div className="flex items-center gap-2 mb-4">
                   <div className="relative flex -space-x-2">
                     <Image
@@ -159,7 +156,9 @@ export default function MyAssetsPage() {
                     Add
                   </button>
                   <button
-                    onClick={() => router.push(`/pool/remove/${position.pairAddress}`)}
+                    onClick={() =>
+                      router.push(`/pool/remove/${position.pair}?token0=${position.token0}&token1=${position.token1}`)
+                    }
                     className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
                   >
                     Remove

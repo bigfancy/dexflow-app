@@ -29,7 +29,7 @@ const AddressInfoButton = () => {
               {(() => {
                 if (!connected) {
                   return (
-                    <button onClick={openConnectModal} className="btn btn-primary btn-sm">
+                    <button onClick={openConnectModal} className="btn btn-orange-500 btn-sm">
                       Connect Wallet
                     </button>
                   );

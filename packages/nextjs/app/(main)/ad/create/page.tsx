@@ -21,14 +21,13 @@ export default function CreateAdPage() {
   const [currentStep, setCurrentStep] = useState(1);
 
   // Form states
-  const [targetUrl, setTargetUrl] = useState("");
   const [budget, setBudget] = useState("");
   const [costPerClick, setCostPerClick] = useState("");
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [imageUrl, setImageUrl] = useState("");
 
   // Use create ad hook
-  const { handleCreateAd, isCreating } = useCreateAd(targetUrl, imageUrl, budget, costPerClick);
+  const { handleCreateAd, isCreating } = useCreateAd(imageUrl, budget, costPerClick);
 
   // Handle file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -229,7 +228,7 @@ export default function CreateAdPage() {
               {currentStep === 2 && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-2 gap-6">
-                    <div>
+                    {/* <div>
                       <label className="block text-sm font-medium mb-1 text-gray-700">Target URL</label>
                       <input
                         type="url"
@@ -238,7 +237,7 @@ export default function CreateAdPage() {
                         className="w-full bg-white border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         required
                       />
-                    </div>
+                    </div> */}
 
                     <div>
                       <label className="block text-sm font-medium mb-1 text-gray-700">Budget (DFT)</label>

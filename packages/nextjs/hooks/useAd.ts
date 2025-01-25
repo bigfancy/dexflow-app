@@ -36,7 +36,7 @@ const formatAd = (ad: any): Ad => ({
 });
 
 // Create ad
-export const useCreateAd = (targetUrl: string, imageUrl: string, budget: string, costPerClick: string) => {
+export const useCreateAd = (imageUrl: string, budget: string, costPerClick: string) => {
   const [isCreating, setIsCreating] = useState(false);
   const { address } = useAccount();
 
@@ -103,7 +103,7 @@ export const useCreateAd = (targetUrl: string, imageUrl: string, budget: string,
 
       await createAd({
         functionName: "createAd",
-        args: [targetUrl, imageUrl, budgetBigInt, parseEther(costPerClick)],
+        args: [imageUrl, budgetBigInt, parseEther(costPerClick)],
       });
 
       notification.success({
@@ -122,7 +122,7 @@ export const useCreateAd = (targetUrl: string, imageUrl: string, budget: string,
     } finally {
       setIsCreating(false);
     }
-  }, [address, AdAllianceInfo?.address, targetUrl, imageUrl, budget, costPerClick, approve, createAd, allowance]);
+  }, [address, AdAllianceInfo?.address, imageUrl, budget, costPerClick, approve, createAd, allowance]);
 
   return {
     handleCreateAd,

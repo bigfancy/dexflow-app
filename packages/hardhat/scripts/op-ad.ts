@@ -49,8 +49,7 @@ async function main() {
             // 让第一个广告由 owner 创建
             if (i === 0) {
                 await dfToken.connect(owner).approve(adAlliance.getAddress(), budget);
-                await adAlliance.connect(owner).createAd(
-                    `https://example.com/ad${i + 1}`,
+                await adAlliance.connect(owner).createAd(                    
                     imageUrls[i],
                     budget,
                     parseEther("0.1") // Cost per click
@@ -60,7 +59,6 @@ async function main() {
                 // 其他广告由 addr1 创建
                 await dfToken.connect(addr1).approve(adAlliance.getAddress(), budget);
                 await adAlliance.connect(addr1).createAd(
-                    `https://example.com/ad${i + 1}`,
                     imageUrls[i],
                     budget,
                     parseEther("0.1") // Cost per click
@@ -68,7 +66,7 @@ async function main() {
                 console.log(`Advertisement #${i + 1} created by addr1 successfully`);
             }
 
-            console.log(`- Target URL: https://example.com/ad${i + 1}`);
+            
             console.log(`- Image URL: ${imageUrls[i]}`);
             console.log(`- Budget: ${ethers.formatEther(budget)} DFToken`);
             console.log(`- Cost per click: ${ethers.formatEther(parseEther("0.1"))} DFToken`);
@@ -84,7 +82,6 @@ async function main() {
             const ad = await adAlliance.ads(i);
             console.log(`\nAdvertisement #${ad.id}:`);
             console.log(`- Advertiser: ${ad.advertiser}`);
-            console.log(`- Target URL: ${ad.targetUrl}`);
             console.log(`- Image URL: ${ad.imageUrl}`);
             console.log(`- Remaining Budget: ${ethers.formatEther(ad.budget)} DFToken`);
             console.log(`- Cost per click: ${ethers.formatEther(ad.costPerClick)} DFToken`);
