@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import CopyAddressButton from "../CopyAddressButton";
 import { formatDistance } from "date-fns";
-import { Auction } from "~~/types/auction-types";
+import { Auction, EnglishAuction } from "~~/types/auction-types";
 
 type AuctionStatus = "ongoing" | "ended";
 
@@ -63,7 +63,7 @@ const getNFTMetadata = async (tokenURI: string) => {
   }
 };
 
-export default function AuctionCard({ auction, onViewDetail }: { auction: Auction; onViewDetail: () => void }) {
+export default function EhglishCard({ auction, onViewDetail }: { auction: EnglishAuction; onViewDetail: () => void }) {
   const [nftMetadata, setNftMetadata] = useState<{
     name: string;
     image: string;
@@ -123,7 +123,7 @@ export default function AuctionCard({ auction, onViewDetail }: { auction: Auctio
   }, [auction.status, auction.endingAt]);
 
   return (
-    <div className="bg-gray-800 rounded-xl overflow-hidden  hover:shadow-lg transition-transform  hover:scale-105 hover:bg-gray-750">
+    <div className="bg-gray-800 rounded-xl overflow-hidden hover:shadow-lg transition-transform hover:scale-105 hover:bg-gray-750">
       {/* NFT Image */}
       <div className="relative aspect-square">
         {nftMetadata?.image ? (
@@ -138,7 +138,7 @@ export default function AuctionCard({ auction, onViewDetail }: { auction: Auctio
           <div className="w-full h-full bg-gray-700 animate-pulse" />
         )}
 
-        {/* Status Badge */}
+        {/* Status Badge - Top Right */}
         <div
           className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(
             auction.status === "1" ? "ongoing" : "ended",
@@ -146,23 +146,33 @@ export default function AuctionCard({ auction, onViewDetail }: { auction: Auctio
         >
           {auction.status === "1" ? "Active" : "Ended"}
         </div>
+
+        {/* Auction Type Badge - Bottom Left */}
+        <div
+          className="absolute bottom-2 left-2 px-3 py-1.5 rounded-xl text-xs font-medium 
+          bg-gradient-to-r from-orange-500 to-red-500 text-white 
+          shadow-lg shadow-orange-500/20 
+          border border-orange-400/50 
+          backdrop-blur-sm 
+          flex items-center gap-1.5"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
+          </svg>
+          <span className="font-semibold tracking-wide">English</span>
+        </div>
       </div>
 
       {/* Auction Info */}
       <div className="p-4 space-y-4">
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-400">Type</span>
-            <span className="text-gray-200">{auction.auctionType === "0" ? "English" : "Dutch"} Auction</span>
-          </div>
-
-          <div className="flex justify-between">
-            <span className="text-gray-400">Starting Price</span>
-            <span className="text-gray-200">{auction.startingPrice} DFT</span>
-          </div>
-
-          <div className="flex justify-between">
-            <span className="text-gray-400">NFT Contract</span>
+            <span className="text-gray-400">NFT Address</span>
             <span className="text-gray-200">
               <CopyAddressButton address={auction.nftAddress} />
             </span>
@@ -174,10 +184,21 @@ export default function AuctionCard({ auction, onViewDetail }: { auction: Auctio
           </div>
 
           <div className="flex justify-between">
+            <span className="text-gray-400">Starting Price</span>
+            <span className="text-gray-200">{auction.startingPrice} DFT</span>
+          </div>
+
+          <div className="flex justify-between">
             <span className="text-gray-400">Highest Bid</span>
             <span className="text-gray-200">{auction.highestBid || "No bids"} DFT</span>
           </div>
+
+          <div className="flex justify-between">
+            <span className="text-gray-400">Time Left</span>
+            <span className="text-gray-200">{timeLeft}</span>
+          </div>
         </div>
+
         {/* View Detail Button */}
         <button
           onClick={e => {

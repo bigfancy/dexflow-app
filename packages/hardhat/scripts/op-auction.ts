@@ -1,8 +1,9 @@
 import { ethers } from "hardhat";
 import fs from 'fs';
 import path from 'path';
-import { DFNFT, DFToken, EnglishAuction, ERC20Token, UniswapV2Router, WETH, UniswapV2Query } from "../typechain-types";
+import { DFNFT, DFToken, EnglishAuction, DutchAuction } from "../typechain-types";
 import { expandTo18Decimals } from "./utils/utilities";
+import { formatEther } from "ethers";
 
 const ADDRESS_FILE = path.join(__dirname, '../config/contracts.json');
 
@@ -17,150 +18,117 @@ async function main() {
     const [owner, addr1, addr2] = await ethers.getSigners();
     const addresses = getDeployedAddresses();
 
-    // IPFS URIs for test NFTs
-    const nftUrls: string[] = [
-        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
-        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
-        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN",
-        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
-        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
-        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN",
-        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
-        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
-        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN",
-        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
-        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
-        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN"
-    ];
-
     try {
-        // Get contract instances and cast to the correct types
+        // Get contract instances
         const dfnft = (await ethers.getContractFactory("DFNFT")).attach(addresses.DFNFT) as DFNFT;
         const dfToken = (await ethers.getContractFactory("DFToken")).attach(addresses.DFToken) as DFToken;
         const englishAuction = (await ethers.getContractFactory("EnglishAuction")).attach(addresses.EnglishAuction) as EnglishAuction;
-       
+        const dutchAuction = (await ethers.getContractFactory("DutchAuction")).attach(addresses.DutchAuction) as DutchAuction;
+
         console.log("\n=== Initializing Test Environment ===");
 
         // Mint NFTs
         console.log("\n=== Minting NFTs ===");
-        const nftIds: number[] = [];
-        for (let i = 0; i < nftUrls.length; i++) {
+        const nftUrls = [
+        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
+        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
+        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN",
+        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
+        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
+        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN",
+        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
+        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
+        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN",
+        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
+        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
+        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN",
+        "ipfs://QmV6hWqJ1du519rrrk23G9XCmKuvRzvjaPUy2tLtfEwgse",
+        "ipfs://QmUwivpSjVnzDaMEUZ47tHhmZbeao3eZQFqt2nKf5QzyaH",
+        "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN",
+        ];
+
+        for (let i = 0; i < 10; i++) {
             console.log(`Minting NFT #${i}...`);
-            await dfnft.connect(owner).mint(nftUrls[i]);
-            nftIds.push(i);
-            console.log(`NFT #${i} minted, owner: ${await dfnft.ownerOf(i)}`);
+            await dfnft.connect(owner).mint(nftUrls[i % 3]);
+            console.log(`NFT #${i} minted`);
         }
 
-        // Mint tokens to test accounts
-        const tokenAmount: number = 1000;
+        // Mint DFTokens for testing
+        console.log("\n=== Minting DFTokens ===");
+        const tokenAmount = expandTo18Decimals(1000);
         for (const account of [owner, addr1, addr2]) {
             await dfToken.mint(account.address, tokenAmount);
             console.log(`${account.address} DFToken balance: ${await dfToken.balanceOf(account.address)}`);
         }
 
-        // Create first English auction (existing code)
-        console.log("\n=== Creating First English Auction ===");
-        const englishAuctionParams = {
-            startingPrice: expandTo18Decimals(50),
-            duration: 3600 // 1 hour
-        };
+        // Transfer NFTs 0-4 to addr1
+        console.log("\n=== Transferring NFTs 0-4 to addr1 ===");
+        for (let i = 0; i < 5; i++) {
+            await dfnft.connect(owner).transferFrom(owner.address, addr1.address, i);
+            console.log(`NFT #${i} transferred to addr1`);
+        }
 
-        // Transfer NFT to addr1
-        console.log(`Transferring NFT #${nftIds[0]} from ${owner.address} to ${addr1.address}...`);
-        await dfnft.connect(owner).transferFrom(owner.address, addr1.address, nftIds[0]);
-        console.log(`NFT #${nftIds[0]} successfully transferred to ${addr1.address}`);
+        // addr1 creates 5 English auctions (NFTs 0-4)
+        console.log("\n=== Creating English Auctions by addr1 ===");
+        for (let i = 0; i < 5; i++) {
+            await dfnft.connect(addr1).approve(englishAuction.getAddress(), i);
+            await englishAuction.connect(addr1).createAuction(
+                addresses.DFNFT,
+                i,
+                expandTo18Decimals(50 + i * 10), // Incremental starting prices
+                3600 // 1 hour duration
+            );
+            console.log(`English auction created for NFT #${i}`);
+        }
 
-        // Verify transfer
-        const newOwner = await dfnft.ownerOf(nftIds[0]);
-        console.log(`New owner of NFT #${nftIds[0]}: ${newOwner}`);
-        
-        // Approve NFT for auction contract
-        await dfnft.connect(addr1).approve(englishAuction.getAddress(), nftIds[0]);
-        
-        // Create auction
-        await englishAuction.connect(addr1).createAuction(
-            addresses.DFNFT,
-            nftIds[0],
-            englishAuctionParams.startingPrice, 
-            englishAuctionParams.duration
-        );
-        console.log("English auction created successfully");
+        // Owner places a bid on NFT #0's auction
+        console.log("\n=== Owner Bidding on NFT #0 Auction ===");
+        const bidAmount = expandTo18Decimals(60);
+        await dfToken.connect(owner).approve(englishAuction.getAddress(), bidAmount);
+        await englishAuction.connect(owner).bid(addresses.DFNFT, 0, bidAmount);
+        console.log(`Owner bid ${formatEther(bidAmount)} DFT on NFT #0`);
 
-        // Bidding on the English auction
-        console.log("\n=== Bidding on English Auction ===");
-        const bidAmount: number = 60;
+        // Owner creates 3 English auctions (NFTs 5-7)
+        console.log("\n=== Creating English Auctions by owner ===");
+        for (let i = 5; i < 8; i++) {
+            await dfnft.connect(owner).approve(englishAuction.getAddress(), i);
+            await englishAuction.connect(owner).createAuction(
+                addresses.DFNFT,
+                i,
+                expandTo18Decimals(40 + i * 5),
+                3600
+            );
+            console.log(`English auction created for NFT #${i}`);
+        }
 
-        // Approve DFToken for auction contract
-        await dfToken.connect(addr2).approve(
-            englishAuction.getAddress(),
-            expandTo18Decimals(bidAmount)
-        );
-
-        // Place bid
-        await englishAuction.connect(addr2).bid(
-            addresses.DFNFT,
-            nftIds[0],
-            expandTo18Decimals(bidAmount)
-        );
-        console.log(`addr2 bid ${bidAmount} DFToken`);
-
-        // Fast forward time (in test network)
-        await ethers.provider.send("evm_increaseTime", [3700]);
-        await ethers.provider.send("evm_mine");
+        // Owner creates 2 Dutch auctions (NFTs 8-9)
+        console.log("\n=== Creating Dutch Auctions by owner ===");
+        for (let i = 8; i < 10; i++) {
+            await dfnft.connect(owner).approve(dutchAuction.getAddress(), i);
+            await dutchAuction.connect(owner).createAuction(
+                addresses.DFNFT,
+                i,
+                expandTo18Decimals(100 - i * 5), // Decremental starting prices
+                7200 // 2 hours duration
+            );
+            console.log(`Dutch auction created for NFT #${i}`);
+        }
 
         // Print final state
         console.log("\n=== Final State ===");
-        console.log("NFT Ownership:");
-        for (let i = 0; i < nftIds.length; i++) {
-            const owner = await dfnft.ownerOf(nftIds[i]);
-            console.log(`NFT #${nftIds[i]} owner: ${owner}`);
+        
+        // Print English auctions
+        const englishAuctions = await englishAuction.getAllAuctions();
+        console.log("\nEnglish Auctions:");
+        for (const auction of englishAuctions) {
+            console.log(`NFT #${auction.nftInfo.tokenId}: Highest bid = ${formatEther(auction.highestBid)} DFT`);
         }
 
-        console.log("\nDFToken Balances:");
-        for (const account of [owner, addr1, addr2]) {
-            const balance = await dfToken.balanceOf(account.address);
-            console.log(`${account.address}: ${balance} DFToken`);
-        }
-
-        // Create additional English auctions
-        console.log("\n=== Creating Additional English Auctions ===");
-        for (let i = 1; i < nftUrls.length - 2; i++) {
-            console.log(`\nCreating English Auction for NFT #${nftIds[i]}`);
-            
-            const startingPrice = expandTo18Decimals(30 + i * 5); // Incremental starting prices
-
-            // 让前两个拍卖由 owner 创建
-            if (i <= 2) {
-                // owner 直接批准并创建拍卖，无需转移
-                await dfnft.connect(owner).approve(englishAuction.getAddress(), nftIds[i]);
-                await englishAuction.connect(owner).createAuction(
-                    addresses.DFNFT,
-                    nftIds[i],
-                    startingPrice,
-                    englishAuctionParams.duration
-                );
-                console.log(`English auction created by owner for NFT #${nftIds[i]} with starting price ${30 + i * 5} tokens`);
-            } else {
-                // 其他拍卖转移给 addr1 创建
-                await dfnft.connect(owner).transferFrom(owner.address, addr1.address, nftIds[i]);
-                console.log(`NFT #${nftIds[i]} transferred to ${addr1.address}`);
-                
-                await dfnft.connect(addr1).approve(englishAuction.getAddress(), nftIds[i]);
-                await englishAuction.connect(addr1).createAuction(
-                    addresses.DFNFT,
-                    nftIds[i],
-                    startingPrice,
-                    englishAuctionParams.duration
-                );
-                console.log(`English auction created by addr1 for NFT #${nftIds[i]} with starting price ${30 + i * 5} tokens`);
-            }
-        }
-
-        // 打印所有拍卖
-        const allAuctions = await englishAuction.getAllAuctions();
-        console.log("\n=== All Auctions ===");
-        for (const auction of allAuctions) {
-            console.log(`NFT #${auction.nftInfo.tokenId} at ${auction.nftInfo.nftAddress}`);
+        // Print Dutch auctions
+        const dutchAuctions = await dutchAuction.getAllAuctions();
+        console.log("\nDutch Auctions:");
+        for (const auction of dutchAuctions) {
+            console.log(`NFT #${auction.nftInfo.tokenId}: Starting price = ${formatEther(auction.startingPrice)} DFT`);
         }
 
     } catch (error) {

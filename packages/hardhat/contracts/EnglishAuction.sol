@@ -213,6 +213,7 @@ contract EnglishAuction {
     auctions[_nftAddress][_tokenId].startingAt = block.timestamp;
     auctions[_nftAddress][_tokenId].endingAt = block.timestamp + _duration;
     auctions[_nftAddress][_tokenId].startingPrice = _startingPrice;
+    auctions[_nftAddress][_tokenId].highestBid = _startingPrice;
     auctions[_nftAddress][_tokenId].status = AuctionStatus.IN_PROGRESS;
 
     // 添加到注册表

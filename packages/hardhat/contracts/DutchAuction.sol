@@ -2,12 +2,14 @@
 pragma solidity ^0.8.22;
 
 import {IERC721} from "@openzeppelin/contracts/interfaces/IERC721.sol";
+import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {DFNFT} from "./DFNFT.sol";
 import "hardhat/console.sol"; // used in testing chains
 
 // ---
 
 contract DutchAuction {
+  IERC20 public immutable dfToken;
   struct NFTInfo {
     address nftAddress;
     uint256 tokenId;
@@ -77,6 +79,11 @@ contract DutchAuction {
       revert("Auction not in progress");
     }
     _;
+  }
+
+  constructor(address _dfTokenAddress) {
+      require(_dfTokenAddress != address(0), "Invalid address");
+      dfToken = IERC20(_dfTokenAddress);
   }
 
   /**

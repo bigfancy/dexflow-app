@@ -54,7 +54,7 @@ export default function AddLiquidity() {
 
       {/* Steps */}
       <div className="flex gap-8 mb-8">
-        <div className="w-1/3">
+        <div>
           {steps.map(step => (
             <div
               key={step.number}

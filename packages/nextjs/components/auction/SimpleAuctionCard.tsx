@@ -19,7 +19,7 @@ export default function SimpleAuctionCard({
   auctionType,
   onClick,
 }: SimpleAuctionCardProps) {
-  console.log("===========endingAt",endingAt);
+  
   return (
     <motion.div
       whileHover={{ y: -5 }}

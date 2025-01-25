@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Auction } from "../types/auction-types";
+import { Auction, DutchAuction, EnglishAuction } from "../types/auction-types";
 import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "./scaffold-eth";
 import { useCheckAndApproveNFT } from "./useNFT";
 import { notification } from "antd";
@@ -7,7 +7,7 @@ import { Address, formatEther, parseEther, zeroAddress } from "viem";
 import { useAccount } from "wagmi";
 
 // 格式化拍卖对象的函数
-const formatAuction = (auction: any): Auction => ({
+const formatEnglishAuction = (auction: any): EnglishAuction => ({
   auctionType: "0",
   transactionHash: "", // 从事件中获取
   auctionId: `${auction.nftInfo.nftAddress}-${auction.nftInfo.tokenId}`,
@@ -19,39 +19,64 @@ const formatAuction = (auction: any): Auction => ({
   endingAt: auction.endingAt.toString(),
   startingPrice: formatEther(auction.startingPrice),
   status: auction.status.toString(),
-  highestBid: formatEther(auction.highestBid),
+  highestBid: auction.highestBid ? formatEther(auction.highestBid) : "0",
   highestBidder: auction.highestBidder !== zeroAddress ? auction.highestBidder : "",
   bidders: auction.bidders.map((bid: any) => ({
     bidder: bid.bidder,
-    bidAmount: formatEther(bid.bidAmount),
+    bidAmount: bid.bidAmount ? formatEther(bid.bidAmount) : "0",
     bidTime: bid.bidTime.toString(),
   })),
 });
 
+const formatDutchAuction = (auction: any): DutchAuction => ({
+  auctionType: "1",
+  transactionHash: "", // 从事件中获取
+  auctionId: `${auction.nftInfo.nftAddress}-${auction.nftInfo.tokenId}`,
+  seller: auction.seller,
+  nftAddress: auction.nftInfo.nftAddress,
+  tokenId: auction.nftInfo.tokenId.toString(),
+  tokenURI: auction.nftInfo.tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/") || "",
+  startingAt: auction.startingAt.toString(),
+  endingAt: auction.endingAt.toString(),
+  startingPrice: formatEther(auction.startingPrice),
+  discountRate: auction.discountRate.toString(),
+  status: auction.status.toString(),
+});
+
 export const useFetchAuctionList = () => {
-  // 获取所有拍卖
-  const { data: activeAuctions, isLoading: activeAuctionsLoading } = useScaffoldReadContract({
+  // 获取所有英式拍卖
+  const { data: activeEnglishAuctions, isLoading: englishAuctionsLoading } = useScaffoldReadContract({
     contractName: "EnglishAuction",
     functionName: "getActiveAuctions",
   });
-  console.log("----------useAuction action", activeAuctions);
+
+  // 获取所有荷兰式拍卖
+  const { data: activeDutchAuctions, isLoading: dutchAuctionsLoading } = useScaffoldReadContract({
+    contractName: "DutchAuction",
+    functionName: "getActiveAuctions",
+  });
 
   // 格式化拍卖数据
-  const fetchAuctionList = (auctions: readonly any[]): Auction[] => {
+  const fetchAuctionList = (auctions: readonly any[], auctionType: "0" | "1"): Auction[] => {
     if (!auctions) return [];
-    return auctions.map((auction: any) => formatAuction(auction));
+    return auctions.map((auction: any) => {
+      if (auctionType === "0") {
+        return formatEnglishAuction(auction);
+      } else {
+        return formatDutchAuction(auction);
+      }
+    });
   };
 
-  // 获取 DFT 余额
-  //   const { data: datBalance } = useScaffoldReadContract({
-  //     contractName: "DFToken",
-  //     functionName: "balanceOf",
-  //     args: [address], // 需要传入地址
-  //   });
+  // 合并两种拍卖数据
+  const allAuctions = [
+    ...(activeEnglishAuctions ? fetchAuctionList(activeEnglishAuctions, "0") : []),
+    ...(activeDutchAuctions ? fetchAuctionList(activeDutchAuctions, "1") : []),
+  ];
 
   return {
-    activeAuctions: activeAuctions ? fetchAuctionList(activeAuctions) : [],
-    isLoading: activeAuctionsLoading,
+    activeAuctions: allAuctions,
+    isLoading: englishAuctionsLoading || dutchAuctionsLoading,
   };
 };
 

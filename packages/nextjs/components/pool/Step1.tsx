@@ -13,7 +13,7 @@ interface Step1Props {
 
 export const Step1 = ({ token0, token1, onSelectToken0, onSelectToken1, onContinue }: Step1Props) => {
   return (
-    <div className="w-2/3 bg-white rounded-2xl p-6 border border-gray-200">
+    <div className="w-[800px] bg-white rounded-2xl p-6 border border-gray-200">
       <h2 className="text-xl font-semibold mb-2">Select pair</h2>
       <p className="text-gray-600 mb-6">
         Choose the tokens you want to provide liquidity for. You can select tokens on all supported networks.

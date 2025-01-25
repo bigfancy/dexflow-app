@@ -1,4 +1,4 @@
-export interface Auction {
+export interface EnglishAuction {
   auctionType: string;
   transactionHash: string;
   auctionId: string;
@@ -20,3 +20,20 @@ export interface BidEvent {
   bidAmount: string;
   bidTime: string;
 }
+
+export interface DutchAuction {
+  auctionType: string;
+  transactionHash: string;
+  auctionId: string;
+  seller: string;
+  nftAddress: string;
+  tokenId: string;
+  tokenURI: string;
+  startingAt: string;
+  endingAt: string;
+  startingPrice: string;
+  discountRate: string;
+  status: string;
+}
+
+export type Auction = EnglishAuction | DutchAuction;

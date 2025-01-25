@@ -57,7 +57,7 @@ export const Step2 = ({ token0, token1, onEdit }: Step2Props) => {
   };
 
   return (
-    <div className="w-2/3 bg-white rounded-2xl p-6 border border-gray-200">
+    <div className="w-[800px] bg-white rounded-2xl p-6 border border-gray-200">
       {/* Selected Pair Header */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">

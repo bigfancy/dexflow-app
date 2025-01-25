@@ -1839,6 +1839,702 @@ const deployedContracts = {
         transferOwnership: "@openzeppelin/contracts/access/Ownable.sol",
       },
     },
+    DutchAuction: {
+      address: "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_dfTokenAddress",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "nftAddress",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "tokenId",
+              type: "uint256",
+            },
+          ],
+          name: "AuctionAlreadyCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "nftAddress",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "tokenId",
+              type: "uint256",
+            },
+          ],
+          name: "AuctionCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "nftAddress",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "tokenId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "winner",
+              type: "address",
+            },
+          ],
+          name: "AuctionEnded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "nftAddress",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "tokenId",
+              type: "uint256",
+            },
+          ],
+          name: "AuctionNotInProgress",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "startingPrice",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "discountRate",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "duration",
+              type: "uint256",
+            },
+          ],
+          name: "FloorPriceLessThanZero",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "nftAddress",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "tokenId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "price",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "paid",
+              type: "uint256",
+            },
+          ],
+          name: "InsufficientPayment",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "nftAddress",
+              type: "address",
+            },
+          ],
+          name: "InvalidAddress",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "nftAddress",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "tokenId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+          ],
+          name: "NotApproved",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "caller",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "seller",
+              type: "address",
+            },
+          ],
+          name: "NotAuctionSeller",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "nftAddress",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "tokenId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "seller",
+              type: "address",
+            },
+          ],
+          name: "NotOwner",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "seller",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "PaymentFailed",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
+              internalType: "address",
+              name: "buyer",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "RefundFailed",
+          type: "event",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "auctionRegistry",
+          outputs: [
+            {
+              internalType: "address",
+              name: "nftAddress",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "tokenId",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "auctions",
+          outputs: [
+            {
+              internalType: "address",
+              name: "seller",
+              type: "address",
+            },
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "nftAddress",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "tokenId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "string",
+                  name: "tokenURI",
+                  type: "string",
+                },
+              ],
+              internalType: "struct DutchAuction.NFTInfo",
+              name: "nftInfo",
+              type: "tuple",
+            },
+            {
+              internalType: "uint256",
+              name: "startingAt",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "endingAt",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "startingPrice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "discountRate",
+              type: "uint256",
+            },
+            {
+              internalType: "enum DutchAuction.AuctionStatus",
+              name: "status",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_nftAddress",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_tokenId",
+              type: "uint256",
+            },
+          ],
+          name: "buyItem",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_nftAddress",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_tokenId",
+              type: "uint256",
+            },
+          ],
+          name: "cancelAuction",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_nftAddress",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_tokenId",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_startingPrice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_discountRate",
+              type: "uint256",
+            },
+          ],
+          name: "createAuction",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "dfToken",
+          outputs: [
+            {
+              internalType: "contract IERC20",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getActiveAuctions",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "seller",
+                  type: "address",
+                },
+                {
+                  components: [
+                    {
+                      internalType: "address",
+                      name: "nftAddress",
+                      type: "address",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "tokenId",
+                      type: "uint256",
+                    },
+                    {
+                      internalType: "string",
+                      name: "tokenURI",
+                      type: "string",
+                    },
+                  ],
+                  internalType: "struct DutchAuction.NFTInfo",
+                  name: "nftInfo",
+                  type: "tuple",
+                },
+                {
+                  internalType: "uint256",
+                  name: "startingAt",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "endingAt",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "startingPrice",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "discountRate",
+                  type: "uint256",
+                },
+                {
+                  internalType: "enum DutchAuction.AuctionStatus",
+                  name: "status",
+                  type: "uint8",
+                },
+              ],
+              internalType: "struct DutchAuction.Auction[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getAllAuctions",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "seller",
+                  type: "address",
+                },
+                {
+                  components: [
+                    {
+                      internalType: "address",
+                      name: "nftAddress",
+                      type: "address",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "tokenId",
+                      type: "uint256",
+                    },
+                    {
+                      internalType: "string",
+                      name: "tokenURI",
+                      type: "string",
+                    },
+                  ],
+                  internalType: "struct DutchAuction.NFTInfo",
+                  name: "nftInfo",
+                  type: "tuple",
+                },
+                {
+                  internalType: "uint256",
+                  name: "startingAt",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "endingAt",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "startingPrice",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "discountRate",
+                  type: "uint256",
+                },
+                {
+                  internalType: "enum DutchAuction.AuctionStatus",
+                  name: "status",
+                  type: "uint8",
+                },
+              ],
+              internalType: "struct DutchAuction.Auction[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_nftAddress",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_tokenId",
+              type: "uint256",
+            },
+          ],
+          name: "getAuction",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "seller",
+                  type: "address",
+                },
+                {
+                  components: [
+                    {
+                      internalType: "address",
+                      name: "nftAddress",
+                      type: "address",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "tokenId",
+                      type: "uint256",
+                    },
+                    {
+                      internalType: "string",
+                      name: "tokenURI",
+                      type: "string",
+                    },
+                  ],
+                  internalType: "struct DutchAuction.NFTInfo",
+                  name: "nftInfo",
+                  type: "tuple",
+                },
+                {
+                  internalType: "uint256",
+                  name: "startingAt",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "endingAt",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "startingPrice",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "discountRate",
+                  type: "uint256",
+                },
+                {
+                  internalType: "enum DutchAuction.AuctionStatus",
+                  name: "status",
+                  type: "uint8",
+                },
+              ],
+              internalType: "struct DutchAuction.Auction",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "getDuration",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_nftAddress",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "_tokenId",
+              type: "uint256",
+            },
+          ],
+          name: "getPrice",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+      inheritedFunctions: {},
+    },
     EnglishAuction: {
       address: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
       abi: [

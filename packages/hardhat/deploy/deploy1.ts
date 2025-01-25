@@ -101,6 +101,15 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   });
   deployedAddresses.EnglishAuction = englishAuctionDeployment.address;
 
+  // Deploy DutchAuction contract
+  const dutchAuctionDeployment = await deploy("DutchAuction", {
+    from: deployer,
+    args: [deployedAddresses.DFToken],
+    log: true,
+    autoMine: true,
+  });
+  deployedAddresses.DutchAuction = dutchAuctionDeployment.address;
+
   // Save deployed addresses to contracts.json
   fs.writeFileSync(ADDRESS_FILE, JSON.stringify(deployedAddresses, null, 2));
 };

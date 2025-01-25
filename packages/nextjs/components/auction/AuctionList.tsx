@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import AuctionCard from './AuctionCard';
+import AuctionCard from './EnglishCard';
 import AuctionModal from './AuctionModal';
 import * as ethers from 'ethers';
 
