@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Auction, DutchAuction, EnglishAuction } from "../types/auction-types";
 import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "./scaffold-eth";
 import { useCheckAndApproveNFT } from "./useNFT";
@@ -80,20 +81,7 @@ export const useFetchAuctionList = () => {
   };
 };
 
-// approve nft
-// export const useApproveNFT = (nftAddress: string, tokenId: string) => {
-//   console.log("----------useApproveNFT nftAddress", nftAddress);
-//   console.log("----------useApproveNFT tokenId", tokenId);
-//   const { data: approveNFT, isLoading } = useScaffoldWriteContract({
-//     contractName: "EnglishAuction",
-//     functionName: "approveNFT",
-//     args: [nftAddress, BigInt(tokenId)],
-//   });
-// };
-
-export const useFetchAuctionDetail = (nftAddress: string, tokenId: string) => {
-  console.log("----------useFetchAuctionDetail nftAddress", nftAddress);
-  console.log("----------useFetchAuctionDetail tokenId", tokenId);
+export const useFetchEnglishAuctionDetail = (nftAddress: string, tokenId: string) => {
   const { data: auctionDetail, isLoading } = useScaffoldReadContract({
     contractName: "EnglishAuction",
     functionName: "getAuction",
@@ -101,19 +89,37 @@ export const useFetchAuctionDetail = (nftAddress: string, tokenId: string) => {
     watch: true,
   });
 
-  console.log("----------useFetchAuctionDetail auction", auctionDetail);
-
   if (!auctionDetail) {
-    console.error("Failed to fetch auction data");
+    return { auctionDetail: null, isLoading };
   }
 
-  const formattedAuctionDetail = formatAuction(auctionDetail);
+  const formattedAuctionDetail = formatEnglishAuction(auctionDetail);
+
+  return { auctionDetail: formattedAuctionDetail, isLoading };
+};
+
+export const useFetchDutchAuctionDetail = (nftAddress: string, tokenId: string) => {
+  console.log("----------DutchAuctionDetail nftAddress", nftAddress);
+  console.log("----------DutchAuctionDetail tokenId", tokenId);
+  const { data: auctionDetail, isLoading } = useScaffoldReadContract({
+    contractName: "DutchAuction",
+    functionName: "getAuction",
+    args: [nftAddress, BigInt(tokenId)],
+    watch: true,
+  });
+
+  if (!auctionDetail) {
+    return { auctionDetail: null, isLoading };
+  }
+
+  const formattedAuctionDetail = formatDutchAuction(auctionDetail);
 
   return { auctionDetail: formattedAuctionDetail, isLoading };
 };
 
 //create auction
 export const useCreateAuction = (nftAddress: string, tokenId: string, startingPrice: string, duration: string) => {
+  const router = useRouter();
   const { writeContractAsync: createAuction } = useScaffoldWriteContract({ contractName: "EnglishAuction" });
   const { handleApproveNFT, isApproved } = useCheckAndApproveNFT(nftAddress, tokenId);
 
@@ -142,6 +148,9 @@ export const useCreateAuction = (nftAddress: string, tokenId: string, startingPr
         message: "Auction created successfully",
         description: "Your NFT auction has been created.",
       });
+
+      // 3. 跳转到拍卖列表页面
+      router.push("/auctions");
     } catch (error: any) {
       console.error("Error creating auction:", error);
       notification.error({

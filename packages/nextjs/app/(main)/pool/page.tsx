@@ -4,11 +4,13 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaCaretDown } from "react-icons/fa";
+import { useAccount } from "wagmi";
 import { usePool } from "~~/hooks/usePool";
 
 export default function PoolPage() {
   const router = useRouter();
   const { pools, isLoading } = usePool();
+  const { isConnected } = useAccount();
 
   const handleAddLiquidity = () => {
     router.push("/pool/add");
@@ -24,8 +26,8 @@ export default function PoolPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">Top pools by TVL</h1>
-
+      <h1 className="text-3xl font-bold mb-4 text-gray-800">Pools</h1>
+      <p className="text-gray-500 mt-2">View and manage your pools</p>
       <div className="bg-white rounded-xl overflow-hidden shadow-lg">
         {/* Table Header */}
         <div className="grid grid-cols-8 gap-4 p-4 border-b border-gray-200 text-gray-600 bg-gray-50">
@@ -77,12 +79,14 @@ export default function PoolPage() {
 
             {/* Action Button */}
             <div className="flex items-center justify-center col-span-2">
-              <button
-                onClick={handleAddLiquidity}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                Add Liquidity
-              </button>
+              {isConnected && (
+                <button
+                  onClick={handleAddLiquidity}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  Add Liquidity
+                </button>
+              )}
             </div>
           </div>
         ))}

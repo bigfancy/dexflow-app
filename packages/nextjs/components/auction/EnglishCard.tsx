@@ -6,84 +6,8 @@ import { Auction, EnglishAuction } from "~~/types/auction-types";
 
 type AuctionStatus = "ongoing" | "ended";
 
-const METADATA_CACHE = new Map<string, any>();
-
-const getIPFSUrl = (url: string) => {
-  if (url.startsWith("ipfs://")) {
-    return url.replace("ipfs://", "https://ipfs.io/ipfs/");
-  }
-  return url;
-};
-
-// 检查 URL 是否是图片
-const isImageUrl = (url: string) => {
-  const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
-  return imageExtensions.some(ext => url.toLowerCase().endsWith(ext));
-};
-
-// 获取元数据的函数
-const getNFTMetadata = async (tokenURI: string) => {
-  const cacheKey = tokenURI;
-
-  if (METADATA_CACHE.has(cacheKey)) {
-    return METADATA_CACHE.get(cacheKey);
-  }
-
-  try {
-    // 如果 tokenURI 直接是图片 URL
-    if (isImageUrl(tokenURI)) {
-      const metadata = {
-        name: "NFT",
-        image: getIPFSUrl(tokenURI),
-      };
-      METADATA_CACHE.set(cacheKey, metadata);
-      return metadata;
-    }
-
-    // 否则尝试获取元数据
-    const response = await fetch(getIPFSUrl(tokenURI));
-    const metadata = await response.json();
-
-    // 确保 image URL 也经过 IPFS 处理
-    if (metadata.image) {
-      metadata.image = getIPFSUrl(metadata.image);
-    }
-
-    METADATA_CACHE.set(cacheKey, metadata);
-    return metadata;
-  } catch (error) {
-    console.error("Error fetching metadata:", error);
-    // 如果解析失败，将 tokenURI 作为图片 URL
-    const fallbackMetadata = {
-      name: "NFT",
-      image: getIPFSUrl(tokenURI),
-    };
-    METADATA_CACHE.set(cacheKey, fallbackMetadata);
-    return fallbackMetadata;
-  }
-};
-
 export default function EhglishCard({ auction, onViewDetail }: { auction: EnglishAuction; onViewDetail: () => void }) {
-  const [nftMetadata, setNftMetadata] = useState<{
-    name: string;
-    image: string;
-  } | null>(null);
   const [timeLeft, setTimeLeft] = useState<string>("");
-
-  // 获取 NFT 元数据
-  useEffect(() => {
-    const loadMetadata = async () => {
-      try {
-        const metadata = await getNFTMetadata(auction.tokenURI);
-
-        setNftMetadata(metadata);
-      } catch (error) {
-        console.error("Error loading NFT metadata:", error);
-      }
-    };
-
-    loadMetadata();
-  }, [auction.tokenURI]);
 
   // 获取拍卖状态 - 使用传入的 status 值
   const getAuctionStatus = (status: number): AuctionStatus => {
@@ -126,13 +50,12 @@ export default function EhglishCard({ auction, onViewDetail }: { auction: Englis
     <div className="bg-gray-800 rounded-xl overflow-hidden hover:shadow-lg transition-transform hover:scale-105 hover:bg-gray-750">
       {/* NFT Image */}
       <div className="relative aspect-square">
-        {nftMetadata?.image ? (
+        {auction.tokenURI ? (
           <Image
-            src={nftMetadata.image}
-            alt={nftMetadata.name || "NFT"}
-            layout="fill"
-            objectFit="cover"
-            className="transition-transform"
+            src={auction.tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/")}
+            alt={`NFT #${auction.tokenId}`}
+            fill
+            className="object-contain"
           />
         ) : (
           <div className="w-full h-full bg-gray-700 animate-pulse" />

@@ -1,17 +1,29 @@
+// export interface Ad {
+//   id: string;
+//   title: string;
+//   image: string;
+//   creator: string;
+//   advertiser: string;
+//   target: string;
+//   budget: string;
+//   costPerClick: string;
+//   totalClicks: number;
+//   totalReward: string;
+//   impressions: number;
+//   startingAt: string;
+//   endingAt: string;
+//   status: string;
+//   isActive: boolean;
+// }
+
 export interface Ad {
   id: string;
-  title: string;
-  image: string;
-  creator: string;
   advertiser: string;
-  target: string;
+  targetUrl: string;
+  imageUrl: string;
   budget: string;
   costPerClick: string;
-  totalClicks: number;
+  totalClicks: string;
   totalReward: string;
-  impressions: number;
-  startingAt: string;
-  endingAt: string;
-  status: string;
   isActive: boolean;
 }

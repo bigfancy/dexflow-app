@@ -6,80 +6,9 @@ import { DutchAuction } from "~~/types/auction-types";
 
 type AuctionStatus = "ongoing" | "ended";
 
-const METADATA_CACHE = new Map<string, any>();
-
-const getIPFSUrl = (url: string) => {
-  if (url.startsWith("ipfs://")) {
-    return url.replace("ipfs://", "https://ipfs.io/ipfs/");
-  }
-  return url;
-};
-
-// 检查 URL 是否是图片
-const isImageUrl = (url: string) => {
-  const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
-  return imageExtensions.some(ext => url.toLowerCase().endsWith(ext));
-};
-
-// 获取元数据的函数
-const getNFTMetadata = async (tokenURI: string) => {
-  const cacheKey = tokenURI;
-
-  if (METADATA_CACHE.has(cacheKey)) {
-    return METADATA_CACHE.get(cacheKey);
-  }
-
-  try {
-    if (isImageUrl(tokenURI)) {
-      const metadata = {
-        name: "NFT",
-        image: getIPFSUrl(tokenURI),
-      };
-      METADATA_CACHE.set(cacheKey, metadata);
-      return metadata;
-    }
-
-    const response = await fetch(getIPFSUrl(tokenURI));
-    const metadata = await response.json();
-
-    if (metadata.image) {
-      metadata.image = getIPFSUrl(metadata.image);
-    }
-
-    METADATA_CACHE.set(cacheKey, metadata);
-    return metadata;
-  } catch (error) {
-    console.error("Error fetching metadata:", error);
-    const fallbackMetadata = {
-      name: "NFT",
-      image: getIPFSUrl(tokenURI),
-    };
-    METADATA_CACHE.set(cacheKey, fallbackMetadata);
-    return fallbackMetadata;
-  }
-};
-
 export default function DutchCard({ auction, onViewDetail }: { auction: DutchAuction; onViewDetail: () => void }) {
-  const [nftMetadata, setNftMetadata] = useState<{
-    name: string;
-    image: string;
-  } | null>(null);
   const [timeLeft, setTimeLeft] = useState<string>("");
   const [currentPrice, setCurrentPrice] = useState<string>("0");
-
-  // 获取 NFT 元数据
-  useEffect(() => {
-    const loadMetadata = async () => {
-      try {
-        const metadata = await getNFTMetadata(auction.tokenURI);
-        setNftMetadata(metadata);
-      } catch (error) {
-        console.error("Error loading NFT metadata:", error);
-      }
-    };
-
-    loadMetadata();
-  }, [auction.tokenURI]);
 
   // 获取状态标签样式
   const getStatusStyle = (status: AuctionStatus) => {
@@ -125,13 +54,13 @@ export default function DutchCard({ auction, onViewDetail }: { auction: DutchAuc
     <div className="bg-gray-800 rounded-xl overflow-hidden hover:shadow-lg transition-transform hover:scale-105 hover:bg-gray-750">
       {/* NFT Image */}
       <div className="relative aspect-square">
-        {nftMetadata?.image ? (
+        {auction.tokenURI ? (
           <Image
-            src={nftMetadata.image}
-            alt={nftMetadata.name || "NFT"}
-            layout="fill"
-            objectFit="cover"
-            className="transition-transform"
+            src={auction.tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/")}
+            alt={`NFT #${auction.tokenId}`}
+            fill
+            className="object-contain"
+            sizes="(max-width: 768px) 100vw, 50vw"
           />
         ) : (
           <div className="w-full h-full bg-gray-700 animate-pulse" />

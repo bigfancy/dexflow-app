@@ -1,10 +1,10 @@
-import { Auction } from "../types/auction-types";
+import { Auction, DutchAuction, EnglishAuction } from "../types/auction-types";
 import { useScaffoldReadContract } from "./scaffold-eth";
 import { ethers } from "ethers";
 import { zeroAddress } from "viem";
 
 // 格式化拍卖对象的函数
-const formatAuction = (auction: any): Auction => ({
+const formatEnglishAuction = (auction: any): EnglishAuction => ({
   auctionType: "0",
   transactionHash: "", // 从事件中获取
   auctionId: ``,
@@ -25,9 +25,7 @@ const formatAuction = (auction: any): Auction => ({
   })),
 });
 
-export const useFetchAuctionDetail = (nftAddress: string, tokenId: string) => {
-  console.log("----------useFetchAuctionDetail nftAddress", nftAddress);
-  console.log("----------useFetchAuctionDetail tokenId", tokenId);
+export const useFetchEnglishAuctionDetail = (nftAddress: string, tokenId: string) => {
   const { data: auctionDetail, isLoading } = useScaffoldReadContract({
     contractName: "EnglishAuction",
     functionName: "getAuction",
@@ -35,13 +33,42 @@ export const useFetchAuctionDetail = (nftAddress: string, tokenId: string) => {
     watch: true,
   });
 
-  console.log("----------useFetchAuctionDetail auction", auctionDetail);
+  if (!auctionDetail) {
+    return { auctionDetail: null, isLoading };
+  }
+
+  const formattedAuctionDetail = formatEnglishAuction(auctionDetail);
+
+  return { auctionDetail: formattedAuctionDetail, isLoading };
+};
+
+export const useFetchDutchAuctionDetail = (nftAddress: string, tokenId: string) => {
+  const { data: auctionDetail, isLoading } = useScaffoldReadContract({
+    contractName: "DutchAuction",
+    functionName: "getAuction",
+    args: [nftAddress, BigInt(tokenId)],
+    watch: true,
+  });
 
   if (!auctionDetail) {
     return { auctionDetail: null, isLoading };
   }
 
-  const formattedAuctionDetail = formatAuction(auctionDetail);
+  const formattedAuctionDetail = formatDutchAuction(auctionDetail);
 
   return { auctionDetail: formattedAuctionDetail, isLoading };
 };
+
+const formatDutchAuction = (auction: any): DutchAuction => ({
+  auctionType: "1",
+  transactionHash: "", // 从事件中获取
+  auctionId: ``,
+  seller: auction.seller,
+  nftAddress: auction.nftInfo.nftAddress,
+  tokenId: auction.nftInfo.tokenId.toString(),
+  tokenURI: auction.nftInfo.tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/") || "",
+  startingAt: auction.startingAt.toString(),
+  endingAt: auction.endingAt.toString(),
+  startingPrice: ethers.formatEther(auction.startingPrice),
+  status: auction.status.toString(),
+});

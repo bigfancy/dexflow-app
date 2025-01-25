@@ -3,13 +3,14 @@
 import { useRouter } from "next/navigation";
 import { log } from "console";
 import { MdAdd } from "react-icons/md";
+import { useAccount } from "wagmi";
 import AdCard from "~~/components/ad/AdCard";
 import { useActiveAds } from "~~/hooks/useAd";
 
 export default function AdListPage() {
   const router = useRouter();
   const { ads, isLoading } = useActiveAds();
-  console.log("===========ads", ads);
+  const { isConnected } = useAccount();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -18,13 +19,15 @@ export default function AdListPage() {
           <h1 className="text-3xl font-bold text-gray-900">Advertising</h1>
           <p className="text-gray-500 mt-2">Create and manage your ad campaigns</p>
         </div>
-        <button
-          onClick={() => router.push("/ad/create")}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <MdAdd className="text-xl" />
-          <span>Create Ad</span>
-        </button>
+        {isConnected && (
+          <button
+            onClick={() => router.push("/ad/create")}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <MdAdd className="text-xl" />
+            <span>Create Ad</span>
+          </button>
+        )}
       </div>
 
       {isLoading ? (

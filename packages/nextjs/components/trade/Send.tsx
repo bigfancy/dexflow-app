@@ -1,35 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import TokenSelectModal from "../TokenSelectModal";
 import { FaEthereum } from "react-icons/fa";
 import { MdKeyboardArrowDown, MdToken } from "react-icons/md";
-import { useAccount } from "wagmi";
+import { Address, formatEther } from "viem";
+import { useAccount, useBalance } from "wagmi";
+import useDFTokenBalance from "~~/hooks/useDFToken";
 import { useSend } from "~~/hooks/useSend";
-import { Token } from "~~/hooks/useSwap";
-
-const TOKENS: Token[] = [
-  {
-    symbol: "ETH",
-    name: "Ethereum",
-    icon: <FaEthereum className="w-6 h-6 text-[#627EEA]" />,
-    logoURI: "https://token-icons.s3.amazonaws.com/eth.png",
-  },
-  {
-    symbol: "DFT",
-    name: "DAuction Token",
-    icon: <MdToken className="w-6 h-6 text-blue-500" />,
-    logoURI: "/logo1.png",
-  },
-];
+import { Token, useTokenList } from "~~/hooks/useTokenList";
 
 export default function Send() {
-  const [fromToken, setFromToken] = useState<Token>(TOKENS[0]);
+  const { tokens } = useTokenList();
+  const [fromToken, setFromToken] = useState<Token | null>(null);
   const [fromAmount, setFromAmount] = useState<string>("");
-  const [toAddress, setToAddress] = useState<string>("0x70997970C51812dc3A010C7d01b50e0d17dc79C8");
+  const [toAddress, setToAddress] = useState<string>("");
   const [isSelectingFromToken, setIsSelectingFromToken] = useState(false);
 
-  const { isConnected } = useAccount();
-  const { balance, isLoading, handleSend } = useSend(fromToken, fromAmount, toAddress);
+  const { isConnected, address } = useAccount();
+  const { balance, isLoading, handleSend } = useSend(fromToken as Token, fromAmount, toAddress);
+
+  // 获取余额
+  const { balance: dftBalance } = useDFTokenBalance(address || "");
+  const { data: ethBalance } = useBalance({
+    address: address as Address,
+  });
+
+  // 初始化代币
+  useEffect(() => {
+    if (tokens.length > 0 && !fromToken) {
+      setFromToken(tokens[0]);
+    }
+  }, [tokens, fromToken]);
 
   return (
     <div className="space-y-4">
@@ -39,7 +40,10 @@ export default function Send() {
         <div className="bg-gray-50 rounded-2xl p-4">
           <div className="flex justify-between mb-2">
             <span className="text-gray-500">Amount</span>
-            <span className="text-gray-500">Balance: {balance}</span>
+            <span className="text-gray-500">
+              Balance:{" "}
+              {fromToken?.symbol === "ETH" ? parseFloat(formatEther(ethBalance?.value || 0n)).toFixed(3) : dftBalance}
+            </span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -55,16 +59,15 @@ export default function Send() {
               onClick={() => setIsSelectingFromToken(true)}
               className="flex items-center gap-2 bg-white px-3 py-2 rounded-2xl hover:bg-gray-100"
             >
-              {fromToken.logoURI ? (
+              {fromToken?.logoURI ? (
                 <Image src={fromToken.logoURI} alt={fromToken.symbol} width={28} height={28} className="rounded-full" />
               ) : (
-                fromToken.icon
+                fromToken?.icon
               )}
-              <span className="font-medium">{fromToken.symbol}</span>
+              <span className="font-medium">{fromToken?.symbol}</span>
               <MdKeyboardArrowDown className="w-5 h-5" />
             </button>
           </div>
-          <div className="text-sm text-gray-500 mt-1">0 {fromToken.symbol}</div>
         </div>
       </div>
 
@@ -103,7 +106,7 @@ export default function Send() {
       </button>
 
       {/* Token Select Modal */}
-      {/* <TokenSelectModal
+      <TokenSelectModal
         isOpen={isSelectingFromToken}
         onClose={() => setIsSelectingFromToken(false)}
         onSelect={token => {
@@ -112,7 +115,7 @@ export default function Send() {
           setIsSelectingFromToken(false);
         }}
         selectedToken={fromToken}
-      /> */}
+      />
     </div>
   );
 }

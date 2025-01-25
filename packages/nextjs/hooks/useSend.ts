@@ -1,65 +1,77 @@
 import { useCallback, useEffect, useState } from "react";
 import { Token } from "./useSwap";
-import { Address } from "viem";
-import { useAccount } from "wagmi";
+import { Address, formatEther, parseEther } from "viem";
+import { useAccount, useBalance, useSendTransaction } from "wagmi";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
-export const useSend = (fromToken: Token, fromAmount: string, toAddress: string) => {
+export const useSend = (fromToken: Token | null, fromAmount: string, toAddress: string) => {
   const [balance, setBalance] = useState<string>("0");
   const [isLoading, setIsLoading] = useState(false);
   const { address, isConnected } = useAccount();
 
-  // Read balance
+  // 获取 ETH 余额
+  const { data: ethBalance } = useBalance({
+    address: address as Address,
+  });
+
+  // 获取代币余额
   const { data: tokenBalance } = useScaffoldReadContract({
     contractName: "DFToken",
     functionName: "balanceOf",
     args: [address as Address],
   });
 
-  // Read ETH balance
-  const { data: ethBalance } = useScaffoldReadContract({
-    contractName: "WETH",
-    functionName: "balanceOf",
-    args: [address as Address],
+  // 代币转账
+  const { writeContractAsync: transferToken } = useScaffoldWriteContract({
+    contractName: "DFToken",
   });
 
-  // Write transfer function
-  const { writeContractAsync: transfer } = useScaffoldWriteContract({
-    contractName: fromToken.symbol === "ETH" ? "WETH" : "DFToken",
-  });
+  // ETH 转账
+  const { sendTransactionAsync } = useSendTransaction();
 
-  // Update balance
+  // 更新余额显示
   useEffect(() => {
+    if (!fromToken) return;
+
     if (fromToken.symbol === "ETH" && ethBalance) {
-      setBalance((Number(ethBalance) / 1e18).toString());
+      // precison 2
+      setBalance(parseFloat(formatEther(ethBalance.value)).toFixed(3));
     } else if (tokenBalance) {
       setBalance((Number(tokenBalance) / 1e18).toString());
     }
-  }, [fromToken.symbol, ethBalance, tokenBalance]);
+  }, [fromToken, ethBalance, tokenBalance]);
 
-  // Handle send
+  // 处理发送
   const handleSend = useCallback(async () => {
-    if (!isConnected || !address || !fromAmount || !toAddress) {
+    if (!isConnected || !address || !fromAmount || !toAddress || !fromToken) {
       notification.error("Please connect wallet and enter amount and address");
       return;
     }
 
     setIsLoading(true);
     try {
-      const amountIn = BigInt(parseFloat(fromAmount) * 1e18);
+      const amountIn = parseEther(fromAmount);
       if (amountIn === BigInt(0)) {
         notification.error("Amount must be greater than 0");
         return;
       }
 
+      const balance = fromToken.symbol === "ETH" ? ethBalance?.value : tokenBalance;
+      if (balance && amountIn > balance) {
+        notification.error("Insufficient balance");
+        return;
+      }
+
       if (fromToken.symbol === "ETH") {
-        await transfer({
-          functionName: "transfer",
-          args: [toAddress as Address, amountIn],
+        // 直接发送 ETH
+        await sendTransactionAsync({
+          to: toAddress as Address,
+          value: amountIn,
         });
       } else {
-        await transfer({
+        // 发送代币
+        await transferToken({
           functionName: "transfer",
           args: [toAddress as Address, amountIn],
         });
@@ -72,7 +84,17 @@ export const useSend = (fromToken: Token, fromAmount: string, toAddress: string)
     } finally {
       setIsLoading(false);
     }
-  }, [fromAmount, toAddress, fromToken.symbol, address, isConnected, transfer]);
+  }, [
+    fromAmount,
+    toAddress,
+    fromToken,
+    address,
+    isConnected,
+    transferToken,
+    sendTransactionAsync,
+    ethBalance,
+    tokenBalance,
+  ]);
 
   return {
     balance,

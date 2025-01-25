@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaEthereum } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
-import { Ad } from "~~/hooks/useAd";
+import { Ad } from "~~/types/ad-types";
 // 从 useAd 导入类型
 import { shortenAddress } from "~~/utils/addresses";
 
@@ -21,7 +21,6 @@ export default function AdCard({
   totalClicks,
   totalReward,
   isActive,
-  duration,
   onClick,
 }: AdCardProps) {
   const [isImageLoading, setIsImageLoading] = useState(true);
@@ -100,11 +99,6 @@ export default function AdCard({
               <span className="font-medium">{costPerClick}</span>
             </div>
           </div>
-        </div>
-
-        {/* Duration */}
-        <div className="mt-2 text-sm text-gray-500 text-right">
-          Duration: {parseInt(duration) / (24 * 60 * 60)} days
         </div>
       </div>
     </div>

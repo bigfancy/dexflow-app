@@ -2194,6 +2194,11 @@ const deployedContracts = {
             },
             {
               internalType: "uint256",
+              name: "currentPrice",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
               name: "discountRate",
               type: "uint256",
             },
@@ -2333,6 +2338,11 @@ const deployedContracts = {
                 },
                 {
                   internalType: "uint256",
+                  name: "currentPrice",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
                   name: "discountRate",
                   type: "uint256",
                 },
@@ -2396,6 +2406,11 @@ const deployedContracts = {
                 {
                   internalType: "uint256",
                   name: "startingPrice",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "currentPrice",
                   type: "uint256",
                 },
                 {
@@ -2474,6 +2489,11 @@ const deployedContracts = {
                 {
                   internalType: "uint256",
                   name: "startingPrice",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "currentPrice",
                   type: "uint256",
                 },
                 {

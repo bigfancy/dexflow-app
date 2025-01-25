@@ -79,12 +79,12 @@ export default function MyAssetsPage() {
 
       case "Auctions":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {(section.items as any[]).map(auction => (
               <SimpleAuctionCard
                 key={auction.nftInfo.tokenId}
                 image={auction.nftInfo.tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/")}
-                currentBid={auction.highestBid?.toString() || "0"}
+                currentBid={formatEther(auction.highestBid).toString() || "0"}
                 endingAt={Number(auction.endingAt)}
                 auctionType={auction.auctionType || "English"}
                 onClick={() => router.push(`/auctions/${auction.nftInfo.tokenId}`)}
@@ -96,7 +96,7 @@ export default function MyAssetsPage() {
 
       case "Advertising":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {(section.items as any[]).map(ad => (
               <AdCard
                 key={ad.id}

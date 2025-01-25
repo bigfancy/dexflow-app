@@ -8,18 +8,19 @@ import {
 import { notification } from "antd";
 import { Address, formatEther, parseEther } from "viem";
 import { useAccount } from "wagmi";
+import { Ad } from "~~/types/ad-types";
 
-export interface Ad {
-  id: string;
-  advertiser: Address;
-  targetUrl: string;
-  imageUrl: string;
-  budget: string;
-  costPerClick: string;
-  totalClicks: string;
-  totalReward: string;
-  isActive: boolean;
-}
+// export interface Ad {
+//   id: string;
+//   advertiser: Address;
+//   targetUrl: string;
+//   imageUrl: string;
+//   budget: string;
+//   costPerClick: string;
+//   totalClicks: string;
+//   totalReward: string;
+//   isActive: boolean;
+// }
 
 // Format ad data from contract
 const formatAd = (ad: any): Ad => ({

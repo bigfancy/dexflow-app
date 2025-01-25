@@ -3,7 +3,9 @@ import Image from "next/image";
 import TokenSelectModal from "../TokenSelectModal";
 import { FaEthereum, FaExchangeAlt } from "react-icons/fa";
 import { MdKeyboardArrowDown, MdToken } from "react-icons/md";
-import { useAccount } from "wagmi";
+import { Address, formatEther } from "viem";
+import { useAccount, useBalance } from "wagmi";
+import useDFTokenBalance from "~~/hooks/useDFToken";
 import { useSwap } from "~~/hooks/useSwap";
 import { Token, useTokenList } from "~~/hooks/useTokenList";
 
@@ -15,8 +17,13 @@ export default function Swap() {
   const [isSelectingFromToken, setIsSelectingFromToken] = useState(false);
   const [isSelectingToToken, setIsSelectingToToken] = useState(false);
 
-  const { isConnected } = useAccount();
-  const { toAmount, isLoading, handleSwap } = useSwap(fromToken, toToken, fromAmount);
+  const { isConnected, address } = useAccount();
+  const { toAmount, isLoading, handleSwap } = useSwap(fromToken as Token, toToken as Token, fromAmount);
+
+  const { balance, loading: datBalanceLoading } = useDFTokenBalance(address || "");
+  const { data: ethBalance, isLoading: ethBalanceLoading } = useBalance({
+    address: address as Address,
+  });
 
   useEffect(() => {
     if (tokens.length > 0 && !fromToken && !toToken) {
@@ -31,7 +38,7 @@ export default function Swap() {
       <div className="bg-gray-50 rounded-2xl p-4">
         <div className="flex justify-between mb-2">
           <span className="text-gray-500">From</span>
-          <span className="text-gray-500">Balance: 0.0</span>
+          <span className="text-gray-500">Balance: {parseFloat(formatEther(ethBalance?.value || 0n)).toFixed(3)}</span>
         </div>
         <div className="flex items-center justify-between">
           <input
@@ -67,7 +74,7 @@ export default function Swap() {
       <div className="bg-gray-50 rounded-2xl p-4">
         <div className="flex justify-between mb-2">
           <span className="text-gray-500">To</span>
-          <span className="text-gray-500">Balance: 0.0</span>
+          <span className="text-gray-500">Balance: {balance}</span>
         </div>
         <div className="flex items-center justify-between">
           <input
@@ -123,7 +130,7 @@ export default function Swap() {
           setIsSelectingFromToken(false);
           setIsSelectingToToken(false);
         }}
-        selectedToken={isSelectingFromToken ? fromToken : toToken}
+        selectedToken={isSelectingFromToken ? (fromToken as Token) : (toToken as Token)}
       />
     </div>
   );

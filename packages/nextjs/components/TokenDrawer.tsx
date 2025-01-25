@@ -3,8 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useDFTokenBalance from "../hooks/useDFToken";
 import MiniNFTCard from "./MiniNFTCard";
-import { FaImage, FaQrcode, FaSignOutAlt, FaWallet } from "react-icons/fa";
 import { BsCoin } from "react-icons/bs";
+import { FaImage, FaQrcode, FaSignOutAlt, FaWallet } from "react-icons/fa";
 import { useAccount, useDisconnect } from "wagmi";
 import { AddressQRCodeModal } from "~~/components/AddressQRCodeModal";
 import CopyAddressButton from "~~/components/CopyAddressButton";
@@ -33,21 +33,19 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
 
   const { balance, loading: datBalanceLoading } = useDFTokenBalance(address || "");
 
-  
-  
   const handleDisconnect = async () => {
     setIsDisconnecting(true);
     try {
       await disconnect();
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 100));
       onClose();
+      router.push("/");
     } catch (error) {
       console.error("Disconnect failed:", error);
     } finally {
       setIsDisconnecting(false);
     }
   };
-
 
   return (
     <>

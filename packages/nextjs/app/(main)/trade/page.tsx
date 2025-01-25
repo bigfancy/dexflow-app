@@ -10,6 +10,8 @@ export default function TradePage() {
   const [activeTab, setActiveTab] = useState<"swap" | "send">("swap");
   return (
     <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold text-gray-900">Trade</h1>
+      <p className="text-gray-500 mt-2">Swap and send tokens</p>
       <Toaster />
       <div className="w-full max-w-xl mx-auto bg-white rounded-3xl p-4 shadow-lg mt-8">
         {/* Header */}

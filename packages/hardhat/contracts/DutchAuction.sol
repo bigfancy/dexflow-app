@@ -23,6 +23,7 @@ contract DutchAuction {
     uint256 startingAt;
     uint256 endingAt;
     uint256 startingPrice;
+    uint256 currentPrice;
     uint256 discountRate;
     AuctionStatus status;
   }
@@ -190,6 +191,7 @@ contract DutchAuction {
     auctions[_nftAddress][_tokenId].startingAt = block.timestamp;
     auctions[_nftAddress][_tokenId].endingAt = block.timestamp + DURATION;
     auctions[_nftAddress][_tokenId].startingPrice = _startingPrice;
+    auctions[_nftAddress][_tokenId].currentPrice = _startingPrice;
     auctions[_nftAddress][_tokenId].discountRate = _discountRate;
     auctions[_nftAddress][_tokenId].status = AuctionStatus.IN_PROGRESS;
 

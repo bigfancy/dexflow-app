@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaPlus } from "react-icons/fa";
+import { useAccount } from "wagmi";
 import DutchCard from "~~/components/auction/DutchCard";
 import EnglishCard from "~~/components/auction/EnglishCard";
 import { useFetchAuctionList } from "~~/hooks/useAuction";
@@ -15,25 +16,27 @@ export default function AuctionsPage() {
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { activeAuctions: auctions } = useFetchAuctionList();
-  const [filteredAuctions, setFilteredAuctions] = useState<Auction[]>([]);
+  const { isConnected } = useAccount();
+
+  // const [filteredAuctions, setFilteredAuctions] = useState<Auction[]>([]);
+  // const [filteredAuctions, setFilteredAuctions] = useState<Auction[]>([]);
 
   useEffect(() => {
     if (auctions && Array.isArray(auctions)) {
-      setFilteredAuctions(
-        auctions?.filter(auction => {
-          if (activeFilter === "all") return true;
-          if (activeFilter === "english") return auction.auctionType === "0";
-          if (activeFilter === "dutch") return auction.auctionType === "1";
-          return true;
-        }) || [],
-      );
-
       setIsLoading(false);
     }
-  }, [auctions, activeFilter]);
+  }, [auctions]);
 
-  const handleViewDetail = (auctionId: string) => {
-    router.push(`/auctions/${auctionId}`);
+  const filteredAuctions =
+    auctions?.filter(auction => {
+      if (activeFilter === "all") return true;
+      if (activeFilter === "english") return auction.auctionType === "0";
+      if (activeFilter === "dutch") return auction.auctionType === "1";
+      return true;
+    }) || [];
+
+  const handleViewDetail = (auctionId: string, auctionType: string) => {
+    router.push(`/auctions/${auctionId}?auctionType=${auctionType}`);
   };
 
   // 过滤拍卖
@@ -60,14 +63,16 @@ export default function AuctionsPage() {
           <p className="text-gray-500 mt-2">Create and manage your auctions</p>
         </div>
 
-        <button
-          onClick={() => router.push("/auctions/create")}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg 
+        {isConnected && (
+          <button
+            onClick={() => router.push("/auctions/create")}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg 
             hover:bg-blue-700 transition-colors"
-        >
-          <FaPlus className="w-4 h-4" />
-          <span>Create Auction</span>
-        </button>
+          >
+            <FaPlus className="w-4 h-4" />
+            <span>Create Auction</span>
+          </button>
+        )}
       </div>
 
       {/* Filter Tags */}
@@ -111,13 +116,13 @@ export default function AuctionsPage() {
               <EnglishCard
                 key={auction.auctionId}
                 auction={auction as EnglishAuction}
-                onViewDetail={() => handleViewDetail(auction.auctionId)}
+                onViewDetail={() => handleViewDetail(auction.auctionId, auction.auctionType)}
               />
             ) : (
               <DutchCard
                 key={auction.auctionId}
                 auction={auction as DutchAuction}
-                onViewDetail={() => handleViewDetail(auction.auctionId)}
+                onViewDetail={() => handleViewDetail(auction.auctionId, auction.auctionType)}
               />
             ),
           )}

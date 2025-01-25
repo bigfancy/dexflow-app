@@ -47,7 +47,7 @@ async function main() {
         "ipfs://QmTM6pgQRbdJ7kfk1UYQDJE6g95Z2pc7g1Sb5rE1GY4JdN",
         ];
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < nftUrls.length; i++) {
             console.log(`Minting NFT #${i}...`);
             await dfnft.connect(owner).mint(nftUrls[i % 3]);
             console.log(`NFT #${i} minted`);
@@ -55,7 +55,7 @@ async function main() {
 
         // Mint DFTokens for testing
         console.log("\n=== Minting DFTokens ===");
-        const tokenAmount = expandTo18Decimals(1000);
+        const tokenAmount = 1000;
         for (const account of [owner, addr1, addr2]) {
             await dfToken.mint(account.address, tokenAmount);
             console.log(`${account.address} DFToken balance: ${await dfToken.balanceOf(account.address)}`);

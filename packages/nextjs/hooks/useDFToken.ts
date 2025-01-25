@@ -9,7 +9,7 @@ const useDFTokenBalance = (address: string) => {
   });
 
   return {
-    balance: balance ? formatEther(balance) : "0",
+    balance: balance ? parseFloat(formatEther(balance)).toFixed(3) : "0",
     loading: isLoading,
   };
 };
