@@ -98,9 +98,9 @@ const Home: NextPage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2">Advanced Analytics</h3>
+              <h3 className="text-xl font-bold mb-2">DFT Token</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Make informed decisions with real-time market data and insights
+                DFT Token is the native token of DexFlow, it is used for trading and staking
               </p>
             </motion.div>
           </div>
