@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import TokenSelectModal from "../TokenSelectModal";
 import { FaEthereum, FaExchangeAlt } from "react-icons/fa";
-import { MdKeyboardArrowDown, MdToken } from "react-icons/md";
+import { MdKeyboardArrowDown } from "react-icons/md";
 import { Address, formatEther } from "viem";
 import { useAccount, useBalance } from "wagmi";
 import useDFTokenBalance from "~~/hooks/useDFToken";
@@ -20,8 +20,8 @@ export default function Swap() {
   const { isConnected, address } = useAccount();
   const { toAmount, isLoading, handleSwap } = useSwap(fromToken as Token, toToken as Token, fromAmount);
 
-  const { balance, loading: datBalanceLoading } = useDFTokenBalance(address || "");
-  const { data: ethBalance, isLoading: ethBalanceLoading } = useBalance({
+  const { balance: dftBalance } = useDFTokenBalance(address || "");
+  const { data: ethBalance } = useBalance({
     address: address as Address,
   });
 
@@ -31,6 +31,12 @@ export default function Swap() {
       setToToken(tokens[1]);
     }
   }, [tokens, fromToken, toToken]);
+
+  const handleFromAmountChange = (value: string) => {
+    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+      setFromAmount(value);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -42,9 +48,9 @@ export default function Swap() {
         </div>
         <div className="flex items-center justify-between">
           <input
-            type="number"
+            type="text"
             value={fromAmount}
-            onChange={e => setFromAmount(e.target.value)}
+            onChange={e => handleFromAmountChange(e.target.value)}
             placeholder="0"
             className="text-4xl bg-transparent outline-none w-[200px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
@@ -74,11 +80,11 @@ export default function Swap() {
       <div className="bg-gray-50 rounded-2xl p-4">
         <div className="flex justify-between mb-2">
           <span className="text-gray-500">To</span>
-          <span className="text-gray-500">Balance: {balance}</span>
+          <span className="text-gray-500">Balance: {dftBalance}</span>
         </div>
         <div className="flex items-center justify-between">
           <input
-            type="number"
+            type="text"
             value={toAmount}
             readOnly
             placeholder="0"
@@ -102,15 +108,21 @@ export default function Swap() {
       {/* Swap Button */}
       <button
         onClick={handleSwap}
-        disabled={!isConnected || !fromAmount || isLoading}
+        disabled={!isConnected || !fromAmount || Number(fromAmount) <= 0 || isLoading}
         className={`w-full mt-4 py-4 rounded-2xl text-lg font-semibold transition-colors
           ${
-            isConnected && fromAmount && !isLoading
+            isConnected && fromAmount && Number(fromAmount) > 0 && !isLoading
               ? "bg-blue-600 hover:bg-blue-700 text-white"
               : "bg-gray-100 text-gray-400 cursor-not-allowed"
           }`}
       >
-        {!isConnected ? "Connect Wallet" : !fromAmount ? "Enter Amount" : isLoading ? "Processing..." : "Swap"}
+        {!isConnected
+          ? "Connect Wallet"
+          : !fromAmount || Number(fromAmount) <= 0
+            ? "Enter Amount"
+            : isLoading
+              ? "Processing..."
+              : "Swap"}
       </button>
 
       {/* Token Select Modal */}

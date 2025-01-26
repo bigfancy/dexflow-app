@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { Address, Transaction, formatEther } from "viem";
-import { useAccount, usePublicClient, useWalletClient } from "wagmi";
+import { Address, formatEther, parseEther } from "viem";
+import { useAccount } from "wagmi";
 import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
@@ -17,8 +17,6 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
   const [toAmount, setToAmount] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const { address, isConnected } = useAccount();
-  const publicClient = usePublicClient();
-  const { data: walletClient } = useWalletClient();
 
   // use deployedContracts
   const fromTokenAddress = deployedContracts[31337].WETH.address;
@@ -28,7 +26,11 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
   const { data: amountsOut } = useScaffoldReadContract({
     contractName: "UniswapV2Router",
     functionName: "getAmountsOut",
-    args: [fromAmount ? BigInt(parseFloat(fromAmount) * 1e18) : BigInt(0), [fromTokenAddress, toTokenAddress]],
+    args: [
+      fromAmount && Number(fromAmount) > 0 ? BigInt(parseFloat(fromAmount) * 1e18) : undefined,
+      [fromTokenAddress, toTokenAddress],
+    ],
+    watch: Boolean(fromAmount && Number(fromAmount) > 0), // 只在有金额时启用查询
   });
 
   // Write swap function
@@ -39,7 +41,6 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
   // Calculate output amount
   useEffect(() => {
     if (amountsOut && amountsOut[1]) {
-      //use formatEther
       const outputAmount = parseFloat(formatEther(amountsOut[1])).toFixed(3);
       setToAmount(outputAmount);
     } else {
@@ -49,8 +50,8 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
 
   // Handle swap
   const handleSwap = useCallback(async () => {
-    if (!isConnected || !address || !fromAmount) {
-      notification.error("Please connect wallet and enter amount");
+    if (!isConnected || !address || !fromAmount || Number(fromAmount) <= 0) {
+      notification.error("Please connect wallet and enter valid amount");
       return;
     }
 
@@ -67,11 +68,11 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
           value: amountIn,
         });
 
-        notification.success("Transaction Successful!");
+        notification.success("Swap successful!");
       }
     } catch (error: any) {
       console.error("Swap failed:", error);
-      notification.error("Transaction failed, please try again");
+      notification.error(error?.message || "Transaction failed, please try again");
     } finally {
       setIsLoading(false);
     }

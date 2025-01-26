@@ -14,6 +14,7 @@ contract UniswapV2Query {
         uint112 reserve0;
         uint112 reserve1;
         uint256 totalSupply;
+        uint256 lpBalance;
     }
 
     constructor(address _factory) {
@@ -30,6 +31,7 @@ contract UniswapV2Query {
         info.token1 = pair.token1();
         (info.reserve0, info.reserve1, ) = pair.getReserves();
         info.totalSupply = pair.totalSupply();
+        info.lpBalance = pair.balanceOf(msg.sender);
         
         return info;
     }
@@ -48,8 +50,11 @@ contract UniswapV2Query {
             pairsInfo[i].token1 = pair.token1();
             (pairsInfo[i].reserve0, pairsInfo[i].reserve1, ) = pair.getReserves();
             pairsInfo[i].totalSupply = pair.totalSupply();
+            pairsInfo[i].lpBalance = pair.balanceOf(msg.sender);
         }
 
         return pairsInfo;
     }
+
+
 }

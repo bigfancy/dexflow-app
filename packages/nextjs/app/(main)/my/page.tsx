@@ -137,7 +137,7 @@ export default function MyAssetsPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Pool Share:</span>
-                    <span className="font-medium">{position.share}%</span>
+                    <span className="font-medium">{parseFloat(formatEther(position.lpBalance)).toFixed(2)} LP</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">ETH Deposited:</span>

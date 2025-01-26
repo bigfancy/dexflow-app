@@ -72,6 +72,15 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   });
   deployedAddresses.UniswapV2Factory = uniswapV2FactoryDeployment.address;
 
+  // Deploy UniswapV2Pair contract
+  const uniswapV2PairDeployment = await deploy("UniswapV2Pair", {
+    from: deployer,
+    args: [],
+    log: true,
+    autoMine: true,
+  });
+  deployedAddresses.UniswapV2Pair = uniswapV2PairDeployment.address;
+
   // Deploy UniswapV2Router contract
   const uniswapV2RouterDeployment = await deploy("UniswapV2Router", {
     from: deployer,
@@ -80,8 +89,6 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
     autoMine: true,
   });
   deployedAddresses.UniswapV2Router = uniswapV2RouterDeployment.address;
-
-
 
   // Deploy UniswapV2Query contract
   const uniswapV2QueryDeployment = await deploy("UniswapV2Query", {
@@ -117,4 +124,4 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 export default deployYourContract;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
-deployYourContract.tags = ["DFNFT", "DFToken", "EnglishAuction", "Airdrop", "AdAlliance", "WETH", "UniswapV2Factory", "UniswapV2Router", "UniswapV2Query"];
+deployYourContract.tags = ["DFNFT", "DFToken", "EnglishAuction", "Airdrop", "AdAlliance", "WETH", "UniswapV2Factory", "UniswapV2Router", "UniswapV2Query", "UniswapV2Pair"];

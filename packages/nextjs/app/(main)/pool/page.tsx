@@ -12,6 +12,8 @@ export default function PoolPage() {
   const { pools, isLoading } = usePool();
   const { isConnected } = useAccount();
 
+  console.log("=======pools", pools);
+
   const handleAddLiquidity = () => {
     router.push("/pool/add");
   };
@@ -30,13 +32,14 @@ export default function PoolPage() {
       <p className="text-gray-500 mt-2">View and manage your pools</p>
       <div className="bg-white rounded-xl overflow-hidden shadow-lg">
         {/* Table Header */}
-        <div className="grid grid-cols-8 gap-4 p-4 border-b border-gray-200 text-gray-600 bg-gray-50">
+        <div className="grid grid-cols-9 gap-4 p-4 border-b border-gray-200 text-gray-600 bg-gray-50">
           <div className="col-span-2"># Pool</div>
           <div className="flex items-center gap-1">
             TVL <FaCaretDown className="text-gray-400" />
           </div>
           <div className="col-span-2">Reserves</div>
           <div>24h Volume</div>
+          <div>Share</div>
           <div className="flex items-center justify-center col-span-2">Action</div>
         </div>
 
@@ -44,7 +47,7 @@ export default function PoolPage() {
         {pools.map(pool => (
           <div
             key={pool.id}
-            className="grid grid-cols-8 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+            className="grid grid-cols-9 gap-4 p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
           >
             {/* Pool Info and Icons */}
             <div className="col-span-2 flex items-center gap-4">
@@ -76,6 +79,9 @@ export default function PoolPage() {
 
             {/* 24h Volume */}
             <div className="flex items-center text-gray-900">${parseFloat(pool.volume24h).toFixed(2)}</div>
+
+            {/* Share */}
+            <div className="flex items-center text-gray-900">{parseFloat(pool.lpBalance).toFixed(2)} LP</div>
 
             {/* Action Button */}
             <div className="flex items-center justify-center col-span-2">

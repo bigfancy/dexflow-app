@@ -61,7 +61,7 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
         rounded-l-2xl border-l border-t border-gray-700/50 backdrop-blur-md
         bg-gray-800/70 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
-        <div className="p-6 flex flex-col h-full">
+        <div className="p-6 flex flex-col h-full gap-2">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold text-white/90 flex items-center gap-2">
               <FaWallet className="text-lg" />
@@ -105,6 +105,7 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
               </div>
             </div>
 
+            <div className="flex items-center justify-center">
             <Link
               href="/my"
               className="block w-full text-center bg-purple-600/90 hover:bg-purple-700 text-white font-bold mt-8 py-3 px-4 rounded-xl transition duration-200"
@@ -115,6 +116,8 @@ export default function TokenDrawer({ isOpen, onClose }: TokenDrawerProps) {
                 <span>View My Assets</span>
               </div>
             </Link>
+            </div>
+           
           </div>
 
           <button

@@ -37,6 +37,7 @@ export interface PairInfo {
   pairAddress: Address;
   reserve0: string;
   reserve1: string;
+  lpBalance: string;
 }
 
 export const usePool = () => {
@@ -158,23 +159,25 @@ export const usePool = () => {
             pairAddress: allPairsInfo[0].pair,
             reserve0: formatEther(allPairsInfo[0].reserve0),
             reserve1: formatEther(allPairsInfo[0].reserve1),
+            lpBalance: formatEther(allPairsInfo[0].lpBalance),
           },
-          {
-            id: 2,
-            pair: "ETH/DFT",
-            version: "v2",
-            fee: "0.3%",
-            tvl: formatEther(allPairsInfo[1].totalSupply),
-            apr: "1.2%",
-            volume24h: formatEther(allPairsInfo[1].totalSupply),
-            token0Icon: "https://token-icons.s3.amazonaws.com/eth.png",
-            token1Icon: "/logo1.png",
-            token0Address: deployedContracts[31337].WETH.address,
-            token1Address: deployedContracts[31337].DFToken.address,
-            pairAddress: allPairsInfo[1].pair,
-            reserve0: formatEther(allPairsInfo[1].reserve0),
-            reserve1: formatEther(allPairsInfo[1].reserve1),
-          },
+          // {
+          //   id: 2,
+          //   pair: "ETH/DFT",
+          //   version: "v2",
+          //   fee: "0.3%",
+          //   tvl: formatEther(allPairsInfo[1].totalSupply),
+          //   apr: "1.2%",
+          //   volume24h: formatEther(allPairsInfo[1].totalSupply),
+          //   token0Icon: "https://token-icons.s3.amazonaws.com/eth.png",
+          //   token1Icon: "/logo1.png",
+          //   token0Address: deployedContracts[31337].WETH.address,
+          //   token1Address: deployedContracts[31337].DFToken.address,
+          //   pairAddress: allPairsInfo[1].pair,
+          //   reserve0: formatEther(allPairsInfo[1].reserve0),
+          //   reserve1: formatEther(allPairsInfo[1].reserve1),
+          //   lpBalance: formatEther(allPairsInfo[1].lpBalance),
+          // },
         ];
 
         setPools(poolsData);
@@ -207,71 +210,67 @@ export const useRemoveLiquidity = (lpAmount: string, pairAddress: string, token0
   const [isLoading, setIsLoading] = useState(false);
   const { address, isConnected } = useAccount();
 
-  // 获取 LP 代币余额
-  //根据 pairAddress 获取 LP
-  const {
-    data: lpBalance,
-    isLoading: lpBalanceLoading,
-    error: lpBalanceError,
-  } = useReadContract({
-    chainId: 31337,
-    address: pairAddress,
-    abi: LP_ABI,
-    functionName: "balanceOf",
-    args: [address as Address],
+  // 获取 LP 代币余额和储备量
+  const { data: pairInfo } = useScaffoldReadContract({
+    contractName: "UniswapV2Query",
+    functionName: "getPairInfo",
+    args: [deployedContracts[31337].WETH.address, deployedContracts[31337].DFToken.address],
   });
 
-  // 获取预估数量
-  const { data: amounts } = useScaffoldReadContract({
-    contractName: "UniswapV2Router",
-    functionName: "getAmountsOut",
-    args: [
-      lpAmount ? BigInt(lpAmount) : BigInt(0),
-      [deployedContracts[31337].WETH.address, deployedContracts[31337].DFToken.address],
-    ],
-  });
-
-  console.log("===== amounts", amounts);
-
-  // 移除流动性
   const { writeContractAsync: removeLiquidity } = useScaffoldWriteContract({
     contractName: "UniswapV2Router",
   });
 
-  // 更新余额显示
+  // 计算预估数量
   useEffect(() => {
-    if (lpBalance) {
-      setBalance((Number(lpBalance) / 1e18).toString());
-    }
-  }, [lpBalance]);
+    if (pairInfo && lpAmount && Number(lpAmount) > 0) {
+      const totalSupply = pairInfo.totalSupply;
+      const userShare = (parseFloat(lpAmount) * 1e18) / Number(totalSupply);
 
-  // 更新预估数量
-  useEffect(() => {
-    if (amounts) {
       setEstimatedAmounts({
-        ethAmount: amounts[0].toString(),
-        tokenAmount: amounts[1].toString(),
+        ethAmount: formatEther(BigInt(Number(pairInfo.reserve0) * userShare)),
+        tokenAmount: formatEther(BigInt(Number(pairInfo.reserve1) * userShare)),
       });
     }
-  }, [amounts]);
+  }, [pairInfo, lpAmount]);
+
+  // 更新余额显示
+  useEffect(() => {
+    if (pairInfo?.lpBalance) {
+      setBalance(parseFloat(formatEther(pairInfo.lpBalance)).toFixed(3));
+    }
+  }, [pairInfo]);
 
   // 处理移除流动性
   const handleRemove = useCallback(async () => {
-    if (!isConnected || !address || !lpAmount) {
-      notification.error("Please connect wallet and enter amount");
+    if (!isConnected || !address || !lpAmount || Number(lpAmount) <= 0) {
+      notification.error("Please connect wallet and enter valid amount");
       return;
     }
 
     setIsLoading(true);
     try {
-      const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24); // 24 hours
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24);
       const amountLP = parseEther(lpAmount);
-      const minETH = BigInt(Number(estimatedAmounts?.ethAmount || 0) * 0.95 * 1e18); // 5% slippage
-      const minTokens = BigInt(Number(estimatedAmounts?.tokenAmount || 0) * 0.95 * 1e18);
+
+      // 设置最小接收数量为预估数量的 95%（5% 滑点）
+      const minETH = estimatedAmounts?.ethAmount
+        ? parseEther((Number(estimatedAmounts.ethAmount) * 0.95).toFixed(18))
+        : BigInt(0);
+      const minTokens = estimatedAmounts?.tokenAmount
+        ? parseEther((Number(estimatedAmounts.tokenAmount) * 0.95).toFixed(18))
+        : BigInt(0);
 
       await removeLiquidity({
         functionName: "removeLiquidityETH",
-        args: [deployedContracts[31337].DFToken.address, amountLP, minTokens, minETH, address, deadline],
+        args: [
+          deployedContracts[31337].DFToken.address as Address,
+          amountLP,
+          minTokens,
+          minETH,
+          address as Address,
+          deadline,
+        ],
       });
 
       notification.success("Successfully removed liquidity!");

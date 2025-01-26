@@ -114,7 +114,7 @@ export default function Send() {
           setFromAmount("");
           setIsSelectingFromToken(false);
         }}
-        selectedToken={fromToken}
+        selectedToken={fromToken as Token}
       />
     </div>
   );
