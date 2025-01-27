@@ -19,7 +19,6 @@ export default function SimpleAuctionCard({
   auctionType,
   onClick,
 }: SimpleAuctionCardProps) {
-  
   return (
     <motion.div
       whileHover={{ y: -5 }}
@@ -42,18 +41,12 @@ export default function SimpleAuctionCard({
 
       {/* Auction Info */}
       <div className="p-4 space-y-3">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate">
-          {title}
-        </h3>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate"># {title}</h3>
 
         <div className="flex justify-between items-center">
           <div className="space-y-1">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Current Bid
-            </p>
-            <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">
-              {currentBid} DFT
-            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Current Bid</p>
+            <p className="text-lg font-semibold text-blue-600 dark:text-blue-400">{currentBid} DFT</p>
           </div>
           <div className="text-right space-y-1">
             <p className="text-sm text-gray-500 dark:text-gray-400">Ending</p>

@@ -65,14 +65,13 @@ export default function CreateBidModal({
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Bid Amount (DFT)</label>
             <input
-              type="number"
+              type="text"
               className="w-full p-2 bg-gray-700 text-gray-100 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={bidAmount}
               onChange={e => {
                 setBidAmount(Number(e.target.value));
                 setError(null);
               }}
-              min={startingPrice}
             />
           </div>
 
