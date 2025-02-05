@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { FaDiscord, FaGithub } from "react-icons/fa";
-import { hardhat } from "viem/chains";
+import { hardhat, holesky } from "viem/chains";
 import { CurrencyDollarIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { SwitchTheme } from "~~/components/SwitchTheme";
@@ -13,7 +13,7 @@ import { useGlobalState } from "~~/services/store/store";
 const ContractTools = () => {
   const nativeCurrencyPrice = useGlobalState(state => state.nativeCurrency.price);
   const { targetNetwork } = useTargetNetwork();
-  const isLocalNetwork = targetNetwork.id === hardhat.id;
+  const isLocalNetwork = targetNetwork.id === hardhat.id || targetNetwork.id === holesky.id;
   return (
     <div className="fixed flex justify-between items-center w-full z-10 p-4 bottom-0 left-0 pointer-events-none">
       <div className="flex flex-col md:flex-row gap-2 pointer-events-auto">

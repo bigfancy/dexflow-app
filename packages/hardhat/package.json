@@ -20,7 +20,10 @@
     "verify": "hardhat etherscan-verify",
     "op-auction": "hardhat run ./scripts/op-auction.ts",
     "op-liquidity": "hardhat run ./scripts/op-liquidity.ts",
-    "op-ad": "hardhat run ./scripts/op-ad.ts"
+    "op-ad": "hardhat run ./scripts/op-ad.ts",
+    "op-auction-holesky": "hardhat run ./scripts/op-auction-holesky.ts --network holesky",
+    "op-liquidity-holesky": "hardhat run ./scripts/op-liquidity-holesky.ts --network holesky",
+    "op-ad-holesky": "hardhat run ./scripts/op-ad-holesky.ts --network holesky"
   },
   "dependencies": {
     "@inquirer/password": "^4.0.2",

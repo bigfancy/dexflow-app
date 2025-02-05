@@ -1,0 +1,884 @@
+{
+  "address": "0xa438E60206090a843965cCD186b58f500EaDb494",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dftTokenAddress",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "adId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "advertiser",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "imageUrl",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "budget",
+          "type": "uint256"
+        }
+      ],
+      "name": "AdCreated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "adId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isActive",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "budget",
+          "type": "uint256"
+        }
+      ],
+      "name": "AdUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "linkId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "clickCounts",
+          "type": "uint256"
+        }
+      ],
+      "name": "ClicksSettled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "linkId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "adId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "LinkGenerated",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "adCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "adLinks",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "adId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "clicks",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "rewards",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "admin",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "ads",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "advertiser",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "imageUrl",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "budget",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "costPerClick",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalClicks",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalReward",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isActive",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_imageUrl",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_budget",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_costPerClick",
+          "type": "uint256"
+        }
+      ],
+      "name": "createAd",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dftToken",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_adId",
+          "type": "uint256"
+        }
+      ],
+      "name": "generateAdLink",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getActiveAds",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "advertiser",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "imageUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "budget",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "costPerClick",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalClicks",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalReward",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isActive",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct AdAlliance.Ad[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_adId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getAd",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "advertiser",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "imageUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "budget",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "costPerClick",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalClicks",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalReward",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isActive",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct AdAlliance.Ad",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAllAds",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "advertiser",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "imageUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "budget",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "costPerClick",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalClicks",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalReward",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isActive",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct AdAlliance.Ad[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_adId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getUserAdLink",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        }
+      ],
+      "name": "getUserAds",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "advertiser",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "imageUrl",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "budget",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "costPerClick",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalClicks",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalReward",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isActive",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct AdAlliance.Ad[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "linkCounter",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "linkIds",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "clickCounts",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "settleClicks",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "userAdLinks",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xd082a72d6a7b17e4c957d883ad5f817fb32d5b65c1667e975d67099f1bf87399",
+  "receipt": {
+    "to": null,
+    "from": "0x1485458Ba21df2371Aa01a914493B53fFf1784e4",
+    "contractAddress": "0xa438E60206090a843965cCD186b58f500EaDb494",
+    "transactionIndex": 49,
+    "gasUsed": "1669023",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xd2a0bb7ce4aa4d9ea261cfa321ffbee92fc2bc9f76ee1c78e9d28038d7daa61a",
+    "transactionHash": "0xd082a72d6a7b17e4c957d883ad5f817fb32d5b65c1667e975d67099f1bf87399",
+    "logs": [],
+    "blockNumber": 7582203,
+    "cumulativeGasUsed": "7756752",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x48b6A081131acEB7F028f5A776767988a9a6A51B"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "d837fbc04caa729086ffbe4f7a12a232",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.22+commit.4fc1097e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_dftTokenAddress\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"adId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"advertiser\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"imageUrl\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"}],\"name\":\"AdCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"adId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"}],\"name\":\"AdUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"linkId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"clickCounts\",\"type\":\"uint256\"}],\"name\":\"ClicksSettled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"linkId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"adId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"}],\"name\":\"LinkGenerated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"adCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"adLinks\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"adId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"clicks\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"rewards\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"admin\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"ads\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"advertiser\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"imageUrl\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"costPerClick\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalClicks\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalReward\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"_imageUrl\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"_budget\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_costPerClick\",\"type\":\"uint256\"}],\"name\":\"createAd\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"dftToken\",\"outputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_adId\",\"type\":\"uint256\"}],\"name\":\"generateAdLink\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getActiveAds\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"advertiser\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"imageUrl\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"costPerClick\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalClicks\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalReward\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"internalType\":\"struct AdAlliance.Ad[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_adId\",\"type\":\"uint256\"}],\"name\":\"getAd\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"advertiser\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"imageUrl\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"costPerClick\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalClicks\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalReward\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"internalType\":\"struct AdAlliance.Ad\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAllAds\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"advertiser\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"imageUrl\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"costPerClick\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalClicks\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalReward\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"internalType\":\"struct AdAlliance.Ad[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_adId\",\"type\":\"uint256\"}],\"name\":\"getUserAdLink\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_user\",\"type\":\"address\"}],\"name\":\"getUserAds\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"advertiser\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"imageUrl\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"budget\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"costPerClick\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalClicks\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalReward\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isActive\",\"type\":\"bool\"}],\"internalType\":\"struct AdAlliance.Ad[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"linkCounter\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256[]\",\"name\":\"linkIds\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"clickCounts\",\"type\":\"uint256[]\"}],\"name\":\"settleClicks\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"userAdLinks\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/AdAlliance.sol\":\"AdAlliance\"},\"debug\":{\"revertStrings\":\"debug\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/AdAlliance.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ncontract AdAlliance {\\n    struct Ad {\\n        uint256 id;\\n        address advertiser;\\n        string imageUrl;\\n        uint256 budget;\\n        uint256 costPerClick;\\n        uint256 totalClicks;\\n        uint256 totalReward;\\n        bool isActive;\\n    }\\n\\n    // Store link info\\n    struct AdLink {\\n        uint256 adId;\\n        address user;\\n        uint256 clicks;\\n        uint256 rewards;\\n    }\\n\\n    // Token used for settlement\\n    IERC20 public dftToken;\\n\\n    // Mappings for ads and user associations\\n    // adId => Ad\\n    mapping(uint256 => Ad) public ads;\\n    // linkId => AdLink\\n    mapping(uint256 => AdLink) public adLinks;\\n    // user => adId => linkId (to prevent duplicate links)\\n    mapping(address => mapping(uint256 => uint256)) public userAdLinks;\\n\\n    uint256 public adCount;\\n    uint256 public linkCounter;\\n\\n    address public admin;\\n\\n    // Track all ad IDs\\n    uint256[] private allAdIds;\\n    \\n    // Track user's ads\\n    // user => adId\\n    mapping(address => uint256[]) private userAds;\\n\\n    // Events\\n    event AdCreated(uint256 indexed adId, address indexed advertiser, string imageUrl, uint256 budget);\\n    event AdUpdated(uint256 indexed adId, bool isActive, uint256 budget);\\n    event LinkGenerated(uint256 indexed linkId, uint256 indexed adId, address indexed user);\\n    event ClicksSettled(uint256 indexed linkId, uint256 indexed clickCounts);\\n\\n    constructor(address _dftTokenAddress) {\\n        dftToken = IERC20(_dftTokenAddress);\\n        admin = msg.sender;\\n    }\\n\\n    modifier onlyAdvertiser(uint256 _adId) {\\n        require(ads[_adId].advertiser == msg.sender, \\\"Not the advertiser\\\");\\n        _;\\n    }\\n\\n    modifier onlyAdmin() {\\n        require(msg.sender == admin, \\\"Not an admin\\\");\\n        _;\\n    }\\n\\n    // 1. Create a new ad\\n    function createAd( \\n        string calldata _imageUrl,\\n        uint256 _budget, \\n        uint256 _costPerClick\\n    ) external {\\n        require(_budget > 0, \\\"Budget must be greater than 0\\\");\\n        require(_costPerClick > 0, \\\"Cost per click must be greater than 0\\\");\\n        require(dftToken.transferFrom(msg.sender, address(this), _budget), \\\"Budget transfer failed\\\");\\n\\n        adCount++;\\n        ads[adCount] = Ad({\\n            id: adCount,\\n            advertiser: msg.sender,            \\n            imageUrl: _imageUrl,\\n            budget: _budget,\\n            costPerClick: _costPerClick,\\n            totalClicks: 0,\\n            totalReward: 0,\\n            isActive: true\\n        });\\n\\n        uint256 newAdId = adCount;\\n        allAdIds.push(newAdId);\\n        userAds[msg.sender].push(newAdId);\\n\\n        emit AdCreated(adCount, msg.sender, _imageUrl, _budget);\\n    }\\n\\n    // 2. Generate a unique link for a user\\n    function generateAdLink(uint256 _adId) external returns (uint256) {\\n        require(ads[_adId].isActive, \\\"Ad is not active\\\");\\n        require(userAdLinks[msg.sender][_adId] == 0, \\\"Link already exists for user\\\");\\n\\n        linkCounter++;\\n        adLinks[linkCounter] = AdLink({\\n            adId: _adId,\\n            user: msg.sender,\\n            clicks: 0,\\n            rewards: 0\\n        });\\n        userAdLinks[msg.sender][_adId] = linkCounter;\\n\\n        emit LinkGenerated(linkCounter, _adId, msg.sender);\\n        return linkCounter;\\n    }\\n\\n    // 3. Settle daily clicks and distribute rewards\\n    function settleClicks(uint256[] calldata linkIds, uint256[] calldata clickCounts) external onlyAdmin {\\n        require(linkIds.length == clickCounts.length, \\\"Array lengths mismatch\\\");\\n\\n        for (uint256 i = 0; i < linkIds.length; i++) {\\n            uint256 linkId = linkIds[i];\\n            uint256 clicks = clickCounts[i];\\n            \\n            AdLink storage link = adLinks[linkId];\\n            require(link.user != address(0), \\\"Invalid link\\\");\\n            \\n            Ad storage ad = ads[link.adId];\\n            require(ad.isActive, \\\"Ad is not active\\\");\\n\\n            uint256 reward = clicks * ad.costPerClick;\\n            require(ad.budget >= reward, \\\"Insufficient budget\\\");\\n\\n            ad.budget -= reward;\\n            link.clicks += clicks;\\n            link.rewards += reward;\\n            ad.totalClicks += clicks;\\n            ad.totalReward += reward;\\n\\n            // Transfer reward to user\\n            require(dftToken.transfer(link.user, reward), \\\"Reward transfer failed\\\");\\n\\n            if (ad.budget < ad.costPerClick) {\\n                ad.isActive = false;\\n            }\\n        }\\n\\n    }\\n\\n    // Get all ads\\n    function getAllAds() external view returns (Ad[] memory) {\\n        Ad[] memory allAds = new Ad[](allAdIds.length);\\n        \\n        for (uint256 i = 0; i < allAdIds.length; i++) {\\n            uint256 adId = allAdIds[i];\\n            allAds[i] = ads[adId];\\n        }\\n        \\n        return allAds;\\n    }\\n\\n    // Get user's ads\\n    function getUserAds(address _user) external view returns (Ad[] memory) {\\n        uint256[] storage userAdIds = userAds[_user];\\n        Ad[] memory userAdList = new Ad[](userAdIds.length);\\n        \\n        for (uint256 i = 0; i < userAdIds.length; i++) {\\n            uint256 adId = userAdIds[i];\\n            userAdList[i] = ads[adId];\\n        }\\n        \\n        return userAdList;\\n    }\\n\\n    // Get single ad\\n    function getAd(uint256 _adId) external view returns (Ad memory) {\\n        require(_adId > 0 && _adId <= adCount, \\\"Invalid ad ID\\\");\\n        return ads[_adId];\\n    }\\n    // get userAdLinks\\n    function getUserAdLink(address _user, uint256 _adId) external view returns (uint256) {\\n        return userAdLinks[_user][_adId];\\n    }\\n\\n    // Get active ads\\n    function getActiveAds() external view returns (Ad[] memory) {\\n        uint256 activeCount = 0;\\n        for (uint256 i = 0; i < allAdIds.length; i++) {\\n            uint256 adId = allAdIds[i];\\n            if (ads[adId].isActive) {\\n                activeCount++;\\n            }\\n        }\\n\\n        Ad[] memory activeAds = new Ad[](activeCount);\\n        uint256 index = 0;\\n        for (uint256 i = 0; i < allAdIds.length; i++) {\\n            uint256 adId = allAdIds[i];\\n            if (ads[adId].isActive) {\\n                activeAds[index] = ads[adId];\\n                index++;\\n            }\\n        }\\n        return activeAds;\\n    }\\n}\\n\\ninterface IERC20 {\\n    function transfer(address recipient, uint256 amount) external returns (bool);\\n    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);\\n}\\n\",\"keccak256\":\"0x12323553c76f5fa75b86c42589fa96aca01e95f9fd2807b0cd6984b5aee89c16\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561005d5760405162461bcd60e51b815260206004820152602260248201527f45746865722073656e7420746f206e6f6e2d70617961626c652066756e637469604482019081526137b760f11b6064830152608482fd5b50604051611d86380380611d8683398101604081905261007c916100aa565b600080546001600160a01b039092166001600160a01b03199283161790556006805490911633179055610125565b6000602082840312156101075760405162461bcd60e51b815260206004820152602260248201527f414249206465636f64696e673a207475706c65206461746120746f6f2073686f6044820152611c9d60f21b6064820152608481fd5b81516001600160a01b038116811461011e57600080fd5b9392505050565b611c52806101346000396000f3fe608060405234801561005d5760405162461bcd60e51b815260206004820152602260248201527f45746865722073656e7420746f206e6f6e2d70617961626c652066756e637469604482019081526137b760f11b6064830152608482fd5b50600436106101425760003560e01c806387e985e6116100e4578063c5c6744c116100b3578063c5c6744c14610321578063d04fe10714610334578063da05ae331461033c578063f851a4401461034f57610142565b806387e985e6146102885780639c89dcf31461029b578063b6f1d890146102a4578063b79f44231461030c57610142565b806311a7a4c01161012057806311a7a4c01461020357806313f5770a1461022a57806364594142146102555780637ede1c071461026857610142565b806307264806146101a757806309bca048146101bc57806310f4069d146101d8575b60405162461bcd60e51b815260206004820152603560248201527f436f6e747261637420646f6573206e6f7420686176652066616c6c6261636b2060448201908152746e6f7220726563656976652066756e6374696f6e7360581b6064830152608482fd5b6101ba6101b5366004611676565b610362565b005b6101c560055481565b6040519081526020015b60405180910390f35b6000546101eb906001600160a01b031681565b6040516001600160a01b0390911681526020016101cf565b610216610211366004611704565b6106f6565b6040516101cf989796959493929190611766565b6101c56102383660046117db565b600360209081526000928352604080842090915290825290205481565b6101c5610263366004611704565b6107ce565b61027b610276366004611704565b610954565b6040516101cf919061187b565b6101c56102963660046117db565b610ab4565b6101c560045481565b6102e46102b2366004611704565b6002602081905260009182526040909120805460018201549282015460039092015490926001600160a01b0316919084565b604080519485526001600160a01b0390931660208501529183015260608201526080016101cf565b610314610adf565b6040516101cf9190611895565b6101ba61032f36600461194e565b610c9a565b61031461105c565b61031461034a3660046119c3565b6112ab565b6006546101eb906001600160a01b031681565b600082116103b75760405162461bcd60e51b815260206004820152601d60248201527f427564676574206d7573742062652067726561746572207468616e203000000060448201526064015b60405180910390fd5b600081116104155760405162461bcd60e51b815260206004820152602560248201527f436f73742070657220636c69636b206d75737420626520677265617465722074604482015264068616e20360dc1b60648201526084016103ae565b6000546040516323b872dd60e01b8152336004820152306024820152604481018490526001600160a01b03909116906323b872dd90606401602060405180830381600087803b1580156104b75760405162461bcd60e51b815260206004820152602560248201527f54617267657420636f6e747261637420646f6573206e6f7420636f6e7461696e604482019081526420636f646560d81b6064830152608482fd5b505af11580156104cb573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104ef91906119e1565b6105345760405162461bcd60e51b8152602060048201526016602482015275109d5919d95d081d1c985b9cd9995c8819985a5b195960521b60448201526064016103ae565b6004805490600061054483611a1c565b91905055506040518061010001604052806004548152602001336001600160a01b0316815260200185858080601f0160208091040260200160405190810160405280939291908181526020018383808284376000920182905250938552505050602080830186905260408084018690526060840183905260808401839052600160a0909401849052600454835283825291829020845181559084015192810180546001600160a01b0319166001600160a01b039094169390931790925582015160028201906106139082611ad0565b5060608201516003820155608082015160048083019190915560a0830151600583015560c0830151600683015560e0909201516007918201805460ff19169115159190911790558154815460018181019093557fa66cc928b5edb82af9bd49922954155ab7b0942694bea4ce44661d9a8736c68801819055336000818152600860209081526040808320805496870181558352912090930182905592549151909291907f2e27350385f954021267dd856010ad40c54ec2de5219a0654536ac5fff0ae861906106e790899089908990611b90565b60405180910390a35050505050565b60016020819052600091825260409091208054918101546002820180546001600160a01b03909216929161072990611a4b565b80601f016020809104026020016040519081016040528092919081815260200182805461075590611a4b565b80156107a25780601f10610777576101008083540402835291602001916107a2565b820191906000526020600020905b81548152906001019060200180831161078557829003601f168201915b505050600384015460048501546005860154600687015460079097015495969295919450925060ff1688565b60008181526001602052604081206007015460ff166108225760405162461bcd60e51b815260206004820152601060248201526f4164206973206e6f742061637469766560801b60448201526064016103ae565b3360009081526003602090815260408083208584529091529020541561088a5760405162461bcd60e51b815260206004820152601c60248201527f4c696e6b20616c72656164792065786973747320666f7220757365720000000060448201526064016103ae565b6005805490600061089a83611a1c565b90915550506040805160808101825283815233602080830182815260008486018181526060860182815260058054845260028087528985209851895594516001890180546001600160a01b0319166001600160a01b0390921691909117905591519387019390935591516003958601559054838252938252848120878252909152838120839055925190928592917f5736947fc0a4b3d747b2a48ffae02a2e78f2cd83fb511fbbf5dfdd3c93f5c2d39190a4505060055490565b61095c61147b565b60008211801561096e57506004548211155b6109aa5760405162461bcd60e51b815260206004820152600d60248201526c125b9d985b1a59081859081251609a1b60448201526064016103ae565b60008281526001602081815260409283902083516101008101855281548152928101546001600160a01b03169183019190915260028101805492939192918401916109f490611a4b565b80601f0160208091040260200160405190810160405280929190818152602001828054610a2090611a4b565b8015610a6d5780601f10610a4257610100808354040283529160200191610a6d565b820191906000526020600020905b815481529060010190602001808311610a5057829003601f168201915b50505091835250506003820154602082015260048201546040820152600582015460608201526006820154608082015260079091015460ff16151560a09091015292915050565b6001600160a01b03821660009081526003602090815260408083208484529091529020545b92915050565b60075460609060009067ffffffffffffffff811115610b0057610b00611a35565b604051908082528060200260200182016040528015610b3957816020015b610b2661147b565b815260200190600190039081610b1e5790505b50905060005b600754811015610c9457600060078281548110610b5e57610b5e611bc9565b6000918252602080832090910154808352600180835260409384902084516101008101865281548152918101546001600160a01b0316938201939093526002830180549295509093840191610bb290611a4b565b80601f0160208091040260200160405190810160405280929190818152602001828054610bde90611a4b565b8015610c2b5780601f10610c0057610100808354040283529160200191610c2b565b820191906000526020600020905b815481529060010190602001808311610c0e57829003601f168201915b50505091835250506003820154602082015260048201546040820152600582015460608201526006820154608082015260079091015460ff16151560a0909101528351849084908110610c8057610c80611bc9565b602090810291909101015250600101610b3f565b50919050565b6006546001600160a01b03163314610ce35760405162461bcd60e51b815260206004820152600c60248201526b2737ba1030b71030b236b4b760a11b60448201526064016103ae565b828114610d2b5760405162461bcd60e51b8152602060048201526016602482015275082e4e4c2f240d8cadccee8d0e640dad2e6dac2e8c6d60531b60448201526064016103ae565b60005b83811015611055576000858583818110610d4a57610d4a611bc9565b9050602002013590506000848484818110610d6757610d67611bc9565b6000858152600260209081526040909120600181015492909102939093013593506001600160a01b03169050610dce5760405162461bcd60e51b815260206004820152600c60248201526b496e76616c6964206c696e6b60a01b60448201526064016103ae565b80546000908152600160205260409020600781015460ff16610e255760405162461bcd60e51b815260206004820152601060248201526f4164206973206e6f742061637469766560801b60448201526064016103ae565b6000816004015484610e379190611bdf565b90508082600301541015610e835760405162461bcd60e51b8152602060048201526013602482015272125b9cdd59999a58da595b9d08189d5919d95d606a1b60448201526064016103ae565b80826003016000828254610e979190611bf6565b9250508190555083836002016000828254610eb29190611c09565b9250508190555080836003016000828254610ecd9190611c09565b9250508190555083826005016000828254610ee89190611c09565b9250508190555080826006016000828254610f039190611c09565b9091555050600054600184015460405163a9059cbb60e01b81526001600160a01b0391821660048201526024810184905291169063a9059cbb90604401602060405180830381600087803b158015610faa5760405162461bcd60e51b815260206004820152602560248201527f54617267657420636f6e747261637420646f6573206e6f7420636f6e7461696e604482019081526420636f646560d81b6064830152608482fd5b505af1158015610fbe573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610fe291906119e1565b6110275760405162461bcd60e51b815260206004820152601660248201527514995dd85c99081d1c985b9cd9995c8819985a5b195960521b60448201526064016103ae565b8160040154826003015410156110445760078201805460ff191690555b505060019093019250610d2e915050565b5050505050565b60606000805b6007548110156110c25760006007828154811061108157611081611bc9565b6000918252602080832090910154808352600190915260409091206007015490915060ff16156110b957826110b581611a1c565b9350505b50600101611062565b5060008167ffffffffffffffff8111156110de576110de611a35565b60405190808252806020026020018201604052801561111757816020015b61110461147b565b8152602001906001900390816110fc5790505b5090506000805b6007548110156112a25760006007828154811061113d5761113d611bc9565b6000918252602080832090910154808352600190915260409091206007015490915060ff16156112995760008181526001602081815260409283902083516101008101855281548152928101546001600160a01b03169183019190915260028101805492939192918401916111b190611a4b565b80601f01602080910402602001604051908101604052809291908181526020018280546111dd90611a4b565b801561122a5780601f106111ff5761010080835404028352916020019161122a565b820191906000526020600020905b81548152906001019060200180831161120d57829003601f168201915b50505091835250506003820154602082015260048201546040820152600582015460608201526006820154608082015260079091015460ff16151560a090910152845185908590811061127f5761127f611bc9565b6020026020010181905250828061129590611a1c565b9350505b5060010161111e565b50909392505050565b6001600160a01b038116600090815260086020526040812080546060929067ffffffffffffffff8111156112e1576112e1611a35565b60405190808252806020026020018201604052801561131a57816020015b61130761147b565b8152602001906001900390816112ff5790505b50905060005b825481101561147357600083828154811061133d5761133d611bc9565b6000918252602080832090910154808352600180835260409384902084516101008101865281548152918101546001600160a01b031693820193909352600283018054929550909384019161139190611a4b565b80601f01602080910402602001604051908101604052809291908181526020018280546113bd90611a4b565b801561140a5780601f106113df5761010080835404028352916020019161140a565b820191906000526020600020905b8154815290600101906020018083116113ed57829003601f168201915b50505091835250506003820154602082015260048201546040820152600582015460608201526006820154608082015260079091015460ff16151560a090910152835184908490811061145f5761145f611bc9565b602090810291909101015250600101611320565b509392505050565b6040518061010001604052806000815260200160006001600160a01b0316815260200160608152602001600081526020016000815260200160008152602001600081526020016000151581525090565b60405162461bcd60e51b815260206004820152602260248201527f414249206465636f64696e673a207475706c65206461746120746f6f2073686f6044820152611c9d60f21b6064820152608481fd5b60405162461bcd60e51b815260206004820152602260248201527f414249206465636f64696e673a20696e76616c6964207475706c65206f666673604482015261195d60f21b6064820152608481fd5b60405162461bcd60e51b815260206004820152602b60248201527f414249206465636f64696e673a20696e76616c69642063616c6c64617461206160448201526a1c9c985e481bd9999cd95d60aa1b6064820152608481fd5b60405162461bcd60e51b815260206004820152602b60248201527f414249206465636f64696e673a20696e76616c69642063616c6c64617461206160448201526a0e4e4c2f240d8cadccee8d60ab1b6064820152608481fd5b60405162461bcd60e51b815260206004820152602b60248201527f414249206465636f64696e673a20696e76616c69642063616c6c64617461206160448201526a727261792073747269646560a81b6064820152608481fd5b6000806000806060858703121561168f5761168f6114cb565b843567ffffffffffffffff808211156116aa576116aa61151b565b818701915087601f8301126116c1576116c161156b565b8135818111156116d3576116d36115c4565b8860208285010111156116e8576116e861161d565b6020928301999098509187013596604001359550909350505050565b600060208284031215611719576117196114cb565b5035919050565b6000815180845260005b818110156117465760208185018101518683018201520161172a565b506000602082860101526020601f19601f83011685010191505092915050565b8881526001600160a01b0388166020820152610100604082018190526000906117918382018a611720565b60608401989098525050608081019490945260a084019290925260c0830152151560e0909101529392505050565b80356001600160a01b03811681146117d657600080fd5b919050565b600080604083850312156117f1576117f16114cb565b6117fa836117bf565b946020939093013593505050565b60006101008251845260018060a01b036020840151166020850152604083015181604086015261183a82860182611720565b915050606083015160608501526080830151608085015260a083015160a085015260c083015160c085015260e0830151151560e08501528091505092915050565b60208152600061188e6020830184611808565b9392505050565b600060208083016020845280855180835260408601915060408160051b87010192506020870160005b828110156118ec57603f198886030184526118da858351611808565b945092850192908501906001016118be565b5092979650505050505050565b60008083601f84011261190e5761190e61156b565b50813567ffffffffffffffff811115611929576119296115c4565b6020830191508360208260051b85010111156119475761194761161d565b9250929050565b60008060008060408587031215611967576119676114cb565b843567ffffffffffffffff808211156119825761198261151b565b61198e888389016118f9565b909650945060208701359150808211156119aa576119aa61151b565b506119b7878288016118f9565b95989497509550505050565b6000602082840312156119d8576119d86114cb565b61188e826117bf565b6000602082840312156119f6576119f66114cb565b8151801515811461188e57600080fd5b634e487b7160e01b600052601160045260246000fd5b600060018201611a2e57611a2e611a06565b5060010190565b634e487b7160e01b600052604160045260246000fd5b600181811c90821680611a5f57607f821691505b602082108103610c9457634e487b7160e01b600052602260045260246000fd5b601f821115611acb576000816000526020600020601f850160051c81016020861015611aa85750805b601f850160051c820191505b81811015611ac757828155600101611ab4565b5050505b505050565b815167ffffffffffffffff811115611aea57611aea611a35565b611afe81611af88454611a4b565b84611a7f565b602080601f831160018114611b335760008415611b1b5750858301515b600019600386901b1c1916600185901b178555611ac7565b600085815260208120601f198616915b82811015611b6257888601518255948401946001909101908401611b43565b5085821015611b805787850151600019600388901b60f8161c191681555b5050505050600190811b01905550565b604081528260408201528284606083013760006060848301015260006060601f19601f8601168301019050826020830152949350505050565b634e487b7160e01b600052603260045260246000fd5b8082028115828204841417610ad957610ad9611a06565b81810381811115610ad957610ad9611a06565b80820180821115610ad957610ad9611a0656fea2646970667358221220837bf8d58200f1805c079a6713debd3c9de0a7012ffc3d76f09bcda5511d6a4664736f6c63430008160033",
+  "deployedBytecode": "0x608060405234801561005d5760405162461bcd60e51b815260206004820152602260248201527f45746865722073656e7420746f206e6f6e2d70617961626c652066756e637469604482019081526137b760f11b6064830152608482fd5b50600436106101425760003560e01c806387e985e6116100e4578063c5c6744c116100b3578063c5c6744c14610321578063d04fe10714610334578063da05ae331461033c578063f851a4401461034f57610142565b806387e985e6146102885780639c89dcf31461029b578063b6f1d890146102a4578063b79f44231461030c57610142565b806311a7a4c01161012057806311a7a4c01461020357806313f5770a1461022a57806364594142146102555780637ede1c071461026857610142565b806307264806146101a757806309bca048146101bc57806310f4069d146101d8575b60405162461bcd60e51b815260206004820152603560248201527f436f6e747261637420646f6573206e6f7420686176652066616c6c6261636b2060448201908152746e6f7220726563656976652066756e6374696f6e7360581b6064830152608482fd5b6101ba6101b5366004611676565b610362565b005b6101c560055481565b6040519081526020015b60405180910390f35b6000546101eb906001600160a01b031681565b6040516001600160a01b0390911681526020016101cf565b610216610211366004611704565b6106f6565b6040516101cf989796959493929190611766565b6101c56102383660046117db565b600360209081526000928352604080842090915290825290205481565b6101c5610263366004611704565b6107ce565b61027b610276366004611704565b610954565b6040516101cf919061187b565b6101c56102963660046117db565b610ab4565b6101c560045481565b6102e46102b2366004611704565b6002602081905260009182526040909120805460018201549282015460039092015490926001600160a01b0316919084565b604080519485526001600160a01b0390931660208501529183015260608201526080016101cf565b610314610adf565b6040516101cf9190611895565b6101ba61032f36600461194e565b610c9a565b61031461105c565b61031461034a3660046119c3565b6112ab565b6006546101eb906001600160a01b031681565b600082116103b75760405162461bcd60e51b815260206004820152601d60248201527f427564676574206d7573742062652067726561746572207468616e203000000060448201526064015b60405180910390fd5b600081116104155760405162461bcd60e51b815260206004820152602560248201527f436f73742070657220636c69636b206d75737420626520677265617465722074604482015264068616e20360dc1b60648201526084016103ae565b6000546040516323b872dd60e01b8152336004820152306024820152604481018490526001600160a01b03909116906323b872dd90606401602060405180830381600087803b1580156104b75760405162461bcd60e51b815260206004820152602560248201527f54617267657420636f6e747261637420646f6573206e6f7420636f6e7461696e604482019081526420636f646560d81b6064830152608482fd5b505af11580156104cb573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906104ef91906119e1565b6105345760405162461bcd60e51b8152602060048201526016602482015275109d5919d95d081d1c985b9cd9995c8819985a5b195960521b60448201526064016103ae565b6004805490600061054483611a1c565b91905055506040518061010001604052806004548152602001336001600160a01b0316815260200185858080601f0160208091040260200160405190810160405280939291908181526020018383808284376000920182905250938552505050602080830186905260408084018690526060840183905260808401839052600160a0909401849052600454835283825291829020845181559084015192810180546001600160a01b0319166001600160a01b039094169390931790925582015160028201906106139082611ad0565b5060608201516003820155608082015160048083019190915560a0830151600583015560c0830151600683015560e0909201516007918201805460ff19169115159190911790558154815460018181019093557fa66cc928b5edb82af9bd49922954155ab7b0942694bea4ce44661d9a8736c68801819055336000818152600860209081526040808320805496870181558352912090930182905592549151909291907f2e27350385f954021267dd856010ad40c54ec2de5219a0654536ac5fff0ae861906106e790899089908990611b90565b60405180910390a35050505050565b60016020819052600091825260409091208054918101546002820180546001600160a01b03909216929161072990611a4b565b80601f016020809104026020016040519081016040528092919081815260200182805461075590611a4b565b80156107a25780601f10610777576101008083540402835291602001916107a2565b820191906000526020600020905b81548152906001019060200180831161078557829003601f168201915b505050600384015460048501546005860154600687015460079097015495969295919450925060ff1688565b60008181526001602052604081206007015460ff166108225760405162461bcd60e51b815260206004820152601060248201526f4164206973206e6f742061637469766560801b60448201526064016103ae565b3360009081526003602090815260408083208584529091529020541561088a5760405162461bcd60e51b815260206004820152601c60248201527f4c696e6b20616c72656164792065786973747320666f7220757365720000000060448201526064016103ae565b6005805490600061089a83611a1c565b90915550506040805160808101825283815233602080830182815260008486018181526060860182815260058054845260028087528985209851895594516001890180546001600160a01b0319166001600160a01b0390921691909117905591519387019390935591516003958601559054838252938252848120878252909152838120839055925190928592917f5736947fc0a4b3d747b2a48ffae02a2e78f2cd83fb511fbbf5dfdd3c93f5c2d39190a4505060055490565b61095c61147b565b60008211801561096e57506004548211155b6109aa5760405162461bcd60e51b815260206004820152600d60248201526c125b9d985b1a59081859081251609a1b60448201526064016103ae565b60008281526001602081815260409283902083516101008101855281548152928101546001600160a01b03169183019190915260028101805492939192918401916109f490611a4b565b80601f0160208091040260200160405190810160405280929190818152602001828054610a2090611a4b565b8015610a6d5780601f10610a4257610100808354040283529160200191610a6d565b820191906000526020600020905b815481529060010190602001808311610a5057829003601f168201915b50505091835250506003820154602082015260048201546040820152600582015460608201526006820154608082015260079091015460ff16151560a09091015292915050565b6001600160a01b03821660009081526003602090815260408083208484529091529020545b92915050565b60075460609060009067ffffffffffffffff811115610b0057610b00611a35565b604051908082528060200260200182016040528015610b3957816020015b610b2661147b565b815260200190600190039081610b1e5790505b50905060005b600754811015610c9457600060078281548110610b5e57610b5e611bc9565b6000918252602080832090910154808352600180835260409384902084516101008101865281548152918101546001600160a01b0316938201939093526002830180549295509093840191610bb290611a4b565b80601f0160208091040260200160405190810160405280929190818152602001828054610bde90611a4b565b8015610c2b5780601f10610c0057610100808354040283529160200191610c2b565b820191906000526020600020905b815481529060010190602001808311610c0e57829003601f168201915b50505091835250506003820154602082015260048201546040820152600582015460608201526006820154608082015260079091015460ff16151560a0909101528351849084908110610c8057610c80611bc9565b602090810291909101015250600101610b3f565b50919050565b6006546001600160a01b03163314610ce35760405162461bcd60e51b815260206004820152600c60248201526b2737ba1030b71030b236b4b760a11b60448201526064016103ae565b828114610d2b5760405162461bcd60e51b8152602060048201526016602482015275082e4e4c2f240d8cadccee8d0e640dad2e6dac2e8c6d60531b60448201526064016103ae565b60005b83811015611055576000858583818110610d4a57610d4a611bc9565b9050602002013590506000848484818110610d6757610d67611bc9565b6000858152600260209081526040909120600181015492909102939093013593506001600160a01b03169050610dce5760405162461bcd60e51b815260206004820152600c60248201526b496e76616c6964206c696e6b60a01b60448201526064016103ae565b80546000908152600160205260409020600781015460ff16610e255760405162461bcd60e51b815260206004820152601060248201526f4164206973206e6f742061637469766560801b60448201526064016103ae565b6000816004015484610e379190611bdf565b90508082600301541015610e835760405162461bcd60e51b8152602060048201526013602482015272125b9cdd59999a58da595b9d08189d5919d95d606a1b60448201526064016103ae565b80826003016000828254610e979190611bf6565b9250508190555083836002016000828254610eb29190611c09565b9250508190555080836003016000828254610ecd9190611c09565b9250508190555083826005016000828254610ee89190611c09565b9250508190555080826006016000828254610f039190611c09565b9091555050600054600184015460405163a9059cbb60e01b81526001600160a01b0391821660048201526024810184905291169063a9059cbb90604401602060405180830381600087803b158015610faa5760405162461bcd60e51b815260206004820152602560248201527f54617267657420636f6e747261637420646f6573206e6f7420636f6e7461696e604482019081526420636f646560d81b6064830152608482fd5b505af1158015610fbe573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610fe291906119e1565b6110275760405162461bcd60e51b815260206004820152601660248201527514995dd85c99081d1c985b9cd9995c8819985a5b195960521b60448201526064016103ae565b8160040154826003015410156110445760078201805460ff191690555b505060019093019250610d2e915050565b5050505050565b60606000805b6007548110156110c25760006007828154811061108157611081611bc9565b6000918252602080832090910154808352600190915260409091206007015490915060ff16156110b957826110b581611a1c565b9350505b50600101611062565b5060008167ffffffffffffffff8111156110de576110de611a35565b60405190808252806020026020018201604052801561111757816020015b61110461147b565b8152602001906001900390816110fc5790505b5090506000805b6007548110156112a25760006007828154811061113d5761113d611bc9565b6000918252602080832090910154808352600190915260409091206007015490915060ff16156112995760008181526001602081815260409283902083516101008101855281548152928101546001600160a01b03169183019190915260028101805492939192918401916111b190611a4b565b80601f01602080910402602001604051908101604052809291908181526020018280546111dd90611a4b565b801561122a5780601f106111ff5761010080835404028352916020019161122a565b820191906000526020600020905b81548152906001019060200180831161120d57829003601f168201915b50505091835250506003820154602082015260048201546040820152600582015460608201526006820154608082015260079091015460ff16151560a090910152845185908590811061127f5761127f611bc9565b6020026020010181905250828061129590611a1c565b9350505b5060010161111e565b50909392505050565b6001600160a01b038116600090815260086020526040812080546060929067ffffffffffffffff8111156112e1576112e1611a35565b60405190808252806020026020018201604052801561131a57816020015b61130761147b565b8152602001906001900390816112ff5790505b50905060005b825481101561147357600083828154811061133d5761133d611bc9565b6000918252602080832090910154808352600180835260409384902084516101008101865281548152918101546001600160a01b031693820193909352600283018054929550909384019161139190611a4b565b80601f01602080910402602001604051908101604052809291908181526020018280546113bd90611a4b565b801561140a5780601f106113df5761010080835404028352916020019161140a565b820191906000526020600020905b8154815290600101906020018083116113ed57829003601f168201915b50505091835250506003820154602082015260048201546040820152600582015460608201526006820154608082015260079091015460ff16151560a090910152835184908490811061145f5761145f611bc9565b602090810291909101015250600101611320565b509392505050565b6040518061010001604052806000815260200160006001600160a01b0316815260200160608152602001600081526020016000815260200160008152602001600081526020016000151581525090565b60405162461bcd60e51b815260206004820152602260248201527f414249206465636f64696e673a207475706c65206461746120746f6f2073686f6044820152611c9d60f21b6064820152608481fd5b60405162461bcd60e51b815260206004820152602260248201527f414249206465636f64696e673a20696e76616c6964207475706c65206f666673604482015261195d60f21b6064820152608481fd5b60405162461bcd60e51b815260206004820152602b60248201527f414249206465636f64696e673a20696e76616c69642063616c6c64617461206160448201526a1c9c985e481bd9999cd95d60aa1b6064820152608481fd5b60405162461bcd60e51b815260206004820152602b60248201527f414249206465636f64696e673a20696e76616c69642063616c6c64617461206160448201526a0e4e4c2f240d8cadccee8d60ab1b6064820152608481fd5b60405162461bcd60e51b815260206004820152602b60248201527f414249206465636f64696e673a20696e76616c69642063616c6c64617461206160448201526a727261792073747269646560a81b6064820152608481fd5b6000806000806060858703121561168f5761168f6114cb565b843567ffffffffffffffff808211156116aa576116aa61151b565b818701915087601f8301126116c1576116c161156b565b8135818111156116d3576116d36115c4565b8860208285010111156116e8576116e861161d565b6020928301999098509187013596604001359550909350505050565b600060208284031215611719576117196114cb565b5035919050565b6000815180845260005b818110156117465760208185018101518683018201520161172a565b506000602082860101526020601f19601f83011685010191505092915050565b8881526001600160a01b0388166020820152610100604082018190526000906117918382018a611720565b60608401989098525050608081019490945260a084019290925260c0830152151560e0909101529392505050565b80356001600160a01b03811681146117d657600080fd5b919050565b600080604083850312156117f1576117f16114cb565b6117fa836117bf565b946020939093013593505050565b60006101008251845260018060a01b036020840151166020850152604083015181604086015261183a82860182611720565b915050606083015160608501526080830151608085015260a083015160a085015260c083015160c085015260e0830151151560e08501528091505092915050565b60208152600061188e6020830184611808565b9392505050565b600060208083016020845280855180835260408601915060408160051b87010192506020870160005b828110156118ec57603f198886030184526118da858351611808565b945092850192908501906001016118be565b5092979650505050505050565b60008083601f84011261190e5761190e61156b565b50813567ffffffffffffffff811115611929576119296115c4565b6020830191508360208260051b85010111156119475761194761161d565b9250929050565b60008060008060408587031215611967576119676114cb565b843567ffffffffffffffff808211156119825761198261151b565b61198e888389016118f9565b909650945060208701359150808211156119aa576119aa61151b565b506119b7878288016118f9565b95989497509550505050565b6000602082840312156119d8576119d86114cb565b61188e826117bf565b6000602082840312156119f6576119f66114cb565b8151801515811461188e57600080fd5b634e487b7160e01b600052601160045260246000fd5b600060018201611a2e57611a2e611a06565b5060010190565b634e487b7160e01b600052604160045260246000fd5b600181811c90821680611a5f57607f821691505b602082108103610c9457634e487b7160e01b600052602260045260246000fd5b601f821115611acb576000816000526020600020601f850160051c81016020861015611aa85750805b601f850160051c820191505b81811015611ac757828155600101611ab4565b5050505b505050565b815167ffffffffffffffff811115611aea57611aea611a35565b611afe81611af88454611a4b565b84611a7f565b602080601f831160018114611b335760008415611b1b5750858301515b600019600386901b1c1916600185901b178555611ac7565b600085815260208120601f198616915b82811015611b6257888601518255948401946001909101908401611b43565b5085821015611b805787850151600019600388901b60f8161c191681555b5050505050600190811b01905550565b604081528260408201528284606083013760006060848301015260006060601f19601f8601168301019050826020830152949350505050565b634e487b7160e01b600052603260045260246000fd5b8082028115828204841417610ad957610ad9611a06565b81810381811115610ad957610ad9611a06565b80820180821115610ad957610ad9611a0656fea2646970667358221220837bf8d58200f1805c079a6713debd3c9de0a7012ffc3d76f09bcda5511d6a4664736f6c63430008160033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 30,
+        "contract": "contracts/AdAlliance.sol:AdAlliance",
+        "label": "dftToken",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_contract(IERC20)695"
+      },
+      {
+        "astId": 35,
+        "contract": "contracts/AdAlliance.sol:AdAlliance",
+        "label": "ads",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_uint256,t_struct(Ad)18_storage)"
+      },
+      {
+        "astId": 40,
+        "contract": "contracts/AdAlliance.sol:AdAlliance",
+        "label": "adLinks",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_uint256,t_struct(AdLink)27_storage)"
+      },
+      {
+        "astId": 46,
+        "contract": "contracts/AdAlliance.sol:AdAlliance",
+        "label": "userAdLinks",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))"
+      },
+      {
+        "astId": 48,
+        "contract": "contracts/AdAlliance.sol:AdAlliance",
+        "label": "adCount",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 50,
+        "contract": "contracts/AdAlliance.sol:AdAlliance",
+        "label": "linkCounter",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 52,
+        "contract": "contracts/AdAlliance.sol:AdAlliance",
+        "label": "admin",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_address"
+      },
+      {
+        "astId": 55,
+        "contract": "contracts/AdAlliance.sol:AdAlliance",
+        "label": "allAdIds",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_array(t_uint256)dyn_storage"
+      },
+      {
+        "astId": 60,
+        "contract": "contracts/AdAlliance.sol:AdAlliance",
+        "label": "userAds",
+        "offset": 0,
+        "slot": "8",
+        "type": "t_mapping(t_address,t_array(t_uint256)dyn_storage)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_uint256)dyn_storage": {
+        "base": "t_uint256",
+        "encoding": "dynamic_array",
+        "label": "uint256[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_contract(IERC20)695": {
+        "encoding": "inplace",
+        "label": "contract IERC20",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_array(t_uint256)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_uint256)dyn_storage"
+      },
+      "t_mapping(t_address,t_mapping(t_uint256,t_uint256))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(uint256 => uint256))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_uint256,t_uint256)"
+      },
+      "t_mapping(t_uint256,t_struct(Ad)18_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => struct AdAlliance.Ad)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Ad)18_storage"
+      },
+      "t_mapping(t_uint256,t_struct(AdLink)27_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => struct AdAlliance.AdLink)",
+        "numberOfBytes": "32",
+        "value": "t_struct(AdLink)27_storage"
+      },
+      "t_mapping(t_uint256,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_struct(Ad)18_storage": {
+        "encoding": "inplace",
+        "label": "struct AdAlliance.Ad",
+        "members": [
+          {
+            "astId": 3,
+            "contract": "contracts/AdAlliance.sol:AdAlliance",
+            "label": "id",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 5,
+            "contract": "contracts/AdAlliance.sol:AdAlliance",
+            "label": "advertiser",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address"
+          },
+          {
+            "astId": 7,
+            "contract": "contracts/AdAlliance.sol:AdAlliance",
+            "label": "imageUrl",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 9,
+            "contract": "contracts/AdAlliance.sol:AdAlliance",
+            "label": "budget",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 11,
+            "contract": "contracts/AdAlliance.sol:AdAlliance",
+            "label": "costPerClick",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 13,
+            "contract": "contracts/AdAlliance.sol:AdAlliance",
+            "label": "totalClicks",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 15,
+            "contract": "contracts/AdAlliance.sol:AdAlliance",
+            "label": "totalReward",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 17,
+            "contract": "contracts/AdAlliance.sol:AdAlliance",
+            "label": "isActive",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "256"
+      },
+      "t_struct(AdLink)27_storage": {
+        "encoding": "inplace",
+        "label": "struct AdAlliance.AdLink",
+        "members": [
+          {
+            "astId": 20,
+            "contract": "contracts/AdAlliance.sol:AdAlliance",
+            "label": "adId",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 22,
+            "contract": "contracts/AdAlliance.sol:AdAlliance",
+            "label": "user",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address"
+          },
+          {
+            "astId": 24,
+            "contract": "contracts/AdAlliance.sol:AdAlliance",
+            "label": "clicks",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 26,
+            "contract": "contracts/AdAlliance.sol:AdAlliance",
+            "label": "rewards",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

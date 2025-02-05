@@ -1,0 +1,39 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/AdAlliance.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ncontract AdAlliance {\n    struct Ad {\n        uint256 id;\n        address advertiser;\n        string imageUrl;\n        uint256 budget;\n        uint256 costPerClick;\n        uint256 totalClicks;\n        uint256 totalReward;\n        bool isActive;\n    }\n\n    // Store link info\n    struct AdLink {\n        uint256 adId;\n        address user;\n        uint256 clicks;\n        uint256 rewards;\n    }\n\n    // Token used for settlement\n    IERC20 public dftToken;\n\n    // Mappings for ads and user associations\n    // adId => Ad\n    mapping(uint256 => Ad) public ads;\n    // linkId => AdLink\n    mapping(uint256 => AdLink) public adLinks;\n    // user => adId => linkId (to prevent duplicate links)\n    mapping(address => mapping(uint256 => uint256)) public userAdLinks;\n\n    uint256 public adCount;\n    uint256 public linkCounter;\n\n    address public admin;\n\n    // Track all ad IDs\n    uint256[] private allAdIds;\n    \n    // Track user's ads\n    // user => adId\n    mapping(address => uint256[]) private userAds;\n\n    // Events\n    event AdCreated(uint256 indexed adId, address indexed advertiser, string imageUrl, uint256 budget);\n    event AdUpdated(uint256 indexed adId, bool isActive, uint256 budget);\n    event LinkGenerated(uint256 indexed linkId, uint256 indexed adId, address indexed user);\n    event ClicksSettled(uint256 indexed linkId, uint256 indexed clickCounts);\n\n    constructor(address _dftTokenAddress) {\n        dftToken = IERC20(_dftTokenAddress);\n        admin = msg.sender;\n    }\n\n    modifier onlyAdvertiser(uint256 _adId) {\n        require(ads[_adId].advertiser == msg.sender, \"Not the advertiser\");\n        _;\n    }\n\n    modifier onlyAdmin() {\n        require(msg.sender == admin, \"Not an admin\");\n        _;\n    }\n\n    // 1. Create a new ad\n    function createAd( \n        string calldata _imageUrl,\n        uint256 _budget, \n        uint256 _costPerClick\n    ) external {\n        require(_budget > 0, \"Budget must be greater than 0\");\n        require(_costPerClick > 0, \"Cost per click must be greater than 0\");\n        require(dftToken.transferFrom(msg.sender, address(this), _budget), \"Budget transfer failed\");\n\n        adCount++;\n        ads[adCount] = Ad({\n            id: adCount,\n            advertiser: msg.sender,            \n            imageUrl: _imageUrl,\n            budget: _budget,\n            costPerClick: _costPerClick,\n            totalClicks: 0,\n            totalReward: 0,\n            isActive: true\n        });\n\n        uint256 newAdId = adCount;\n        allAdIds.push(newAdId);\n        userAds[msg.sender].push(newAdId);\n\n        emit AdCreated(adCount, msg.sender, _imageUrl, _budget);\n    }\n\n    // 2. Generate a unique link for a user\n    function generateAdLink(uint256 _adId) external returns (uint256) {\n        require(ads[_adId].isActive, \"Ad is not active\");\n        require(userAdLinks[msg.sender][_adId] == 0, \"Link already exists for user\");\n\n        linkCounter++;\n        adLinks[linkCounter] = AdLink({\n            adId: _adId,\n            user: msg.sender,\n            clicks: 0,\n            rewards: 0\n        });\n        userAdLinks[msg.sender][_adId] = linkCounter;\n\n        emit LinkGenerated(linkCounter, _adId, msg.sender);\n        return linkCounter;\n    }\n\n    // 3. Settle daily clicks and distribute rewards\n    function settleClicks(uint256[] calldata linkIds, uint256[] calldata clickCounts) external onlyAdmin {\n        require(linkIds.length == clickCounts.length, \"Array lengths mismatch\");\n\n        for (uint256 i = 0; i < linkIds.length; i++) {\n            uint256 linkId = linkIds[i];\n            uint256 clicks = clickCounts[i];\n            \n            AdLink storage link = adLinks[linkId];\n            require(link.user != address(0), \"Invalid link\");\n            \n            Ad storage ad = ads[link.adId];\n            require(ad.isActive, \"Ad is not active\");\n\n            uint256 reward = clicks * ad.costPerClick;\n            require(ad.budget >= reward, \"Insufficient budget\");\n\n            ad.budget -= reward;\n            link.clicks += clicks;\n            link.rewards += reward;\n            ad.totalClicks += clicks;\n            ad.totalReward += reward;\n\n            // Transfer reward to user\n            require(dftToken.transfer(link.user, reward), \"Reward transfer failed\");\n\n            if (ad.budget < ad.costPerClick) {\n                ad.isActive = false;\n            }\n        }\n\n    }\n\n    // Get all ads\n    function getAllAds() external view returns (Ad[] memory) {\n        Ad[] memory allAds = new Ad[](allAdIds.length);\n        \n        for (uint256 i = 0; i < allAdIds.length; i++) {\n            uint256 adId = allAdIds[i];\n            allAds[i] = ads[adId];\n        }\n        \n        return allAds;\n    }\n\n    // Get user's ads\n    function getUserAds(address _user) external view returns (Ad[] memory) {\n        uint256[] storage userAdIds = userAds[_user];\n        Ad[] memory userAdList = new Ad[](userAdIds.length);\n        \n        for (uint256 i = 0; i < userAdIds.length; i++) {\n            uint256 adId = userAdIds[i];\n            userAdList[i] = ads[adId];\n        }\n        \n        return userAdList;\n    }\n\n    // Get single ad\n    function getAd(uint256 _adId) external view returns (Ad memory) {\n        require(_adId > 0 && _adId <= adCount, \"Invalid ad ID\");\n        return ads[_adId];\n    }\n    // get userAdLinks\n    function getUserAdLink(address _user, uint256 _adId) external view returns (uint256) {\n        return userAdLinks[_user][_adId];\n    }\n\n    // Get active ads\n    function getActiveAds() external view returns (Ad[] memory) {\n        uint256 activeCount = 0;\n        for (uint256 i = 0; i < allAdIds.length; i++) {\n            uint256 adId = allAdIds[i];\n            if (ads[adId].isActive) {\n                activeCount++;\n            }\n        }\n\n        Ad[] memory activeAds = new Ad[](activeCount);\n        uint256 index = 0;\n        for (uint256 i = 0; i < allAdIds.length; i++) {\n            uint256 adId = allAdIds[i];\n            if (ads[adId].isActive) {\n                activeAds[index] = ads[adId];\n                index++;\n            }\n        }\n        return activeAds;\n    }\n}\n\ninterface IERC20 {\n    function transfer(address recipient, uint256 amount) external returns (bool);\n    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "debug": {
+      "revertStrings": "debug"
+    },
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

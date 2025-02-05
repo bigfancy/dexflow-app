@@ -1,0 +1,48 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/interfaces/IUniswapV2ERC20.sol": {
+      "content": "// SPDX-License-Identifier: GPL-3.0-or-later\n\npragma solidity ^0.8.22;\n\ninterface IUniswapV2ERC20 {\n    event Approval(\n        address indexed owner,\n        address indexed spender,\n        uint256 value\n    );\n    event Transfer(address indexed from, address indexed to, uint256 value);\n\n    function name() external pure returns (string memory);\n\n    function symbol() external pure returns (string memory);\n\n    function decimals() external pure returns (uint8);\n\n    function totalSupply() external view returns (uint256);\n\n    function balanceOf(address owner) external view returns (uint256);\n\n    function allowance(\n        address owner,\n        address spender\n    ) external view returns (uint256);\n\n    function approve(address spender, uint256 value) external returns (bool);\n\n    function transfer(address to, uint256 value) external returns (bool);\n\n    function transferFrom(\n        address from,\n        address to,\n        uint256 value\n    ) external returns (bool);\n\n    function DOMAIN_SEPARATOR() external view returns (bytes32);\n\n    function PERMIT_TYPEHASH() external pure returns (bytes32);\n\n    function nonces(address owner) external view returns (uint256);\n\n    function permit(\n        address owner,\n        address spender,\n        uint256 value,\n        uint256 deadline,\n        uint8 v,\n        bytes32 r,\n        bytes32 s\n    ) external;\n}\n"
+    },
+    "contracts/interfaces/IUniswapV2Factory.sol": {
+      "content": "// SPDX-License-Identifier: GPL-3.0-or-later\n\npragma solidity ^0.8.22;\n\ninterface IUniswapV2Factory {\n    event PairCreated(\n        address indexed token0,\n        address indexed token1,\n        address pair,\n        uint256\n    );\n\n    function feeTo() external view returns (address);\n\n    function feeToSetter() external view returns (address);\n\n    function getPair(\n        address tokenA,\n        address tokenB\n    ) external view returns (address pair);\n\n    function allPairs(uint256) external view returns (address pair);\n\n    function allPairsLength() external view returns (uint256);\n\n    function createPair(\n        address tokenA,\n        address tokenB\n    ) external returns (address pair);\n\n    function setFeeTo(address) external;\n\n    function setFeeToSetter(address) external;\n}\n"
+    },
+    "contracts/interfaces/IUniswapV2Pair.sol": {
+      "content": "// SPDX-License-Identifier: GPL-3.0-or-later\n\npragma solidity ^0.8.22;\n\nimport {IUniswapV2ERC20} from \"./IUniswapV2ERC20.sol\";\n\ninterface IUniswapV2Pair is IUniswapV2ERC20 {\n    event Mint(address indexed sender, uint256 amount0, uint256 amount1);\n    event Burn(\n        address indexed sender,\n        uint256 amount0,\n        uint256 amount1,\n        address indexed to\n    );\n    event Swap(\n        address indexed sender,\n        uint256 amount0In,\n        uint256 amount1In,\n        uint256 amount0Out,\n        uint256 amount1Out,\n        address indexed to\n    );\n    event Sync(uint112 reserve0, uint112 reserve1);\n\n    function MINIMUM_LIQUIDITY() external pure returns (uint256);\n\n    function factory() external view returns (address);\n\n    function token0() external view returns (address);\n\n    function token1() external view returns (address);\n\n    function getReserves()\n        external\n        view\n        returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);\n\n    function price0CumulativeLast() external view returns (uint256);\n\n    function price1CumulativeLast() external view returns (uint256);\n\n    function kLast() external view returns (uint256);\n\n    function mint(address to) external returns (uint256 liquidity);\n\n    function burn(\n        address to\n    ) external returns (uint256 amount0, uint256 amount1);\n\n    function swap(\n        uint256 amount0Out,\n        uint256 amount1Out,\n        address to,\n        bytes calldata data\n    ) external;\n\n    function skim(address to) external;\n\n    function sync() external;\n\n    function initialize(address, address) external;\n}\n"
+    },
+    "contracts/UniswapV2Query.sol": {
+      "content": "// SPDX-License-Identifier: GPL-3.0-or-later\npragma solidity ^0.8.22;\n\nimport \"./interfaces/IUniswapV2Factory.sol\";\nimport \"./interfaces/IUniswapV2Pair.sol\";\n\ncontract UniswapV2Query {\n    address public immutable factory;\n\n    struct PairInfo {\n        address pair;\n        address token0;\n        address token1;\n        uint112 reserve0;\n        uint112 reserve1;\n        uint256 totalSupply;\n        uint256 lpBalance;\n    }\n\n    constructor(address _factory) {\n        factory = _factory;\n    }\n\n    // 获取完整的流动性池信息\n    function getPairInfo(address tokenA, address tokenB) external view returns (PairInfo memory info) {\n        info.pair = IUniswapV2Factory(factory).getPair(tokenA, tokenB);\n        require(info.pair != address(0), \"UniswapV2: PAIR_DOES_NOT_EXIST\");\n\n        IUniswapV2Pair pair = IUniswapV2Pair(info.pair);\n        info.token0 = pair.token0();\n        info.token1 = pair.token1();\n        (info.reserve0, info.reserve1, ) = pair.getReserves();\n        info.totalSupply = pair.totalSupply();\n        info.lpBalance = pair.balanceOf(msg.sender);\n        \n        return info;\n    }\n\n    // 获取所有流动性池信息\n    function getAllPairsInfo() external view returns (PairInfo[] memory) {\n        uint256 totalPairs = IUniswapV2Factory(factory).allPairsLength();\n        PairInfo[] memory pairsInfo = new PairInfo[](totalPairs);\n\n        for (uint256 i = 0; i < totalPairs; i++) {\n            address pairAddress = IUniswapV2Factory(factory).allPairs(i);\n            IUniswapV2Pair pair = IUniswapV2Pair(pairAddress);\n\n            pairsInfo[i].pair = pairAddress;\n            pairsInfo[i].token0 = pair.token0();\n            pairsInfo[i].token1 = pair.token1();\n            (pairsInfo[i].reserve0, pairsInfo[i].reserve1, ) = pair.getReserves();\n            pairsInfo[i].totalSupply = pair.totalSupply();\n            pairsInfo[i].lpBalance = pair.balanceOf(msg.sender);\n        }\n\n        return pairsInfo;\n    }\n\n\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "debug": {
+      "revertStrings": "debug"
+    },
+    "evmVersion": "paris",
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
