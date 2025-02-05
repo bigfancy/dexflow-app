@@ -68,10 +68,8 @@ The project follows a monorepo structure:
 
 # Introduction
 
-![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/dexflow1.png)
-
-![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/dexflow2.png)
-
-![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/dexflow3.png)
-
-![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/dexflow4.png)
+![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/df1.png)
+![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/df2.png)
+![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/df3.png)
+![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/df4.png)
+![DexFlow](https://raw.githubusercontent.com/bigfancy/dexflow-app/refs/heads/main/packages/nextjs/public/df5.png)
