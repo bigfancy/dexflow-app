@@ -14,11 +14,6 @@ export default function AuctionDetailsPage() {
   const auctionId = Array.isArray(params.id) ? params.id[0] : params.id;
   const auctionType = searchParams.get("auctionType");
 
-  console.log("----------====AuctionDetailsPage auctionType", auctionType);
-  if (!auctionType) {
-    return <div>No auction type provided</div>;
-  }
-
   const [nftAddress, tokenId] = auctionId.split("-");
   const { auctionDetail: englishAuctionDetail, isLoading: englishAuctionLoading } = useFetchEnglishAuctionDetail(
     nftAddress,
@@ -30,6 +25,11 @@ export default function AuctionDetailsPage() {
     tokenId,
   );
   console.log("----------====DutchAuctionDetail", dutchAuctionDetail);
+
+  console.log("----------====AuctionDetailsPage auctionType", auctionType);
+  if (!auctionType) {
+    return <div>No auction type provided</div>;
+  }
 
   if (englishAuctionLoading || dutchAuctionLoading) {
     return (

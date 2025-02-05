@@ -71,4 +71,5 @@ const formatDutchAuction = (auction: any): DutchAuction => ({
   endingAt: auction.endingAt.toString(),
   startingPrice: ethers.formatEther(auction.startingPrice),
   status: auction.status.toString(),
+  discountRate: auction.discountRate.toString(),
 });
