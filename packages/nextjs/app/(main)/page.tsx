@@ -154,7 +154,7 @@ const Home: NextPage = () => {
                     key={index}
                     image={auction.tokenURI || "/placeholder.jpg"}
                     title={auction.tokenId}
-                    currentBid={auction.highestBid || auction.startingPrice}
+                    currentBid={auction.startingPrice}
                     endingAt={Number(auction.endingAt)}
                     auctionType={auction.auctionType === "0" ? "English" : "Dutch"}
                     onClick={() => router.push(`/auctions/${auction.auctionId}`)}
