@@ -1,26 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { log } from "console";
-import { formatDistance } from "date-fns";
 import { motion } from "framer-motion";
 import type { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import SimpleAuctionCard from "~~/components/auction/SimpleAuctionCard";
-import { Address } from "~~/components/scaffold-eth";
-import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
-import { useFetchAuctionList } from "~~/hooks/useAuction";
+import { useFormattedAuctionList } from "~~/hooks/useAuction";
 
 const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
-
   const router = useRouter();
 
-  const { activeAuctions: auctions } = useFetchAuctionList();
+  const { auctions } = useFormattedAuctionList("all");
 
   return (
     <main className="min-h-screen relative">

@@ -35,7 +35,7 @@ async function settleClicks() {
     const wallet = new ethers.Wallet(process.env.ADMIN_PRIVATE_KEY || "", provider);
 
     // 使用 deployedContracts 创建合约实例
-    const chainId = 31337; // hardhat 网络的 chainId
+    const chainId = 17000; // hardhat 网络的 chainId
     const adAllianceContract = deployedContracts[chainId].AdAlliance;
     const adAlliance = new ethers.Contract(adAllianceContract.address, adAllianceContract.abi, wallet);
 

@@ -73,8 +73,8 @@ async function main() {
         try {
             // 添加 DFToken-ETH 流动性
             console.log("Adding DFToken-ETH liquidity...");
-            const dfTokenAmount = ethers.parseEther("100");
-            const ethAmount = ethers.parseEther("1");
+            const dfTokenAmount = ethers.parseEther("10");
+            const ethAmount = ethers.parseEther("0.1");
             
             const tx4 = await router.addLiquidityETH(
                 await dfToken.getAddress(),
@@ -90,50 +90,50 @@ async function main() {
             console.log("DFToken-ETH liquidity added");
 
             // 添加 Token1-ETH 流动性
-            console.log("Adding Token1-ETH liquidity...");
-            const token1Amount = ethers.parseEther("100");
-            const minToken1 = token1Amount;
-            const minEth = ethAmount;
+            // console.log("Adding Token1-ETH liquidity...");
+            // const token1Amount = ethers.parseEther("100");
+            // const minToken1 = token1Amount;
+            // const minEth = ethAmount;
             
-            // 检查 Factory 地址
-            const factoryAddress = await router.factory();
-            console.log("Factory address:", factoryAddress);
+            // // 检查 Factory 地址
+            // const factoryAddress = await router.factory();
+            // console.log("Factory address:", factoryAddress);
 
-            // 检查 ETH 余额
-            const ethBalance = await ethers.provider.getBalance(owner.address);
-            console.log("ETH balance:", ethers.formatEther(ethBalance));
-            console.log("Required ETH:", ethers.formatEther(ethAmount));
+            // // 检查 ETH 余额
+            // const ethBalance = await ethers.provider.getBalance(owner.address);
+            // console.log("ETH balance:", ethers.formatEther(ethBalance));
+            // console.log("Required ETH:", ethers.formatEther(ethAmount));
             
-            const tx5 = await router.addLiquidityETH(
-                token1Address,
-                token1Amount,
-                minToken1,
-                minEth,
-                owner.address,
-                deadline,
-                { value: ethAmount }
-            );
-            // wait for tx to be mined
-            await tx5.wait();
-            console.log("Token1-ETH liquidity added");
+            // const tx5 = await router.addLiquidityETH(
+            //     token1Address,
+            //     token1Amount,
+            //     minToken1,
+            //     minEth,
+            //     owner.address,
+            //     deadline,
+            //     { value: ethAmount }
+            // );
+            // // wait for tx to be mined
+            // await tx5.wait();
+            // console.log("Token1-ETH liquidity added");
 
-            // 添加 Token1-Token2 流动性
-            console.log("Adding Token1-Token2 liquidity...");
-            const token2Amount = ethers.parseEther("100");
+            // // 添加 Token1-Token2 流动性
+            // console.log("Adding Token1-Token2 liquidity...");
+            // const token2Amount = ethers.parseEther("100");
             
-            const tx6 = await router.addLiquidity(
-                await token1.getAddress(),
-                await token2.getAddress(),
-                token1Amount,
-                token2Amount,
-                0, // amountAMin
-                0, // amountBMin
-                owner.address,
-                deadline
-            );
-            // wait for tx to be mined
-            await tx6.wait();
-            console.log("Token1-Token2 liquidity added");
+            // const tx6 = await router.addLiquidity(
+            //     await token1.getAddress(),
+            //     await token2.getAddress(),
+            //     token1Amount,
+            //     token2Amount,
+            //     0, // amountAMin
+            //     0, // amountBMin
+            //     owner.address,
+            //     deadline
+            // );
+            // // wait for tx to be mined
+            // await tx6.wait();
+            // console.log("Token1-Token2 liquidity added");
 
         } catch (error) {
             console.error("Error:", error);

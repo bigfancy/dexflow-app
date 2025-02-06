@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { MdEdit } from "react-icons/md";
-import { formatEther } from "viem";
-import { useAccount } from "wagmi";
+import { Address, formatEther } from "viem";
+import { useAccount, useBalance } from "wagmi";
+import useDFTokenBalance from "~~/hooks/useDFToken";
 import { usePool } from "~~/hooks/usePool";
 import { Token } from "~~/hooks/useTokenList";
 import { notification } from "~~/utils/scaffold-eth";
@@ -16,8 +17,19 @@ interface Step2Props {
 export const Step2 = ({ token0, token1, onEdit }: Step2Props) => {
   const [amount0, setAmount0] = useState("");
   const [amount1, setAmount1] = useState("");
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const { handleAddLiquidity, isLoading, pools } = usePool();
+  //blance
+
+  const { data: balance0 } = useBalance({
+    address: address as Address,
+  });
+  const { balance: balance1 } = useDFTokenBalance(address || "");
+
+  // console.log("pool.token0Address", pools[0].token0Address);
+  // console.log("token0.address", token0.address);
+  // console.log("pool.token1Address", pools[0].token1Address);
+  // console.log("token1.address", token1.address);
 
   // 获取当前交易对的池子信息
   const currentPool = pools.find(
@@ -28,11 +40,13 @@ export const Step2 = ({ token0, token1, onEdit }: Step2Props) => {
 
   // 当 amount0 改变时,计算 amount1
   useEffect(() => {
+    console.log("currentPool", currentPool);
     if (!amount0 || !currentPool) return;
 
     try {
       const amount0Value = parseFloat(amount0);
       if (isNaN(amount0Value)) return;
+      console.log("amount0Value", amount0Value);
 
       // 使用池子中的储备量计算对应的代币数量
       const { reserve0, reserve1 } = currentPool;
@@ -49,7 +63,7 @@ export const Step2 = ({ token0, token1, onEdit }: Step2Props) => {
 
     try {
       await handleAddLiquidity(amount0, amount1, currentPool);
-      notification.success("Successfully added liquidity!");
+      // notification.success("Successfully added liquidity!");
     } catch (error) {
       console.error("Failed to add liquidity:", error);
       notification.error("Failed to add liquidity");
@@ -120,7 +134,9 @@ export const Step2 = ({ token0, token1, onEdit }: Step2Props) => {
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">${amount0 ? "0" : "0"}</span>
             <div className="flex items-center gap-1">
-              <span className="text-gray-500">Balance: 0 {token0.symbol}</span>
+              <span className="text-gray-500">
+                Balance: {parseFloat(formatEther(balance0?.value || 0n)).toFixed(3)} {token0.symbol}
+              </span>
               <button className="text-blue-500 font-medium">Max</button>
             </div>
           </div>
@@ -147,7 +163,9 @@ export const Step2 = ({ token0, token1, onEdit }: Step2Props) => {
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">${amount1 ? "0" : "0"}</span>
             <div className="flex items-center gap-1">
-              <span className="text-gray-500">Balance: 0 {token1.symbol}</span>
+              <span className="text-gray-500">
+                Balance: {balance1} {token1.symbol}
+              </span>
               <button className="text-blue-500 font-medium">Max</button>
             </div>
           </div>

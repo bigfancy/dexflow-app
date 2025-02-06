@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Auction, DutchAuction, EnglishAuction } from "../types/auction-types";
 import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "./scaffold-eth";
@@ -8,7 +8,7 @@ import { Address, formatEther, parseEther, zeroAddress } from "viem";
 import { useAccount } from "wagmi";
 
 // 格式化拍卖对象的函数
-const formatEnglishAuction = (auction: any): EnglishAuction => ({
+export const formatEnglishAuction = (auction: any): EnglishAuction => ({
   auctionType: "0",
   transactionHash: "", // 从事件中获取
   auctionId: `${auction.nftInfo.nftAddress}-${auction.nftInfo.tokenId}`,
@@ -29,7 +29,7 @@ const formatEnglishAuction = (auction: any): EnglishAuction => ({
   })),
 });
 
-const formatDutchAuction = (auction: any): DutchAuction => ({
+export const formatDutchAuction = (auction: any): DutchAuction => ({
   auctionType: "1",
   transactionHash: "", // 从事件中获取
   auctionId: `${auction.nftInfo.nftAddress}-${auction.nftInfo.tokenId}`,
@@ -57,27 +57,10 @@ export const useFetchAuctionList = () => {
     functionName: "getActiveAuctions",
   });
 
-  // 格式化拍卖数据
-  const fetchAuctionList = (auctions: readonly any[], auctionType: "0" | "1"): Auction[] => {
-    if (!auctions) return [];
-    return auctions.map((auction: any) => {
-      if (auctionType === "0") {
-        return formatEnglishAuction(auction);
-      } else {
-        return formatDutchAuction(auction);
-      }
-    });
-  };
-
-  // 合并两种拍卖数据
-  const allAuctions = [
-    ...(activeEnglishAuctions ? fetchAuctionList(activeEnglishAuctions, "0") : []),
-    ...(activeDutchAuctions ? fetchAuctionList(activeDutchAuctions, "1") : []),
-  ];
-
   return {
-    activeAuctions: allAuctions,
-    isLoading: englishAuctionsLoading || dutchAuctionsLoading,
+    activeEnglishAuctions,
+    activeDutchAuctions,
+    isLoading: englishAuctionsLoading && dutchAuctionsLoading,
   };
 };
 
@@ -191,6 +174,7 @@ export const useBid = (nftAddress: string, tokenId: string, bidAmount: string) =
   });
 
   const handleBid = useCallback(async () => {
+    console.log("----------handleBid");
     try {
       // Check if approval is needed
       if (!allowance || allowance < bidAmountBigInt) {
@@ -204,6 +188,7 @@ export const useBid = (nftAddress: string, tokenId: string, bidAmount: string) =
           functionName: "approve",
           args: [EnglishAuctionInfo?.address as Address, bidAmountBigInt],
         });
+        console.log("----------approve", EnglishAuctionInfo?.address);
 
         notification.success({
           message: "DFToken approved successfully!",
@@ -233,5 +218,44 @@ export const useBid = (nftAddress: string, tokenId: string, bidAmount: string) =
   return {
     handleBid,
     isApproving,
+  };
+};
+
+// 合并和格式化拍卖数据的 hook
+export const useFormattedAuctionList = (activeFilter: "all" | "english" | "dutch") => {
+  const { activeEnglishAuctions, activeDutchAuctions, isLoading } = useFetchAuctionList();
+
+  const formatAuctionList = useCallback((auctions: readonly any[], auctionType: "0" | "1"): Auction[] => {
+    if (!auctions) return [];
+    return auctions.map((auction: any) => {
+      if (auctionType === "0") {
+        return formatEnglishAuction(auction);
+      } else {
+        return formatDutchAuction(auction);
+      }
+    });
+  }, []);
+
+  const formattedAuctions = useMemo(() => {
+    if (!activeEnglishAuctions && !activeDutchAuctions) return [];
+
+    // 合并两种拍卖数据
+    const allAuctions = [
+      ...(activeEnglishAuctions ? formatAuctionList(activeEnglishAuctions, "0") : []),
+      ...(activeDutchAuctions ? formatAuctionList(activeDutchAuctions, "1") : []),
+    ];
+
+    // 根据过滤条件筛选
+    return allAuctions.filter(auction => {
+      if (activeFilter === "all") return true;
+      if (activeFilter === "english") return auction.auctionType === "0";
+      if (activeFilter === "dutch") return auction.auctionType === "1";
+      return true;
+    });
+  }, [activeEnglishAuctions, activeDutchAuctions, activeFilter, formatAuctionList]);
+
+  return {
+    auctions: formattedAuctions,
+    isLoading,
   };
 };

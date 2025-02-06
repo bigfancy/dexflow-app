@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Address, formatEther, parseEther } from "viem";
+import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import deployedContracts from "~~/contracts/deployedContracts";
 import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
@@ -19,8 +19,8 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
   const { address, isConnected } = useAccount();
 
   // use deployedContracts
-  const fromTokenAddress = deployedContracts[31337].WETH.address;
-  const toTokenAddress = deployedContracts[31337].DFToken.address;
+  const fromTokenAddress = deployedContracts[17000].WETH.address;
+  const toTokenAddress = deployedContracts[17000].DFToken.address;
 
   // Read amounts out
   const { data: amountsOut } = useScaffoldReadContract({

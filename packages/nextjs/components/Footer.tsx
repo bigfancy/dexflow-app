@@ -1,8 +1,6 @@
 import React from "react";
-import Link from "next/link";
 import ContractTools from "./ContractTools";
 import { FaDiscord, FaGithub } from "react-icons/fa";
-import { hardhat } from "viem/chains";
 
 export default function Footer() {
   return (

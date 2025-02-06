@@ -70,7 +70,7 @@ export const usePool = () => {
   const { data: pairAddress } = useScaffoldReadContract({
     contractName: "UniswapV2Factory",
     functionName: "getPair",
-    args: [deployedContracts[31337].WETH.address, deployedContracts[31337].DFToken.address],
+    args: [deployedContracts[17000].WETH.address, deployedContracts[17000].DFToken.address],
   });
 
   // Handle add liquidity
@@ -91,34 +91,41 @@ export const usePool = () => {
         // if (!pairAddress || pairAddress === "0x0000000000000000000000000000000000000000") {
         //   await createPair({
         //     functionName: "createPair",
-        //     args: [deployedContracts[31337].WETH.address, deployedContracts[31337].DFToken.address],
+        //     args: [deployedContracts[17000].WETH.address, deployedContracts[17000].DFToken.address],
         //   });
         //   notification.success("Trading pair created successfully");
         // }
 
         // 1. 授权代币给 Router
-        await approveToken({
-          functionName: "approve",
-          args: [deployedContracts[31337].UniswapV2Router.address as Address, tokenAmountWei],
-        });
-
-        // 2. 添加 ETH 流动性
-        await addLiquidityETH(
+        await approveToken(
           {
-            functionName: "addLiquidityETH",
-            args: [
-              deployedContracts[31337].DFToken.address, // token address (DFT)
-              tokenAmountWei, // token amount
-              0n, // min token amount (no slippage for first liquidity)
-              0n, // min ETH amount (no slippage for first liquidity)
-              address, // recipient
-              deadline, // deadline
-            ],
-            value: ethAmountWei, // ETH value to send
+            functionName: "approve",
+            args: [deployedContracts[17000].UniswapV2Router.address as Address, tokenAmountWei],
           },
           {
-            onBlockConfirmation: () => {
-              notification.success("Successfully added liquidity!");
+            onBlockConfirmation: async () => {
+              notification.success("Successfully approved token");
+
+              // 2. 添加 ETH 流动性
+              await addLiquidityETH(
+                {
+                  functionName: "addLiquidityETH",
+                  args: [
+                    deployedContracts[17000].DFToken.address, // token address (DFT)
+                    tokenAmountWei, // token amount
+                    0n, // min token amount (no slippage for first liquidity)
+                    0n, // min ETH amount (no slippage for first liquidity)
+                    address, // recipient
+                    deadline, // deadline
+                  ],
+                  value: ethAmountWei, // ETH value to send
+                },
+                {
+                  onBlockConfirmation: async () => {
+                    notification.success("Successfully added liquidity");
+                  },
+                },
+              );
             },
           },
         );
@@ -133,7 +140,7 @@ export const usePool = () => {
         setIsLoading(false);
       }
     },
-    [address, isConnected, addLiquidityETH, approveToken, createPair, pairAddress],
+    [address, isConnected, addLiquidityETH, approveToken],
   );
 
   // Fetch pools data
@@ -154,8 +161,8 @@ export const usePool = () => {
             volume24h: formatEther(allPairsInfo[0].totalSupply),
             token0Icon: "https://token-icons.s3.amazonaws.com/eth.png",
             token1Icon: "/logo1.png",
-            token0Address: deployedContracts[31337].WETH.address,
-            token1Address: deployedContracts[31337].DFToken.address,
+            token0Address: deployedContracts[17000].WETH.address,
+            token1Address: deployedContracts[17000].DFToken.address,
             pairAddress: allPairsInfo[0].pair,
             reserve0: formatEther(allPairsInfo[0].reserve0),
             reserve1: formatEther(allPairsInfo[0].reserve1),
@@ -171,8 +178,8 @@ export const usePool = () => {
           //   volume24h: formatEther(allPairsInfo[1].totalSupply),
           //   token0Icon: "https://token-icons.s3.amazonaws.com/eth.png",
           //   token1Icon: "/logo1.png",
-          //   token0Address: deployedContracts[31337].WETH.address,
-          //   token1Address: deployedContracts[31337].DFToken.address,
+          //   token0Address: deployedContracts[17000].WETH.address,
+          //   token1Address: deployedContracts[17000].DFToken.address,
           //   pairAddress: allPairsInfo[1].pair,
           //   reserve0: formatEther(allPairsInfo[1].reserve0),
           //   reserve1: formatEther(allPairsInfo[1].reserve1),
@@ -214,7 +221,7 @@ export const useRemoveLiquidity = (lpAmount: string, pairAddress: string, token0
   const { data: pairInfo } = useScaffoldReadContract({
     contractName: "UniswapV2Query",
     functionName: "getPairInfo",
-    args: [deployedContracts[31337].WETH.address, deployedContracts[31337].DFToken.address],
+    args: [deployedContracts[17000].WETH.address, deployedContracts[17000].DFToken.address],
   });
 
   const { writeContractAsync: removeLiquidity } = useScaffoldWriteContract({
@@ -264,7 +271,7 @@ export const useRemoveLiquidity = (lpAmount: string, pairAddress: string, token0
       await removeLiquidity({
         functionName: "removeLiquidityETH",
         args: [
-          deployedContracts[31337].DFToken.address as Address,
+          deployedContracts[17000].DFToken.address as Address,
           amountLP,
           minTokens,
           minETH,

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import DutchDetail from "~~/components/auction/DutchDetail";
 import EnglishDetail from "~~/components/auction/EnglishDetail";

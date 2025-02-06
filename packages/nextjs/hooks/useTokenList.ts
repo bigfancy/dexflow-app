@@ -19,10 +19,10 @@ const RECENT_TOKENS_KEY = "recent_tokens";
 const MAX_RECENT_TOKENS = 3;
 
 // 将代币列表定义移到外部
-const getTokenList = (contracts: (typeof deployedContracts)[31337]): Token[] => [
+const getTokenList = (contracts: (typeof deployedContracts)[17000]): Token[] => [
   // 本地部署的代币
   {
-    chainId: 31337,
+    chainId: 17000,
     symbol: "ETH",
     name: "Ethereum",
     // icon: <FaEthereum className="w-6 h-6 text-[#627EEA]" />,
@@ -31,7 +31,7 @@ const getTokenList = (contracts: (typeof deployedContracts)[31337]): Token[] => 
     decimals: 18,
   },
   {
-    chainId: 31337,
+    chainId: 17000,
     symbol: "DFT",
     name: "DAuction Token",
     logoURI: "/logo1.png",
@@ -50,7 +50,7 @@ export const useTokenList = () => {
   useEffect(() => {
     const loadTokens = async () => {
       try {
-        const chainId = 31337;
+        const chainId = 17000;
         const contracts = deployedContracts[chainId];
         setTokens(getTokenList(contracts));
       } catch (error) {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import TokenSelectModal from "../TokenSelectModal";
-import { FaEthereum, FaExchangeAlt } from "react-icons/fa";
+import { FaExchangeAlt } from "react-icons/fa";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { Address, formatEther } from "viem";
 import { useAccount, useBalance } from "wagmi";

@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { log } from "console";
 import { MdAdd } from "react-icons/md";
 import { useAccount } from "wagmi";
 import AdCard from "~~/components/ad/AdCard";

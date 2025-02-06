@@ -44,6 +44,7 @@ export const useSend = (fromToken: Token | null, fromAmount: string, toAddress: 
 
   // 处理发送
   const handleSend = useCallback(async () => {
+    console.log("----------handleSend");
     if (!isConnected || !address || !fromAmount || !toAddress || !fromToken) {
       notification.error("Please connect wallet and enter amount and address");
       return;
@@ -65,6 +66,8 @@ export const useSend = (fromToken: Token | null, fromAmount: string, toAddress: 
 
       if (fromToken.symbol === "ETH") {
         // 直接发送 ETH
+        console.log("----------sendTransactionAsync", toAddress, amountIn);
+
         await sendTransactionAsync({
           to: toAddress as Address,
           value: amountIn,
