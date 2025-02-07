@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Address, formatEther, parseEther } from "viem";
 import { useAccount, useReadContract } from "wagmi";
 import deployedContracts from "~~/contracts/deployedContracts";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
 const LP_ABI = [
@@ -57,7 +57,7 @@ export const usePool = () => {
   });
 
   // Add liquidity ETH
-  const { writeContractAsync: addLiquidityETH } = useScaffoldWriteContract({
+  const { writeContractAsync: addLiquidityETH, isPending: isAddingLiquidity } = useScaffoldWriteContract({
     contractName: "UniswapV2Router",
   });
 
@@ -66,16 +66,34 @@ export const usePool = () => {
     contractName: "UniswapV2Factory",
   });
 
+  // 获取合约信息
+  const { data: WETHInfo } = useDeployedContractInfo({
+    contractName: "WETH",
+  });
+  const { data: DFTokenInfo } = useDeployedContractInfo({
+    contractName: "DFToken",
+  });
+  const { data: UniswapV2RouterInfo } = useDeployedContractInfo({
+    contractName: "UniswapV2Router",
+  });
+
   // Get pair
   const { data: pairAddress } = useScaffoldReadContract({
     contractName: "UniswapV2Factory",
     functionName: "getPair",
-    args: [deployedContracts[17000].WETH.address, deployedContracts[17000].DFToken.address],
+    args: [WETHInfo?.address as Address, DFTokenInfo?.address as Address],
+  });
+
+  // 获取 LP 代币余额和储备量
+  const { data: pairInfo } = useScaffoldReadContract({
+    contractName: "UniswapV2Query",
+    functionName: "getPairInfo",
+    args: [WETHInfo?.address as Address, DFTokenInfo?.address as Address],
   });
 
   // Handle add liquidity
   const handleAddLiquidity = useCallback(
-    async (ethAmount: string, tokenAmount: string, pair: PairInfo) => {
+    async (ethAmount: string, tokenAmount: string, pair: PairInfo, onSuccess?: () => void) => {
       if (!isConnected || !address) {
         notification.error("Please connect wallet");
         return;
@@ -83,56 +101,42 @@ export const usePool = () => {
 
       setIsLoading(true);
       try {
-        const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24); // 24 hours
-        const tokenAmountWei = parseEther(tokenAmount); // DFT amount
-        const ethAmountWei = parseEther(ethAmount); // ETH amount
+        const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24);
+        const tokenAmountWei = parseEther(tokenAmount);
+        const ethAmountWei = parseEther(ethAmount);
 
-        // 0. 如果交易对不存在，先创建交易对
-        // if (!pairAddress || pairAddress === "0x0000000000000000000000000000000000000000") {
-        //   await createPair({
-        //     functionName: "createPair",
-        //     args: [deployedContracts[17000].WETH.address, deployedContracts[17000].DFToken.address],
-        //   });
-        //   notification.success("Trading pair created successfully");
-        // }
-
-        // 1. 授权代币给 Router
         await approveToken(
           {
             functionName: "approve",
-            args: [deployedContracts[17000].UniswapV2Router.address as Address, tokenAmountWei],
+            args: [UniswapV2RouterInfo?.address as Address, tokenAmountWei],
           },
           {
             onBlockConfirmation: async () => {
               notification.success("Successfully approved token");
 
-              // 2. 添加 ETH 流动性
               await addLiquidityETH(
                 {
                   functionName: "addLiquidityETH",
                   args: [
-                    deployedContracts[17000].DFToken.address, // token address (DFT)
-                    tokenAmountWei, // token amount
-                    0n, // min token amount (no slippage for first liquidity)
-                    0n, // min ETH amount (no slippage for first liquidity)
-                    address, // recipient
-                    deadline, // deadline
+                    DFTokenInfo?.address,
+                    tokenAmountWei,
+                    0n,
+                    0n,
+                    address,
+                    deadline,
                   ],
-                  value: ethAmountWei, // ETH value to send
+                  value: ethAmountWei,
                 },
                 {
                   onBlockConfirmation: async () => {
                     notification.success("Successfully added liquidity");
+                    onSuccess?.();
                   },
                 },
               );
             },
           },
         );
-
-        // 3. 等待交易完成
-
-        // notification.success("Successfully added liquidity!");
       } catch (error: any) {
         console.error("Failed to add liquidity:", error);
         notification.error(error?.message || "Failed to add liquidity");
@@ -161,8 +165,8 @@ export const usePool = () => {
             volume24h: formatEther(allPairsInfo[0].totalSupply),
             token0Icon: "https://token-icons.s3.amazonaws.com/eth.png",
             token1Icon: "/logo1.png",
-            token0Address: deployedContracts[17000].WETH.address,
-            token1Address: deployedContracts[17000].DFToken.address,
+            token0Address: WETHInfo?.address as Address,
+            token1Address: DFTokenInfo?.address as Address,
             pairAddress: allPairsInfo[0].pair,
             reserve0: formatEther(allPairsInfo[0].reserve0),
             reserve1: formatEther(allPairsInfo[0].reserve1),
@@ -203,6 +207,7 @@ export const usePool = () => {
     pools,
     isLoading,
     handleAddLiquidity,
+    isAddingLiquidity,
   };
 };
 
@@ -217,11 +222,18 @@ export const useRemoveLiquidity = (lpAmount: string, pairAddress: string, token0
   const [isLoading, setIsLoading] = useState(false);
   const { address, isConnected } = useAccount();
 
+  const { data: WETHInfo } = useDeployedContractInfo({
+    contractName: "WETH",
+  });
+  const { data: DFTokenInfo } = useDeployedContractInfo({
+    contractName: "DFToken",
+  });
+
   // 获取 LP 代币余额和储备量
   const { data: pairInfo } = useScaffoldReadContract({
     contractName: "UniswapV2Query",
     functionName: "getPairInfo",
-    args: [deployedContracts[17000].WETH.address, deployedContracts[17000].DFToken.address],
+    args: [WETHInfo?.address as Address, DFTokenInfo?.address as Address],
   });
 
   const { writeContractAsync: removeLiquidity } = useScaffoldWriteContract({
@@ -270,14 +282,7 @@ export const useRemoveLiquidity = (lpAmount: string, pairAddress: string, token0
 
       await removeLiquidity({
         functionName: "removeLiquidityETH",
-        args: [
-          deployedContracts[17000].DFToken.address as Address,
-          amountLP,
-          minTokens,
-          minETH,
-          address as Address,
-          deadline,
-        ],
+        args: [DFTokenInfo?.address as Address, amountLP, minTokens, minETH, address as Address, deadline],
       });
 
       notification.success("Successfully removed liquidity!");
@@ -287,7 +292,7 @@ export const useRemoveLiquidity = (lpAmount: string, pairAddress: string, token0
     } finally {
       setIsLoading(false);
     }
-  }, [lpAmount, address, isConnected, estimatedAmounts, removeLiquidity]);
+  }, [lpAmount, address, isConnected, estimatedAmounts, removeLiquidity, DFTokenInfo]);
 
   return {
     balance,

@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { formatEther } from "viem";
+import { Address, formatEther, parseEther } from "viem";
 import { useAccount } from "wagmi";
-import deployedContracts from "~~/contracts/deployedContracts";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
 export interface Token {
@@ -18,9 +17,26 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
   const [isLoading, setIsLoading] = useState(false);
   const { address, isConnected } = useAccount();
 
-  // use deployedContracts
-  const fromTokenAddress = deployedContracts[17000].WETH.address;
-  const toTokenAddress = deployedContracts[17000].DFToken.address;
+  // 获取合约信息
+  const { data: WETHInfo } = useDeployedContractInfo({
+    contractName: "WETH",
+  });
+  const { data: DFTokenInfo } = useDeployedContractInfo({
+    contractName: "DFToken",
+  });
+  const { data: RouterInfo } = useDeployedContractInfo({
+    contractName: "UniswapV2Router",
+  });
+
+  // 获取兑换路径
+  const { data: path } = useScaffoldReadContract({
+    contractName: "UniswapV2Router",
+    functionName: "getAmountsOut",
+    args: [
+      fromAmount && Number(fromAmount) > 0 ? BigInt(parseFloat(fromAmount) * 1e18) : undefined,
+      [WETHInfo?.address as Address, DFTokenInfo?.address as Address],
+    ],
+  });
 
   // Read amounts out
   const { data: amountsOut } = useScaffoldReadContract({
@@ -28,7 +44,7 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
     functionName: "getAmountsOut",
     args: [
       fromAmount && Number(fromAmount) > 0 ? BigInt(parseFloat(fromAmount) * 1e18) : undefined,
-      [fromTokenAddress, toTokenAddress],
+      [WETHInfo?.address as Address, DFTokenInfo?.address as Address],
     ],
     watch: Boolean(fromAmount && Number(fromAmount) > 0), // 只在有金额时启用查询
   });
@@ -49,7 +65,7 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
   }, [amountsOut]);
 
   // Handle swap
-  const handleSwap = useCallback(async () => {
+  const handleSwap = useCallback(async (onSuccess?: () => void) => {
     if (!isConnected || !address || !fromAmount || Number(fromAmount) <= 0) {
       notification.error("Please connect wallet and enter valid amount");
       return;
@@ -64,11 +80,17 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
       if (fromToken.symbol === "ETH") {
         await swap({
           functionName: "swapExactETHForTokens",
-          args: [amountOutMin, [fromTokenAddress, toTokenAddress], address, deadline],
+          args: [amountOutMin, [WETHInfo?.address as Address, DFTokenInfo?.address as Address], address, deadline],
           value: amountIn,
-        });
+        },
+          {
+            onBlockConfirmation: async () => {
+              notification.success("Swap successful!");
+              onSuccess?.();
+            },
+          },
+      );
 
-        notification.success("Swap successful!");
       }
     } catch (error: any) {
       console.error("Swap failed:", error);
@@ -76,7 +98,7 @@ export const useSwap = (fromToken: Token, toToken: Token, fromAmount: string) =>
     } finally {
       setIsLoading(false);
     }
-  }, [fromAmount, toAmount, fromToken, address, isConnected, swap, fromTokenAddress, toTokenAddress]);
+  }, [fromAmount, toAmount, fromToken, address, isConnected, swap, WETHInfo?.address, DFTokenInfo?.address]);
 
   return {
     toAmount,

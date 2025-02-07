@@ -18,7 +18,7 @@ export const Step2 = ({ token0, token1, onEdit }: Step2Props) => {
   const [amount0, setAmount0] = useState("");
   const [amount1, setAmount1] = useState("");
   const { isConnected, address } = useAccount();
-  const { handleAddLiquidity, isLoading, pools } = usePool();
+  const { handleAddLiquidity, isLoading, pools, isAddingLiquidity } = usePool();
   //blance
 
   const { data: balance0 } = useBalance({
@@ -26,10 +26,15 @@ export const Step2 = ({ token0, token1, onEdit }: Step2Props) => {
   });
   const { balance: balance1 } = useDFTokenBalance(address || "");
 
-  // console.log("pool.token0Address", pools[0].token0Address);
-  // console.log("token0.address", token0.address);
-  // console.log("pool.token1Address", pools[0].token1Address);
-  // console.log("token1.address", token1.address);
+  // if (pools){
+  //   console.log("pools", pools);
+  //   console.log("pool.token0Address", pools[0].token0Address);
+  //   console.log("token0.address", token0.address);
+  //   console.log("pool.token1Address", pools[0].token1Address);
+  //   console.log("token1.address", token1.address);
+
+  // }
+ 
 
   // 获取当前交易对的池子信息
   const currentPool = pools.find(
@@ -62,8 +67,10 @@ export const Step2 = ({ token0, token1, onEdit }: Step2Props) => {
     if (!amount0 || !amount1 || !currentPool) return;
 
     try {
-      await handleAddLiquidity(amount0, amount1, currentPool);
-      // notification.success("Successfully added liquidity!");
+      await handleAddLiquidity(amount0, amount1, currentPool, () => {
+        setAmount0("");
+        setAmount1("");
+      });
     } catch (error) {
       console.error("Failed to add liquidity:", error);
       notification.error("Failed to add liquidity");

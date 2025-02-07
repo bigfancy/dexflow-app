@@ -201,7 +201,7 @@ export default function AdDetailPage() {
                           </div>
                         </div>
 
-                        <div className="mt-4">
+                        {/* <div className="mt-4">
                           <p className="text-sm font-medium text-gray-500 mb-2">Preview:</p>
                           <div className="border rounded-lg p-4 bg-white">
                             <div id="ad-container">
@@ -214,7 +214,7 @@ export default function AdDetailPage() {
                               ></iframe>
                             </div>
                           </div>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   )}

@@ -14,7 +14,7 @@ export default function Footer() {
           <FaDiscord className="w-6 h-6 text-white" />
         </a>
       </div>
-      {/* <ContractTools /> */}
+      <ContractTools />
     </footer>
   );
 }

@@ -1,24 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import InviteModal from "./InviteModal";
 import TokenDrawer from "./TokenDrawer";
+import { NetworkOptions } from "./scaffold-eth/RainbowKitCustomConnectButton/NetworkOptions";
 import { ConnectKitButton } from "connectkit";
 import { FaUserFriends, FaWallet } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
-import { useAccount } from "wagmi";
-// import { NavLink } from "~~/components/NavLink";
+import { useAccount, useSwitchChain } from "wagmi";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { useNetworkColor } from "~~/hooks/scaffold-eth";
+import { useTargetNetwork } from "~~/hooks/scaffold-eth";
+import { getTargetNetworks } from "~~/utils/scaffold-eth";
+import { Select } from "antd";
+
+const allowedNetworks = getTargetNetworks();
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const { address, isConnected } = useAccount();
+  const { address, isConnected ,chainId} = useAccount();
   const pathname = usePathname();
+  const [isNetworkModalOpen, setIsNetworkModalOpen] = useState(false);
+  const networkColor = useNetworkColor();
+  const { targetNetwork } = useTargetNetwork();
+  const { chains, switchChain } = useSwitchChain();
+
+  useEffect(() => {
+    setIsDrawerOpen(false);
+  }, [pathname]);
+
+  const handleNetworkChange = useCallback((value: string) => {
+    const networkId = parseInt(value);
+    switchChain?.({ chainId: networkId });
+  }, [switchChain]);
+   const isLocalDomain = window.location.hostname === "localhost";
 
   return (
     <header className="lg:px-16 px-4 flex flex-wrap  items-center py-4 shadow-lg bg-gray-900 text-gray-100 dark:bg-gray-800 relative">
@@ -101,6 +121,47 @@ export default function Header() {
             <span className="font-medium">My Assets</span>
           </div>
         </Link> */}
+        {allowedNetworks.length > 1 && isLocalDomain && (
+          <div className="relative">
+            <Select onChange={handleNetworkChange} 
+            defaultValue={allowedNetworks.find((network) => network.id === chainId)?.name || targetNetwork.name} 
+            className="appearance-none bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-gray-600 "
+            >
+              {allowedNetworks.map((network) => (
+                <Select.Option value={network.id} key={network.id}>
+                  {network.name}
+                </Select.Option>
+              ))}
+            </Select>
+            {/* <select
+              value={chainId || targetNetwork.id}
+              onChange={handleNetworkChange}
+              className="appearance-none bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-gray-600 
+                border border-primary/20 rounded-xl px-4 py-2 pr-8 
+                hover:from-blue-500/20 hover:to-purple-500/20
+                focus:from-blue-500/30 focus:to-purple-500/30
+                focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50
+                transition-all duration-200 cursor-pointer font-medium text-sm "
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236366f1'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "right 0.5rem center",
+                backgroundSize: "1.5em 1.5em",
+                paddingRight: "2.5rem"
+              }}
+            >
+              {allowedNetworks.map((network) => (
+                <option 
+                  key={network.id} 
+                  value={network.id}
+                  className="py-2 px-4 hover:bg-base-200 transition-colors duration-200"
+                >
+                  {network.name}
+                </option>
+              ))}
+            </select> */}
+          </div>
+        )}
         <RainbowKitCustomConnectButton />
       </div>
 

@@ -60,12 +60,15 @@ export const useCheckAndApproveNFT = (nftAddress: string, tokenId: string) => {
       await approveNFT({
         functionName: "approve",
         args: [EnglishAuctionInfo?.address as Address, BigInt(tokenId)],
-      });
+      },
+        {
+          onBlockConfirmation: async () => {
+            notification.success({
+              message: "NFT approved successfully"            });
+          },
+        }
+      );
 
-      notification.success({
-        message: "NFT approved successfully",
-        description: "Your NFT has been approved for the auction.",
-      });
       return true;
     } catch (error: any) {
       console.error("Failed to approve NFT:", error);

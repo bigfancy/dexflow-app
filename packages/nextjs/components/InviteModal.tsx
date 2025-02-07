@@ -14,7 +14,8 @@ export default function InviteModal({
   onClose,
   userAddress,
 }: InviteModalProps) {
-  const inviteLink = `http://localhost:3001/invite/${userAddress}`;
+  const  domain = window.location.host;
+  const inviteLink = `http://${domain}/invite/${userAddress}`;
 
   const copyToClipboard = async () => {
     try {

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Token } from "./useSwap";
 import { Address, formatEther, parseEther } from "viem";
 import { useAccount, useBalance, useSendTransaction } from "wagmi";
-import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useDeployedContractInfo, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
 export const useSend = (fromToken: Token | null, fromAmount: string, toAddress: string) => {
@@ -20,6 +20,11 @@ export const useSend = (fromToken: Token | null, fromAmount: string, toAddress: 
     contractName: "DFToken",
     functionName: "balanceOf",
     args: [address as Address],
+  });
+
+  // 获取合约信息
+  const { data: DFTokenInfo } = useDeployedContractInfo({
+    contractName: "DFToken",
   });
 
   // 代币转账

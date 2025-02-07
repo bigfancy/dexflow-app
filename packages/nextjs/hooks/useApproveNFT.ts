@@ -59,8 +59,11 @@ export const useApproveNFT = (nftAddress: string, tokenId: string) => {
       await approveNFT({
         functionName: "approve",
         args: [nftAddress, BigInt(tokenId)],
+      },{
+        onBlockConfirmation: async () => {
+          notification.success("NFT approved successfully");
+        },
       });
-      notification.success("NFT approved successfully");
 
       return true;
     } catch (error: any) {

@@ -6,6 +6,7 @@ import { useCheckAndApproveNFT } from "./useNFT";
 import { notification } from "antd";
 import { Address, formatEther, parseEther, zeroAddress } from "viem";
 import { useAccount } from "wagmi";
+import { useTransactor } from "~~/hooks/scaffold-eth";
 
 // 格式化拍卖对象的函数
 export const formatEnglishAuction = (auction: any): EnglishAuction => ({
@@ -105,6 +106,7 @@ export const useCreateAuction = (nftAddress: string, tokenId: string, startingPr
   const router = useRouter();
   const { writeContractAsync: createAuction } = useScaffoldWriteContract({ contractName: "EnglishAuction" });
   const { handleApproveNFT, isApproved } = useCheckAndApproveNFT(nftAddress, tokenId);
+  const durationSeconds: number =  Number(duration) * 60 * 60 ;
 
   const handleCreateAuction = async () => {
     try {
@@ -116,24 +118,23 @@ export const useCreateAuction = (nftAddress: string, tokenId: string, startingPr
         }
       }
 
-      // 2. Create auction
-      notification.info({
-        message: "Creating auction...",
-        description: "Please confirm the transaction to create your auction.",
-      });
 
       await createAuction({
         functionName: "createAuction",
-        args: [nftAddress, BigInt(tokenId), parseEther(startingPrice), BigInt(duration)],
-      });
+          args: [nftAddress, BigInt(tokenId), parseEther(startingPrice), BigInt(durationSeconds)],
+        },
+        {
+          onBlockConfirmation: async () => {
+            notification.success({
+              message: "Auction created successfully",
+            });
+             // 3. 跳转到拍卖列表页面
+            router.push("/auctions");
+          },
+        }
+      );
 
-      notification.success({
-        message: "Auction created successfully",
-        description: "Your NFT auction has been created.",
-      });
-
-      // 3. 跳转到拍卖列表页面
-      router.push("/auctions");
+     
     } catch (error: any) {
       console.error("Error creating auction:", error);
       notification.error({
@@ -151,6 +152,7 @@ export const useBid = (nftAddress: string, tokenId: string, bidAmount: string) =
   const [isApproving, setIsApproving] = useState(false);
   const { address } = useAccount();
   const bidAmountBigInt = parseEther(bidAmount);
+
   // get auction contract address
   const { data: EnglishAuctionInfo } = useDeployedContractInfo({
     contractName: "EnglishAuction",
@@ -165,7 +167,7 @@ export const useBid = (nftAddress: string, tokenId: string, bidAmount: string) =
   const { data: allowance } = useScaffoldReadContract({
     contractName: "DFToken",
     functionName: "allowance",
-    args: [address as Address, process.env.NEXT_PUBLIC_AUCTION_CONTRACT_ADDRESS as Address],
+    args: [address as Address, EnglishAuctionInfo?.address as Address],
   });
 
   // Bid function
@@ -173,7 +175,7 @@ export const useBid = (nftAddress: string, tokenId: string, bidAmount: string) =
     contractName: "EnglishAuction",
   });
 
-  const handleBid = useCallback(async () => {
+  const handleBid = async () => {
     console.log("----------handleBid");
     try {
       // Check if approval is needed
@@ -188,6 +190,7 @@ export const useBid = (nftAddress: string, tokenId: string, bidAmount: string) =
           functionName: "approve",
           args: [EnglishAuctionInfo?.address as Address, bidAmountBigInt],
         });
+
         console.log("----------approve", EnglishAuctionInfo?.address);
 
         notification.success({
@@ -213,7 +216,7 @@ export const useBid = (nftAddress: string, tokenId: string, bidAmount: string) =
     } finally {
       setIsApproving(false);
     }
-  }, [nftAddress, tokenId, bidAmountBigInt, allowance, approve, bid, EnglishAuctionInfo?.address]);
+  };
 
   return {
     handleBid,
@@ -258,4 +261,19 @@ export const useFormattedAuctionList = (activeFilter: "all" | "english" | "dutch
     auctions: formattedAuctions,
     isLoading,
   };
+};
+
+export const useAuction = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { address, isConnected } = useAccount();
+
+  // 获取合约信息
+  const { data: NFTInfo } = useDeployedContractInfo({
+    contractName: "DFNFT",
+  });
+  const { data: EnglishAuctionInfo } = useDeployedContractInfo({
+    contractName: "EnglishAuction",
+  });
+
+  // ... 其余代码
 };
