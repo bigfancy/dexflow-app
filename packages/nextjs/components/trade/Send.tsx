@@ -10,7 +10,7 @@ import { useSend } from "~~/hooks/useSend";
 import { Token, useTokenList } from "~~/hooks/useTokenList";
 
 export default function Send() {
-  const { tokens } = useTokenList();
+  const { tokens = [] } = useTokenList() ?? {};
   const [fromToken, setFromToken] = useState<Token | null>(null);
   const [fromAmount, setFromAmount] = useState<string>("");
   const [toAddress, setToAddress] = useState<string>("");

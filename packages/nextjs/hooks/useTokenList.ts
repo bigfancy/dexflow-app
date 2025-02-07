@@ -48,7 +48,7 @@ export const useTokenList = () => {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [recentTokens, setRecentTokens] = useState<Token[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { chainId } = useAccount();
+  const { chainId } = useAccount() || 31337;
 
   // 使用 useTargetNetwork 替代 useAccount
   // const { targetNetwork } = useTargetNetwork();
@@ -64,7 +64,7 @@ export const useTokenList = () => {
 
   console.log("=====WETHInfo", WETHInfo);
   console.log("=====DFTokenInfo", DFTokenInfo);
-  if (!chainId) return;
+  // if (!chainId) return;
   
   // 加载代币列表
   useEffect(() => {
@@ -123,7 +123,7 @@ export const useTokenList = () => {
   };
 
   return {
-    tokens,
+    tokens: tokens ?? [],
     recentTokens,
     isLoading,
     searchTokens,

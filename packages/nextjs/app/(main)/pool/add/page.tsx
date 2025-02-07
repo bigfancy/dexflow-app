@@ -29,7 +29,7 @@ export default function AddLiquidity() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSelectingToken0, setIsSelectingToken0] = useState(false);
   const [isSelectingToken1, setIsSelectingToken1] = useState(false);
-  const { tokens } = useTokenList();
+  const { tokens = [] } = useTokenList() ?? {};
   const [token0, setToken0] = useState<Token | null>(null);
   const [token1, setToken1] = useState<Token | null>(null);
 

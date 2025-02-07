@@ -1,7 +1,10 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { FaRegCopy } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import { toast } from "react-hot-toast";
+import { notification } from "antd";
 
 interface InviteModalProps {
   isOpen: boolean;
@@ -14,15 +17,20 @@ export default function InviteModal({
   onClose,
   userAddress,
 }: InviteModalProps) {
-  const  domain = window.location.host;
-  const inviteLink = `http://${domain}/invite/${userAddress}`;
+  const [inviteLink, setInviteLink] = useState("");
+
+  useEffect(() => {
+    const domain = window.location.host;
+    setInviteLink(`http://${domain}/invite/${userAddress}`);
+  }, [userAddress]);
 
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(inviteLink);
-      toast.success("Invite link copied!");
-    } catch (err) {
-      toast.error("Failed to copy link");
+      notification.success({ message: "Invite link copied!" });
+    } catch (error) {
+      console.error("Failed to copy:", error);
+      notification.error({ message: "Failed to copy invite link" });
     }
   };
 

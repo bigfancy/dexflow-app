@@ -29,16 +29,17 @@ export default function Header() {
   const networkColor = useNetworkColor();
   const { targetNetwork } = useTargetNetwork();
   const { chains, switchChain } = useSwitchChain();
+  const [isLocalDomain, setIsLocalDomain] = useState(false);
 
   useEffect(() => {
     setIsDrawerOpen(false);
+    setIsLocalDomain(window.location.hostname === "localhost");
   }, [pathname]);
 
   const handleNetworkChange = useCallback((value: string) => {
     const networkId = parseInt(value);
     switchChain?.({ chainId: networkId });
   }, [switchChain]);
-   const isLocalDomain = window.location.hostname === "localhost";
 
   return (
     <header className="lg:px-16 px-4 flex flex-wrap  items-center py-4 shadow-lg bg-gray-900 text-gray-100 dark:bg-gray-800 relative">
