@@ -107,7 +107,9 @@ export default function Swap() {
 
       {/* Swap Button */}
       <button
-        onClick={handleSwap}
+        onClick={() => handleSwap(() => {
+          setFromAmount("");
+        })}
         disabled={!isConnected || !fromAmount || Number(fromAmount) <= 0 || isLoading}
         className={`w-full mt-4 py-4 rounded-2xl text-lg font-semibold transition-colors
           ${

@@ -9,12 +9,19 @@ export default function EnglishDetail({ auction }: { auction: EnglishAuction }) 
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 如果没有拍卖数据，显示加载动画
+  if (!auction) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   const handleBidSuccess = () => {
     // Refresh auction details
     setIsBidModalOpen(false);
   };
-
-  if (!auction) return <div>No auction found</div>;
 
   return (
     <div className="max-w-7xl mx-auto">
