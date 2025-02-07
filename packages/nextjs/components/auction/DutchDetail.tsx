@@ -8,14 +8,7 @@ export default function DutchDetail({ auction }: { auction: DutchAuction }) {
   const [currentPrice, setCurrentPrice] = useState<string>("0");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 如果没有拍卖数据，显示加载动画
-  if (!auction) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+
 
   // 计算当前价格
   useEffect(() => {
@@ -42,6 +35,15 @@ export default function DutchDetail({ auction }: { auction: DutchAuction }) {
     return () => clearInterval(timer);
   }, [auction]);
 
+    // 如果没有拍卖数据，显示加载动画
+    if (!auction) {
+      return (
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      );
+    }
+    
   return (
     <div className="max-w-7xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

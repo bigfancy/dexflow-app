@@ -64,7 +64,7 @@ export const useTokenList = () => {
 
   console.log("=====WETHInfo", WETHInfo);
   console.log("=====DFTokenInfo", DFTokenInfo);
-  // if (!chainId) return;
+  if (!chainId) return;
   
   // 加载代币列表
   useEffect(() => {
@@ -123,7 +123,7 @@ export const useTokenList = () => {
   };
 
   return {
-    tokens: tokens ?? [],
+    tokens: tokens ,
     recentTokens,
     isLoading,
     searchTokens,

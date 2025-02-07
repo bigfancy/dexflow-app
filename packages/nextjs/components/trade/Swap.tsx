@@ -8,9 +8,10 @@ import { useAccount, useBalance } from "wagmi";
 import useDFTokenBalance from "~~/hooks/useDFToken";
 import { useSwap } from "~~/hooks/useSwap";
 import { Token, useTokenList } from "~~/hooks/useTokenList";
+import { notification } from "antd";
 
 export default function Swap() {
-  const { tokens  } = useTokenList();
+  const { tokens = [] } = useTokenList() ?? {};
   const [fromToken, setFromToken] = useState<Token | null>(null);
   const [toToken, setToToken] = useState<Token | null>(null);
   const [fromAmount, setFromAmount] = useState<string>("");
@@ -25,6 +26,7 @@ export default function Swap() {
     address: address as Address,
   });
 
+  // if (!tokens) return notification.error({ message: "No tokens found" });
   useEffect(() => {
     if (tokens.length > 0 && !fromToken && !toToken) {
       setFromToken(tokens[0]);

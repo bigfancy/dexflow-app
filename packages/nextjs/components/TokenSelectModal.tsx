@@ -12,7 +12,7 @@ interface TokenSelectModalProps {
 
 export default function TokenSelectModal({ isOpen, onClose, onSelect, selectedToken }: TokenSelectModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { tokens, recentTokens, isLoading, searchTokens, addRecentToken } = useTokenList();
+  const { tokens = [], recentTokens = [], isLoading = false, searchTokens = () => [], addRecentToken = () => {} } = useTokenList() ?? {};
   const [filteredTokens, setFilteredTokens] = useState<Token[]>([]);
 
   useEffect(() => {

@@ -46,6 +46,13 @@ export default function EhglishCard({ auction, onViewDetail }: { auction: Englis
     return () => clearInterval(timer);
   }, [auction.status, auction.endingAt]);
 
+  if (!auction) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
   return (
     <div className="bg-gray-800 rounded-xl overflow-hidden hover:shadow-lg transition-transform hover:scale-105 hover:bg-gray-750">
       {/* NFT Image */}
