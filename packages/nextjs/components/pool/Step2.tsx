@@ -28,9 +28,9 @@ export const Step2 = ({ token0, token1, onEdit }: Step2Props) => {
 
   // if (pools){
   //   console.log("pools", pools);
-  //   console.log("pool.token0Address", pools[0].token0Address);
+  //   console.log("pool.token0Address", pools[0]?.token0Address);
   //   console.log("token0.address", token0.address);
-  //   console.log("pool.token1Address", pools[0].token1Address);
+  //   console.log("pool.token1Address", pools[0]?.token1Address);
   //   console.log("token1.address", token1.address);
 
   // }
@@ -46,7 +46,10 @@ export const Step2 = ({ token0, token1, onEdit }: Step2Props) => {
   // 当 amount0 改变时,计算 amount1
   useEffect(() => {
     console.log("currentPool", currentPool);
-    if (!amount0 || !currentPool) return;
+    if ( !currentPool || !amount0 || amount0 === "") {
+      setAmount1("");
+      return;
+    }
 
     try {
       const amount0Value = parseFloat(amount0);

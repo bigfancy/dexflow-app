@@ -201,7 +201,7 @@ export const usePool = () => {
     };
 
     fetchPools();
-  }, [allPairsInfo]);
+  }, [allPairsInfo, WETHInfo, DFTokenInfo]);
 
   return {
     pools,

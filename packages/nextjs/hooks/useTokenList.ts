@@ -70,7 +70,7 @@ export const useTokenList = () => {
   useEffect(() => {
     const loadTokens = async () => {
       try {
-        if (WETHInfo && DFTokenInfo) {
+        if (chainId && WETHInfo && DFTokenInfo) {
           setTokens(getTokenList(chainId, WETHInfo, DFTokenInfo));
           console.log("=====tokens", tokens);
         }
@@ -82,7 +82,7 @@ export const useTokenList = () => {
     };
 
     loadTokens();
-  }, [WETHInfo, DFTokenInfo]);
+  }, [WETHInfo, DFTokenInfo, chainId]);
 
   // 加载最近使用的代币
   useEffect(() => {
