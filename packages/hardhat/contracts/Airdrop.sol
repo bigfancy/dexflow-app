@@ -3,11 +3,78 @@
 pragma solidity ^0.8.22;
 
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 
 /// @notice 向多个地址转账ERC20代币
-contract Airdrop {
+contract Airdrop is Ownable {
     mapping(address => uint) failTransferList;
+    mapping(address => bool) public registeredUsers;
+    mapping(address => bool) public claimedUsers;
+
+    bytes32 public merkleRoot;
+    uint256 public airdropStartTime;
+    uint256 public airdropEndTime;
+    uint256 public airdropAmount;
+    uint256 public totalParticipants;
+    uint256 public participantsCount;
+    address public tokenAddress;
+
+    event UserRegistered(address indexed user);
+    event MerkleRootSet(bytes32 indexed merkleRoot);
+    event AirdropClaimed(address indexed user, uint256 amount);
+
+    constructor(address owner, uint256 startTime, uint256 endTime, uint256 amountToken, uint256 _totalParticipants, address _tokenAddress) Ownable(owner){
+        airdropStartTime = startTime;
+        airdropEndTime = endTime;
+        airdropAmount = amountToken;
+        totalParticipants = _totalParticipants;
+        tokenAddress = _tokenAddress;
+    }
+
+    function setMerkleRoot(bytes32 root) external onlyOwner {
+        merkleRoot = root;
+        emit MerkleRootSet(root);
+    }
+
+    /// @notice 用户注册参与空投
+    function registerForAirdrop() external {
+        require(block.timestamp >= airdropStartTime, "Airdrop not started");
+        require(block.timestamp < airdropEndTime, "Airdrop registration ended");
+        require(!registeredUsers[msg.sender], "Already registered");
+        require(msg.sender.balance > 0, "Insufficient ETH balance");
+        require(participantsCount < totalParticipants, "Airdrop is full");
+
+        registeredUsers[msg.sender] = true;
+        participantsCount++;
+        emit UserRegistered(msg.sender);
+    }
+
+    /// @notice 用户领取空投
+    function claimAirdrop(bytes32[] calldata proof) external {
+        require(verifyProof(proof, keccak256(abi.encodePacked(msg.sender))), "Invalid proof");
+        // 执行空投逻辑，如转账代币
+        IERC20 token = IERC20(tokenAddress);
+        require(!claimedUsers[msg.sender], "Already claimed");
+        claimedUsers[msg.sender] = true;
+        token.transfer(msg.sender, airdropAmount);
+        emit AirdropClaimed(msg.sender, airdropAmount);
+    }
+
+    /// @notice 验证默克尔证明
+    function verifyProof(bytes32[] memory proof, bytes32 leaf) public view returns (bool) {
+        bytes32 computedHash = leaf;
+        for (uint256 i = 0; i < proof.length; i++) {
+            bytes32 proofElement = proof[i];
+            if (computedHash <= proofElement) {
+                computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
+            } else {
+                computedHash = keccak256(abi.encodePacked(proofElement, computedHash));
+            }
+        }
+        return computedHash == merkleRoot;
+    }
+    
 
     /// @notice 向多个地址转账ERC20代币，使用前需要先授权
     ///

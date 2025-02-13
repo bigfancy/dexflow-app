@@ -133,18 +133,11 @@ contract DutchAuction {
     Auction memory auction = getAuction(_nftAddress, _tokenId);
     uint256 price = getPrice(_nftAddress, _tokenId);
 
-    if (msg.value < price) {
-      emit InsufficientPayment(_nftAddress, _tokenId, price, msg.value);
-      revert("Insufficient payment");
-    }
+    // 确保用户已授权合约可以转移其代币
+    require(dfToken.allowance(msg.sender, address(this)) >= price, "Insufficient allowance");
 
-    if (price < msg.value) {
-      (bool refundSuccess, ) = payable(msg.sender).call{value: msg.value - price}("");
-      if (!refundSuccess) {
-        emit RefundFailed(msg.sender, msg.value - price);
-        revert("Refund failed");
-      }
-    }
+    // 从用户转移代币到合约
+    require(dfToken.transferFrom(msg.sender, address(this), price), "Transfer failed");
 
     IERC721(_nftAddress).safeTransferFrom(auction.seller, msg.sender, _tokenId);
     
