@@ -316,6 +316,9 @@ contract EnglishAuction {
   function getAuctionsByUser(address _user) external view returns (Auction[] memory) {
     // 1. 首先计算用户的拍卖数量
     uint256 userAuctionCount = 0;
+
+    //Auction[] memory tempAuctions = new Auction[](auctionRegistry.length); // 临时数组
+
     for (uint256 i = 0; i < auctionRegistry.length; i++) {
         AuctionInfo memory info = auctionRegistry[i];
         if (auctions[info.nftAddress][info.tokenId].seller == _user) {
@@ -326,6 +329,12 @@ contract EnglishAuction {
     // 2. 创建正确大小的数组
     Auction[] memory userAuctions = new Auction[](userAuctionCount);
     
+    /* 
+    for (uint256 j = 0; j < userAuctionCount; j++) {
+        userAuctions[j] = tempAuctions[j];
+    }
+    */
+
     // 3. 填充数组
     uint256 currentIndex = 0;
     for (uint256 i = 0; i < auctionRegistry.length; i++) {

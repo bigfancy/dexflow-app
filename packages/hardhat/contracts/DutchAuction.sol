@@ -111,7 +111,8 @@ contract DutchAuction {
       emit NotApproved(_nftAddress, _tokenId, msg.sender);
       revert("Not approved for NFT");
     }
-
+    console.log("_startingPrice", _startingPrice);
+    console.log("_discountRate * DURATION = ", _discountRate * DURATION);
     if (_startingPrice < _discountRate * DURATION) {
       emit FloorPriceLessThanZero(_startingPrice, _discountRate, DURATION);
       revert("Floor price less than zero");
@@ -133,26 +134,18 @@ contract DutchAuction {
     Auction memory auction = getAuction(_nftAddress, _tokenId);
     uint256 price = getPrice(_nftAddress, _tokenId);
 
-    if (msg.value < price) {
-      emit InsufficientPayment(_nftAddress, _tokenId, price, msg.value);
-      revert("Insufficient payment");
-    }
+    // 确保用户已授权合约可以转移其代币
+    require(dfToken.allowance(msg.sender, address(this)) >= price, "Insufficient allowance");
 
-    if (price < msg.value) {
-      (bool refundSuccess, ) = payable(msg.sender).call{value: msg.value - price}("");
-      if (!refundSuccess) {
-        emit RefundFailed(msg.sender, msg.value - price);
-        revert("Refund failed");
-      }
-    }
-
+    console.log("price = ", price);
+    console.log("Buyer balance before transfer:", dfToken.balanceOf(msg.sender));
+    console.log("Contract balance before transfer:", dfToken.balanceOf(address(this)));
+    // 从用户转移代币到合约
+    require(dfToken.transferFrom(msg.sender, address(this), price), "Transfer failed");
+    console.log("Buyer balance after transfer:", dfToken.balanceOf(msg.sender));
+    console.log("Contract balance after transfer:", dfToken.balanceOf(address(this)));
     IERC721(_nftAddress).safeTransferFrom(auction.seller, msg.sender, _tokenId);
-    
-    (bool success, ) = payable(auction.seller).call{value: price}("");
-    if (!success) {
-      emit PaymentFailed(auction.seller, price);
-      revert("Payment failed");
-    }
+
 
     _endAuction(_nftAddress, _tokenId);
     

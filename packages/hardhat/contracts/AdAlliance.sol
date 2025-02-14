@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
 contract AdAlliance {
+    using SafeERC20 for IERC20;
+
     struct Ad {
         uint256 id;
         address advertiser;
@@ -201,9 +205,4 @@ contract AdAlliance {
         }
         return activeAds;
     }
-}
-
-interface IERC20 {
-    function transfer(address recipient, uint256 amount) external returns (bool);
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 }
